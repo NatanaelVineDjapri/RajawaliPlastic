@@ -32,13 +32,11 @@ class AuthController extends Controller
             'image' => url(''), //belum disi wkwkkw
         ]);
 
-        // $token = $user->createToken('RajawaliPlastic'.$user->email.'Untar')->plainTextToken;
 
         return response()->json([
             'message' => 'Registrasi Berhasil, Silakan Login!',
             'user' => $user,
-            // 'token'=> $token
-        ]);
+        ],200);
     }
 
     public function login(Request $request)
@@ -65,7 +63,7 @@ class AuthController extends Controller
             'user' => $user,
             'role' => $user->role,
             'token' => $token
-        ]);
+        ],200);
     }
 
     public function logout(Request $request)
@@ -75,7 +73,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Logout berhasil!'
-        ]);
+        ],200);
     }
 
 }

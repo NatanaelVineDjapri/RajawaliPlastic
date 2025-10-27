@@ -2,11 +2,16 @@
 
 namespace App\Models;
 
-use MongoDB\Laravel\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $connection = 'mongodb';
-    protected $collection = 'products'; // optional
-    protected $fillable = ['name', 'price', 'stock'];
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'description',
+        'image_url',
+    ];
 }
