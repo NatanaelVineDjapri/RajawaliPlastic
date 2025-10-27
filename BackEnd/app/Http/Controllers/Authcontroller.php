@@ -7,17 +7,18 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
-class Authcontroller extends Controller
+class AuthController extends Controller
 {
-    public function register (Request $request){
-        $validator = Validator::make($request->all(),[
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email'=> 'required|string|email|max:255|unique:users',
-            'password'=> "required|string|min:6|max:12|confirmed",
-            
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => "required|string|min:6|max:12|confirmed",
+
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()], 422);
         }
 
@@ -31,12 +32,49 @@ class Authcontroller extends Controller
             'image' => url(''), //belum disi wkwkkw
         ]);
 
-        $token = $user->createToken('RajawaliPlastic'.$user->email.'Untar')->plainTextToken;
+        // $token = $user->createToken('RajawaliPlastic'.$user->email.'Untar')->plainTextToken;
 
         return response()->json([
             'message' => 'Registrasi Berhasil, Silakan Login!',
             'user' => $user,
-            'token'=> $token
+            // 'token'=> $token
         ]);
     }
+
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()], 422);
+        }
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Wrong Email or Password'], 401);
+        }
+
+        $token = $user->createToken('Token for user ' . $user->email)->plainTextToken;
+
+        return response()->json([
+            'message' => 'Login Success',
+            'user' => $user,
+            'token' => $token
+        ]);
+    }
+
+    public function logout(Request $request)
+    {
+  
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logout berhasil!'
+        ]);
+    }
+
 }
