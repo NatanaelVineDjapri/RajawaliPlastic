@@ -42,7 +42,7 @@ class TestimonialController extends Controller
         $testimonial = Testimonials::find($id);
 
         if (!$testimonial) {
-            return response()->json(['message' => 'Testimonial not found'], 404);
+            return response()->json(['message' => 'Testimoni tidak ditemukan'], 404);
         }
 
         $validator = Validator::make($request->all(), [
