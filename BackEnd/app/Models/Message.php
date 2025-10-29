@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 
-class Messages extends Model
+class Message extends Model
 {
     use HasFactory;
 
@@ -14,6 +14,7 @@ class Messages extends Model
         'sender_id',
         'receiver_id',
         'message',
+        'image_url',
         'is_read'
     ];
 
@@ -21,7 +22,7 @@ class Messages extends Model
         $this->attributes['message'] = Crypt::encryptString($value);
     }
 
-    public function getMesggaeAttribute($value){
+    public function getMessageAttribute($value){
         return Crypt::decryptString($value);
     }
 

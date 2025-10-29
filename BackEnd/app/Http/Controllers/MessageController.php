@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class MessageController extends Controller
 {
@@ -39,19 +41,34 @@ class MessageController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'receiver_id' => 'required|exists:users,id',
-            'message' => 'required|string|max:5000',
+            'message' => 'nullable|string|max:5000',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
 
-        if ($validated['receiver_id'] == Auth::id()) {
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $data = $validator->validated();
+
+        if ($data['receiver_id'] == Auth::id()) {
             return response()->json(['error' => 'Tidak bisa mengirim pesan ke diri sendiri'], 422);
+        }
+
+        $imageUrl = null;
+        if ($request->hasFile('image')) {
+            $userFolder = 'messages/' . Auth::id();
+            $path = $request->file('image')->store($userFolder, 'public');
+            $imageUrl = asset('storage/' . $path);
         }
 
         $message = Message::create([
             'sender_id' => Auth::id(),
-            'receiver_id' => $validated['receiver_id'],
-            'message' => $validated['message'], // terenkripsi otomatis di model
+            'receiver_id' => $data['receiver_id'],
+            'message' => $data['message'] ?? '',
+            'image_url' => $imageUrl,
         ]);
 
         return response()->json([
@@ -91,6 +108,13 @@ class MessageController extends Controller
 
         if ($message->sender_id !== Auth::id()) {
             return response()->json(['error' => 'Tidak punya izin untuk menghapus pesan ini'], 403);
+        }
+
+        if ($message->image_url && str_contains($message->image_url, 'storage/')) {
+            $oldPath = str_replace(asset('storage/') . '/', '', $message->image_url);
+            if (Storage::disk('public')->exists($oldPath)) {
+                Storage::disk('public')->delete($oldPath);
+            }
         }
 
         $message->delete();
