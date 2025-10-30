@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\OrderController;
 
 Route::prefix('rs')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -13,6 +14,7 @@ Route::prefix('rs')->group(function () {
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/testimonials', [TestimonialController::class, 'index']);
     Route::get('/galleries', [GalleryController::class, 'index']);
+    Route::get('/orders', [OrderController::class, 'index']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -38,6 +40,12 @@ Route::prefix('rs')->group(function () {
             Route::post('/galleries', [GalleryController::class, 'store']);
             Route::put('/galleries/{id}', [GalleryController::class, 'update']);
             Route::delete('/galleries/{id}', [GalleryController::class, 'destroy']);
+
+            Route::post('/orders', [OrderController::class, 'store']);
+            Route::put('/orders/{id}', [OrderController::class, 'update']);
+            Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
+
+
         });
     });
 });
