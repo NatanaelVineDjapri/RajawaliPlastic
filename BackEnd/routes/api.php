@@ -7,6 +7,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SliderController;
 
 Route::prefix('rs')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
@@ -45,7 +46,9 @@ Route::prefix('rs')->group(function () {
             Route::put('/orders/{id}', [OrderController::class, 'update']);
             Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
-
+            Route::get('/sliders', [SliderController::class, 'index']);
+            Route::post('/sliders', [SliderController::class, 'store']);
+            Route::delete('/sliders/{id}', [SliderController::class, 'destroy']);
         });
     });
 });
