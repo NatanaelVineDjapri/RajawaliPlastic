@@ -13,9 +13,10 @@ class Order extends Model
     protected $collection = 'orders';
 
     protected $fillable = [
-        'user_id',       // id user/admin
-        'user_email',    // simpan email user juga
+        'user_id',     
+        'user_email',    
         'product_name',
+        'order_no',
         'quantity',
         'total_price',
         'status',

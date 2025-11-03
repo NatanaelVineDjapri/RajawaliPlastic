@@ -9,10 +9,9 @@ use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
-
     public function index()
     {
-        return response()->json(Order::with('user')->latest()->get());
+        return response()->json(Order::with('user')->latest('_id')->get());
     }
 
     public function store(Request $request)
@@ -30,18 +29,30 @@ class OrderController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // Cek email user
         $user = User::where('email', $request->user_email)->first();
         if (!$user) {
             return response()->json(['message' => 'Email user tidak ditemukan'], 404);
         }
 
+        $today = now()->format('Ymd');
+        $lastOrder = Order::where('order_no', 'like', "ORD-$today-%")
+            ->orderBy('order_no', 'desc')
+            ->first();
+
+        $lastNumber = $lastOrder
+            ? (int)substr($lastOrder->order_no, -3)
+            : 0;
+
+        $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
+        $orderNo = "RS-$today-$newNumber";
+
         $order = Order::create([
+            'order_no' => $orderNo,
             'user_id' => $user->id,
             'user_email' => $user->email,
             'product_name' => $request->product_name,
             'quantity' => $request->quantity,
-            'total_price' => $request->total_price ?? null,
+            'total_price' => $request->total_price ?? 0,
             'status' => $request->status,
             'notes' => $request->notes ?? 'Sesuai kebutuhan pelanggan',
         ]);
@@ -51,7 +62,7 @@ class OrderController extends Controller
             'data' => $order
         ], 201);
     }
-
+    
     public function update(Request $request, $id)
     {
         $order = Order::find($id);
@@ -71,7 +82,6 @@ class OrderController extends Controller
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
-
 
         if ($request->has('user_email')) {
             $user = User::where('email', $request->user_email)->first();
@@ -131,7 +141,6 @@ class OrderController extends Controller
         return response()->json($summary);
     }
 
-
     public function summaryDetail()
     {
         $summary = Order::raw(function ($collection) {
@@ -148,12 +157,11 @@ class OrderController extends Controller
                     ]
                 ],
                 [
-                    '$sort' => ['total_price' => -1] 
+                    '$sort' => ['total_price' => -1]
                 ]
             ]);
         });
 
         return response()->json($summary);
     }
-
 }
