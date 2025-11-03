@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use App\Models\User;
+
 
 class AuthController extends Controller
 {
@@ -13,7 +15,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255|',
             'password' => "required|string|min:6|max:12|confirmed",
 
         ]);
@@ -36,7 +38,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Registrasi Berhasil, Silakan Login!',
             'user' => $user,
-        ],200);
+        ], 200);
     }
 
     public function login(Request $request)
@@ -56,24 +58,30 @@ class AuthController extends Controller
             return response()->json(['message' => 'Wrong Email or Password'], 401);
         }
 
-        $token = $user->createToken('Token for user ' . $user->email)->plainTextToken;
+        $customWord = "RajawaliXUntar2025@9823";
+        $randomPart = Str::random(40);
+        $token = hash('sha256', $customWord . '_' . $randomPart);
 
+        $user->api_token = $token;
+        $user->save();
         return response()->json([
             'message' => 'Login Success',
             'user' => $user,
             'role' => $user->role,
             'token' => $token
-        ],200);
+        ], 200);
     }
 
     public function logout(Request $request)
     {
-  
-        $request->user()->currentAccessToken()->delete();
+
+        $user = $request->user;
+        $user->api_token = null;
+        $user->save();
 
         return response()->json([
             'message' => 'Logout berhasil!'
-        ],200);
+        ], 200);
     }
 
 }

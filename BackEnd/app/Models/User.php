@@ -2,20 +2,22 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use MongoDB\Laravel\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class User extends Model
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
+     * MongoDB connection and collection
+     */
+    protected $connection = 'mongodb'; // optional, default dari config
+    protected $collection = 'users';   // nama collection MongoDB
+
+    /**
+     * Mass assignable attributes
      */
     protected $fillable = [
         'name',
@@ -25,29 +27,40 @@ class User extends Authenticatable
         'address',
         'image',
         'password',
+        'api_token',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
+     * Attributes hidden in serialization
      */
     protected $hidden = [
         'password',
         'remember_token',
+        'api_token',
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
+     * Attribute casting
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'password' => 'hashed', // Laravel 10 auto-hash
     ];
 
-    public function orders(){
+    /**
+     * Relationships
+     */
+    public function orders()
+    {
         return $this->hasMany(Order::class);
+    }
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isUser()
+    {
+        return $this->role === 'user';
     }
 }

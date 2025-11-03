@@ -17,7 +17,7 @@ Route::prefix('rs')->group(function () {
     Route::get('/galleries', [GalleryController::class, 'index']);
     Route::get('/orders', [OrderController::class, 'index']);
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('auth.api')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
         Route::get('/messages/{receiverId}', [MessageController::class, 'index']);
