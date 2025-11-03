@@ -23,7 +23,9 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()], 422);
         }
-
+        if (User::where('email', $request->email)->exists()) {
+            return response()->json(['message' => 'Email sudah terdaftar'], 422);
+        }
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,

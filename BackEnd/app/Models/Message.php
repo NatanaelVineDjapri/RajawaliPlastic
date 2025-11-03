@@ -3,12 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model;
 use Illuminate\Support\Facades\Crypt;
 
 class Message extends Model
 {
     use HasFactory;
+    protected $connection = 'mongodb';
+    protected $collection = 'messages';
 
     protected $fillable = [
         'sender_id',

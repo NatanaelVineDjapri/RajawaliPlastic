@@ -3,22 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
 {
-    // 🔹 Lihat semua order
+
     public function index()
     {  
         return response()->json(Order::with('user')->latest()->get());
     }
 
-    // 🔹 Tambah order baru
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_id'      => 'required|exists:users,id',
+            'user_email'   => 'required|email',
             'product_name' => 'required|string|max:255',
             'quantity'     => 'required|integer|min:1',
             'total_price'  => 'nullable|numeric|min:0',
@@ -30,8 +30,15 @@ class OrderController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        // Cek email user
+        $user = User::where('email', $request->user_email)->first();
+        if (!$user) {
+            return response()->json(['message' => 'Email user tidak ditemukan'], 404);
+        }
+
         $order = Order::create([
-            'user_id'      => $request->user_id,
+            'user_id'      => $user->id,
+            'user_email'   => $user->email,
             'product_name' => $request->product_name,
             'quantity'     => $request->quantity,
             'total_price'  => $request->total_price ?? null,
@@ -45,7 +52,6 @@ class OrderController extends Controller
         ], 201);
     }
 
-    // 🔹 Update order
     public function update(Request $request, $id)
     {
         $order = Order::find($id);
@@ -54,7 +60,7 @@ class OrderController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'user_id'      => 'sometimes|required|exists:users,id',
+            'user_email'   => 'sometimes|required|email',
             'product_name' => 'sometimes|required|string|max:255',
             'quantity'     => 'sometimes|required|integer|min:1',
             'total_price'  => 'sometimes|nullable|numeric|min:0',
@@ -66,9 +72,21 @@ class OrderController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        // 🟡 Update pakai $request->only() biar gak overwrite field yang gak dikirim
+
+        if ($request->has('user_email')) {
+            $user = User::where('email', $request->user_email)->first();
+            if (!$user) {
+                return response()->json(['message' => 'Email user tidak ditemukan'], 404);
+            }
+            $request->merge([
+                'user_id' => $user->id,
+                'user_email' => $user->email,
+            ]);
+        }
+
         $order->update($request->only([
             'user_id',
+            'user_email',
             'product_name',
             'quantity',
             'total_price',
