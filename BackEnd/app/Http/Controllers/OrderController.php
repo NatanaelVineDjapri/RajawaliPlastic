@@ -11,19 +11,19 @@ class OrderController extends Controller
 {
 
     public function index()
-    {  
+    {
         return response()->json(Order::with('user')->latest()->get());
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'user_email'   => 'required|email',
+            'user_email' => 'required|email',
             'product_name' => 'required|string|max:255',
-            'quantity'     => 'required|integer|min:1',
-            'total_price'  => 'nullable|numeric|min:0',
-            'status'       => 'required|in:pending,proses,kirim,selesai',
-            'notes'        => 'nullable|string',
+            'quantity' => 'required|integer|min:1',
+            'total_price' => 'nullable|numeric|min:0',
+            'status' => 'required|in:pending,proses,kirim,selesai',
+            'notes' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -37,18 +37,18 @@ class OrderController extends Controller
         }
 
         $order = Order::create([
-            'user_id'      => $user->id,
-            'user_email'   => $user->email,
+            'user_id' => $user->id,
+            'user_email' => $user->email,
             'product_name' => $request->product_name,
-            'quantity'     => $request->quantity,
-            'total_price'  => $request->total_price ?? null,
-            'status'       => $request->status,
-            'notes'        => $request->notes ?? 'Sesuai kebutuhan pelanggan',
+            'quantity' => $request->quantity,
+            'total_price' => $request->total_price ?? null,
+            'status' => $request->status,
+            'notes' => $request->notes ?? 'Sesuai kebutuhan pelanggan',
         ]);
 
         return response()->json([
             'message' => 'Order created successfully',
-            'data'    => $order
+            'data' => $order
         ], 201);
     }
 
@@ -60,12 +60,12 @@ class OrderController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'user_email'   => 'sometimes|required|email',
+            'user_email' => 'sometimes|required|email',
             'product_name' => 'sometimes|required|string|max:255',
-            'quantity'     => 'sometimes|required|integer|min:1',
-            'total_price'  => 'sometimes|nullable|numeric|min:0',
-            'status'       => 'sometimes|required|in:pending,proses,kirim,selesai',
-            'notes'        => 'sometimes|nullable|string',
+            'quantity' => 'sometimes|required|integer|min:1',
+            'total_price' => 'sometimes|nullable|numeric|min:0',
+            'status' => 'sometimes|required|in:pending,proses,kirim,selesai',
+            'notes' => 'sometimes|nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -96,19 +96,64 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Order berhasil diperbarui',
-            'data'    => $order
+            'data' => $order
         ], 200);
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         $order = Order::find($id);
-        if(!$order){
-            return response()->json(['message'=> 'Order tidak ditemukan'],404);
+        if (!$order) {
+            return response()->json(['message' => 'Order tidak ditemukan'], 404);
         }
 
         $order->delete();
         return response()->json([
             'message' => 'Order berhasil dihapus'
-        ],200);
+        ], 200);
     }
+
+    public function summary()
+    {
+        $summary = Order::raw(function ($collection) {
+            return $collection->aggregate([
+                [
+                    '$group' => [
+                        '_id' => '$user_id',
+                        'total_orders' => ['$sum' => 1],
+                        'total_quantity' => ['$sum' => '$quantity'],
+                        'total_price' => ['$sum' => '$total_price'],
+                    ]
+                ]
+            ]);
+        });
+
+        return response()->json($summary);
+    }
+
+
+    public function summaryDetail()
+    {
+        $summary = Order::raw(function ($collection) {
+            return $collection->aggregate([
+                [
+                    '$group' => [
+                        '_id' => [
+                            'user_id' => '$user_id',
+                            'user_email' => '$user_email'
+                        ],
+                        'total_orders' => ['$sum' => 1],
+                        'total_quantity' => ['$sum' => '$quantity'],
+                        'total_price' => ['$sum' => '$total_price'],
+                    ]
+                ],
+                [
+                    '$sort' => ['total_price' => -1] 
+                ]
+            ]);
+        });
+
+        return response()->json($summary);
+    }
+
 }

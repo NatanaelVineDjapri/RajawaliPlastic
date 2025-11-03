@@ -14,7 +14,7 @@ Route::prefix('rs')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/testimonials', [TestimonialController::class, 'index']);
-    Route::get('/galleries', [GalleryController::class, 'index']);
+    Route::get('/galleries', action: [GalleryController::class, 'index']);
     Route::get('/orders', [OrderController::class, 'index']);
 
     Route::middleware('auth.api')->group(function () {
@@ -45,7 +45,9 @@ Route::prefix('rs')->group(function () {
             Route::post('/orders', [OrderController::class, 'store']);
             Route::put('/orders/{id}', [OrderController::class, 'update']);
             Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-
+            Route::get('/orders/summary', [OrderController::class, 'summary']);
+            Route::get('/orders/summary-detail', [OrderController::class, 'summaryDetail']);
+            
             Route::get('/sliders', [SliderController::class, 'index']);
             Route::post('/sliders', [SliderController::class, 'store']);
             Route::delete('/sliders/{id}', [SliderController::class, 'destroy']);
