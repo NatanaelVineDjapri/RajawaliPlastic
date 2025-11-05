@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import styles from './Sidenavbar.module.css';
 
 import {
   LayoutDashboard,
@@ -37,43 +36,63 @@ const pageNavLinks = [
   { href: '/dashboard/hero', label: 'Hero', icon: Layers },
 ];
 
+interface NavLinkProps {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
 export default function Sidenavbar() {
   const pathname = usePathname();
-
-  const renderLink = (link: { href: string; label: string; icon: LucideIcon }) => {
+  const renderLink = (link: NavLinkProps) => {
     const { href, label, icon: Icon } = link;
     const isActive = pathname === href;
-
-    const linkClassName = `${styles.navLink} ${isActive ? styles.active : ''}`;
+    const linkClassName = `nav-link d-flex align-items-center gap-2 rounded-3 ${
+      isActive ? 'active' : 'text-dark'
+    }`;
 
     return (
       <Link key={href} href={href} className={linkClassName}>
-        <Icon className={styles.icon} />
+        <Icon size={16} />
         {label}
       </Link>
     );
   };
 
   return (
-    <aside className={styles.sidebar}>
-      <div className={styles.scrollWrapper}>
-        <nav className={styles.navMenu}>{mainNavLinks.map(renderLink)}</nav>
-        <div className={styles.pagesTitleWrapper}>
-          <span className={styles.pagesTitle}>Pages</span>
+    <aside
+      className="d-flex flex-column vh-100 bg-white border-end"
+      style={{ width: '16rem' }}
+    >
+      <div className="flex-grow-1 overflow-y-auto">
+        <nav className="nav nav-pills flex-column p-3 gap-1">
+          {mainNavLinks.map(renderLink)}
+        </nav>
+        <div className="px-3 pt-2 pb-1">
+          <span className="small fw-semibold text-muted text-uppercase">
+            Pages
+          </span>
         </div>
-        <nav className={`${styles.navMenu} ${styles.pagesNavMenu}`}>
+        <nav className="nav nav-pills flex-column p-3 pt-1 gap-1">
           {pageNavLinks.map(renderLink)}
         </nav>
       </div>
-      
-      <div className={styles.bottomNav}>
-        <nav className={styles.bottomNavMenu}>
-          <Link href="/dashboard/settings" className={styles.navLink}>
-            <Settings className={styles.icon} />
+      <div className="mt-auto border-top p-3">
+        <nav className="nav nav-pills flex-column gap-1">
+          <Link
+            href="/dashboard/settings"
+            className={`nav-link d-flex align-items-center gap-2 rounded-3 ${
+              pathname === '/dashboard/settings' ? 'active' : 'text-dark'
+            }`}
+          >
+            <Settings size={16} />
             Settings
           </Link>
-          <Link href="#" className={`${styles.navLink} ${styles.logoutLink}`}>
-            <LogOut className={styles.icon} />
+          <Link
+            href="#"
+            className="nav-link text-danger d-flex align-items-center gap-2 rounded-3"
+          >
+            <LogOut size={16} />
             Logout
           </Link>
         </nav>
