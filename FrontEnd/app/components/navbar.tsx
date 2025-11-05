@@ -2,6 +2,9 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { PersonCircle } from 'react-bootstrap-icons'; // <-- pastikan kamu udah install react-bootstrap-icons
+
+// jalankan di terminal kalau belum: npm install react-bootstrap-icons
 
 const Navbar: React.FC = () => {
   return (
@@ -9,33 +12,35 @@ const Navbar: React.FC = () => {
       className="navbar navbar-expand-lg rounded-pill px-5 py-0 position-absolute top-0 start-50 translate-middle-x mt-3"
       style={{
         maxWidth: '1400px',
-        backgroundColor: 'rgba(255, 255, 255, 0.79)',
-        backdropFilter: 'blur(10px)',
+        backgroundColor: 'transparent',
+        backdropFilter: 'none',
       }}
     >
       <div className="container-fluid d-flex justify-content-between align-items-center">
-        {/* Logo */}
+        {/* LOGO */}
         <Link
           href="/"
           className="navbar-brand d-flex align-items-center"
           style={{
-            marginLeft: '-20px', // Menarik logo sedikit ke kiri
+            marginLeft: '-20px',
+            position: 'relative',
+            zIndex: 10,
           }}
         >
           <div
             style={{
               backgroundColor: '#ffff',
               borderRadius: '50%',
-              border: '6px solid #ffffff',
-              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-              padding: '10px', // Mengurangi padding logo
+              border: '3px solid rgba(0, 123, 255, 0.7)',
+              padding: '14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
             }}
           >
             <Image
-              src="/images/logoRS.png" // Pastikan path ini benar
+              src="/images/logoRS.png"
               alt="Rajawali Plastik Logo"
               width={60}
               height={60}
@@ -44,7 +49,7 @@ const Navbar: React.FC = () => {
           </div>
         </Link>
 
-        {/* Toggle button (mobile) */}
+        {/* TOGGLER (untuk HP) */}
         <button
           className="navbar-toggler"
           type="button"
@@ -53,42 +58,54 @@ const Navbar: React.FC = () => {
           aria-controls="navbarNav"
           aria-expanded="false"
           aria-label="Toggle navigation"
+          style={{ zIndex: 10 }}
         >
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Menu */}
+        {/* MENU */}
         <div
           className="collapse navbar-collapse justify-content-end"
           id="navbarNav"
+          style={{
+            position: 'relative',
+            zIndex: 1,
+          }}
         >
-          <ul className="navbar-nav align-items-center gap-4">
+          <ul
+            className="navbar-nav align-items-center gap-3"
+            style={{
+              backgroundColor: 'rgba(255, 255, 255, 0.77)',
+              borderRadius: '30px',
+              marginLeft: '-80px',
+              padding: '10px 20px 10px 100px',
+            }}
+          >
             <li className="nav-item">
-              {/* fw-semibold dihapus dari sini */}
               <Link href="/" className="nav-link text-dark">
                 Home
               </Link>
             </li>
             <li className="nav-item">
-              {/* fw-semibold dihapus dari sini */}
-              <Link href="/about" className="nav-link text-dark">
+              <Link
+                href="/about"
+                className="nav-link text-dark"
+                style={{ whiteSpace: 'nowrap' }}
+              >
                 About Us
               </Link>
             </li>
             <li className="nav-item">
-              {/* fw-semibold dihapus dari sini */}
               <Link href="/products" className="nav-link text-dark">
                 Products
               </Link>
             </li>
             <li className="nav-item">
-              {/* fw-semibold dihapus dari sini */}
               <Link href="/testimonials" className="nav-link text-dark">
                 Testimonies
               </Link>
             </li>
             <li className="nav-item">
-              {/* fw-semibold dihapus dari sini */}
               <Link href="/gallery" className="nav-link text-dark">
                 Gallery
               </Link>
@@ -96,13 +113,18 @@ const Navbar: React.FC = () => {
             <li className="nav-item">
               <Link
                 href="/contact"
-                className="btn btn-primary rounded-pill px-4"
+                className="btn btn-primary rounded-pill px-4 d-inline-flex align-items-center justify-content-center"
                 style={{
-                //   '--bs-btn-bg': '#007bff',
-                //   '--bs-btn-border-color': '#007bff',
+                  whiteSpace: 'nowrap', // supaya tulisannya gak ke-enter
                 }}
               >
-                Contant Us!
+                Contact Us!
+              </Link>
+            </li>
+            {/* ICON PROFILE */}
+            <li className="nav-item ms-2">
+              <Link href="/profile" className="nav-link text-dark fs-4 d-flex align-items-center">
+                <PersonCircle />
               </Link>
             </li>
           </ul>
