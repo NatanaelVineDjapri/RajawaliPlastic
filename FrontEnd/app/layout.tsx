@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Toaster } from 'react-hot-toast'; // <-- 1. Tambah ini
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const geistSans = localFont({
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
+        <Toaster position="top-right" /> 
       </body>
     </html>
   );
