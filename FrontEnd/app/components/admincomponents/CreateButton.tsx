@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
-import styles from './CreateButton.module.css'; // Akan kita buat
+import styles from './CreateButton.module.css';
 import { usePathname } from 'next/navigation';
 
 const formLinks: Record<string, string> = {

@@ -1,0 +1,84 @@
+.pageContainer {
+  width: 100%;
+}
+
+.pageTitle {
+  font-size: 2.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1.5rem;
+}
+
+.banner {
+  background-color: #C0FBFF;
+  border-radius: 0.75rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.bannerTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #005F6B;
+}
+
+.formContainer {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07),
+    0 2px 4px -2px rgba(0, 0, 0, 0.07);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+.imageUploader {
+  width: 300px;
+  height: 300px;
+  border: 2px dashed #d1d5db;
+  border-radius: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9fafb;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  gap: 0.5rem;
+}
+
+.imageUploader:hover {
+  background-color: #f3f4f6;
+}
+
+.cameraIcon {
+  color: #9ca3af;
+}
+
+.buttonWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.applyButton {
+  background-color: #C0FBFF;
+  color: #005F6B;
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.applyButton:hover {
+  background-color: #a6f5fa;
+  transform: scale(1.05);
+}

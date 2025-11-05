@@ -15,7 +15,6 @@ export default function QuantityInput({
   min = 1,
   max = 9999,
 }: QuantityInputProps) {
-  // 1. Pastikan state-nya adalah 'number', bukan string
   const [value, setValue] = useState(defaultValue);
 
   const increment = () => {

@@ -1,10 +1,11 @@
+// Lokasi file: app/dashboard/layout.tsx
 'use client';
 
 import Sidenavbar from '@/app/components/admincomponents/sidenavbar';
-import CreateButton from '@/app/components/admincomponents/CreateButton';
+import TopNavbar from '../components/admincomponents/topnavbar';
+import CreateButton from '@/app/components/admincomponents/CreateButton'; // <-- 1. Import di sini
 import React from 'react';
 import styles from './DashboardLayout.module.css';
-import TopNavbar from '../components/admincomponents/topnavbar';
 
 export default function DashboardLayout({
   children,
