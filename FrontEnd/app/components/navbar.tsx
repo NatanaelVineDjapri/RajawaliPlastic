@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
           href="/"
           className="navbar-brand d-flex align-items-center"
           style={{
-            marginLeft: '-20px', // Menarik logo sedikit ke kiri
+            marginLeft: '-20px',
           }}
         >
           <div
@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
               borderRadius: '50%',
               border: '6px solid #ffffff',
               boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-              padding: '10px', // Mengurangi padding logo
+              padding: '10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

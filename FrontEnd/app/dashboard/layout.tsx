@@ -1,9 +1,10 @@
 'use client';
 
 import Sidenavbar from '@/app/components/admincomponents/sidenavbar';
-import TopNavbar from '@/app/components/admincomponents/topnavbar';
+import CreateButton from '@/app/components/admincomponents/CreateButton';
 import React from 'react';
 import styles from './DashboardLayout.module.css';
+import TopNavbar from '../components/admincomponents/topnavbar';
 
 export default function DashboardLayout({
   children,
@@ -12,13 +13,14 @@ export default function DashboardLayout({
 }) {
   return (
     <div className={styles.pageWrapper}>
-      <TopNavbar />
+      <TopNavbar /> 
       <div className={styles.contentWrapper}>
         <Sidenavbar />
         <main className={styles.mainContent}>
-          {children}
+          {children} 
         </main>
       </div>
+      <CreateButton /> 
     </div>
   );
 }
