@@ -1,12 +1,12 @@
 'use client';
 import React from 'react';
-import SendEmail from './components/sendEmail'; // ✅ arahkan ke file yang benar
-
+import SendEmail from './components/sendEmail';
+import Footer from './components/footer';
 const Page: React.FC = () => {
   return (
     <main>
-      <h1>Welcome to My Website</h1>
-      <SendEmail /> {/* ✅ panggil komponennya di sini */}
+      <SendEmail />
+      <Footer />
     </main>
   );
 };

@@ -182,3 +182,130 @@ button:hover {
   }
 }
 
+/* 🌙 FOOTER */
+.footer {
+  background: linear-gradient(180deg, #1e3a5f, #0b1e30);
+  color: white;
+  padding: 60px 80px 30px;
+  border-radius: 12px 12px 0 0;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ===================== */
+/* BAGIAN ATAS FOOTER    */
+/* ===================== */
+.footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 50px;
+}
+
+/* === KIRI (LOGO & INFO) === */
+.footer-left h2 {
+  font-size: 2.8rem;         /* ✅ Lebih besar */
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+
+.footer-left h2 span {
+  display: block;
+  font-weight: 500;
+  font-size: 2.4rem;         /* ✅ Plastik proporsional */
+  color: #cce7ff;
+}
+
+.footer-left ul {
+  list-style: none;
+  padding: 0;
+  line-height: 1.8;
+  margin-top: 10px;
+  font-size: 1.05rem;        /* ✅ Lebih mudah dibaca */
+}
+
+.footer-left li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* === TENGAH (MENU LINK) === */
+.footer-center ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-center li {
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: color 0.2s ease;
+  font-size: 1.05rem;
+}
+
+.footer-center li:hover {
+  color: #00b4d8;
+}
+
+/* === KANAN (MAP) === */
+.footer-right iframe {
+  width: 350px;              /* ✅ Lebih besar */
+  height: 200px;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* ===================== */
+/* BAGIAN BAWAH FOOTER   */
+/* ===================== */
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.3);
+  margin-top: 50px;
+  padding-top: 20px;
+  font-size: 1rem;
+  flex-wrap: wrap;
+}
+
+/* === ICON SOSMED === */
+.social-icons {
+  display: flex;
+  gap: 20px;
+  font-size: 1.8rem;         /* ✅ Lebih besar */
+}
+
+.social-icons svg {
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.social-icons svg:hover {
+  transform: scale(1.25);
+  color: #00b4d8;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-right iframe {
+    width: 100%;
+    max-width: 320px;
+    height: 180px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+
