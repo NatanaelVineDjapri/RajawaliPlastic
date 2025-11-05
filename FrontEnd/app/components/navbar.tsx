@@ -2,9 +2,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { PersonCircle } from 'react-bootstrap-icons'; // <-- pastikan kamu udah install react-bootstrap-icons
-
-// jalankan di terminal kalau belum: npm install react-bootstrap-icons
+import { PersonCircle } from 'react-bootstrap-icons';
 
 const Navbar: React.FC = () => {
   return (
@@ -17,7 +15,6 @@ const Navbar: React.FC = () => {
       }}
     >
       <div className="container-fluid d-flex justify-content-between align-items-center">
-        {/* LOGO */}
         <Link
           href="/"
           className="navbar-brand d-flex align-items-center"
@@ -49,7 +46,6 @@ const Navbar: React.FC = () => {
           </div>
         </Link>
 
-        {/* TOGGLER (untuk HP) */}
         <button
           className="navbar-toggler"
           type="button"
@@ -63,7 +59,6 @@ const Navbar: React.FC = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* MENU */}
         <div
           className="collapse navbar-collapse justify-content-end"
           id="navbarNav"
@@ -115,13 +110,12 @@ const Navbar: React.FC = () => {
                 href="/contact"
                 className="btn btn-primary rounded-pill px-4 d-inline-flex align-items-center justify-content-center"
                 style={{
-                  whiteSpace: 'nowrap', // supaya tulisannya gak ke-enter
+                  whiteSpace: 'nowrap',
                 }}
               >
                 Contact Us!
               </Link>
             </li>
-            {/* ICON PROFILE */}
             <li className="nav-item ms-2">
               <Link href="/profile" className="nav-link text-dark fs-4 d-flex align-items-center">
                 <PersonCircle />
