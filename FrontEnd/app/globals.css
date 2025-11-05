@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -40,3 +42,143 @@ a {
     color-scheme: dark;
   }
 }
+
+/* === Send Email Section === */
+.contact-section {
+  width: 100%;
+  min-height: 70vh;
+  background-image: url('/images/bg_daun.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 20px;
+}
+
+.contact-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 60px;
+  max-width: 1100px;
+  width: 100%;
+  color: white;
+}
+
+/* kiri */
+.contact-text {
+  flex: 1;
+  max-width: 420px;
+  text-align: left;
+  margin: 0 auto;
+}
+
+.contact-text h2 {
+  font-family: 'Poppins', sans-serif; 
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 1px; 
+  display: inline-block;
+  color: #f5f5f5; 
+  text-transform: uppercase; 
+}
+
+.contact-text h2 span {
+  font-weight: 800;
+  font-size: 3.4rem;
+  letter-spacing: 1.5px; 
+  display: block;
+  margin-top: 8px;
+  text-transform: none;
+}
+
+.contact-text p {
+  margin-top: 15px;
+  line-height: 1.7;
+  font-size: 1.05rem;
+  opacity: 0.9;
+}
+
+/* kanan */
+.contact-form {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+  border-radius: 15px;
+  padding: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.form-row input {
+  flex: 1;
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  background-color: #f2f2f2;
+}
+
+textarea {
+  width: 100%;
+  min-height: 150px;
+  padding: 12px 15px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  font-size: 0.95rem;
+  background-color: #f2f2f2;
+  resize: none;
+}
+
+button {
+  align-self: flex-start;
+  padding: 12px 28px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background-color: #43a047;
+  transform: translateY(-2px);
+}
+
+/* responsif */
+@media (max-width: 850px) {
+  .contact-container {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .contact-text {
+    max-width: none;
+  }
+
+  .contact-form {
+    align-self: center;
+    width: 100%;
+  }
+
+  button {
+    align-self: center;
+  }
+}
+
