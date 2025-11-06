@@ -107,7 +107,7 @@ const Navbar: React.FC = () => {
             </li>
             <li className="nav-item">
               <Link
-                href="/contact"
+                href="/chat"
                 className="btn btn-primary rounded-pill px-4 d-inline-flex align-items-center justify-content-center"
                 style={{
                   whiteSpace: 'nowrap',
