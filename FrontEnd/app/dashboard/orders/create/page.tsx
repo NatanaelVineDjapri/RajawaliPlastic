@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import styles from './CreateOrderPage.module.css';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import QuantityInput from '@/app/components/admincomponents/QuantityInput'; 
 
@@ -18,11 +17,13 @@ const products = [
 export default function CreateOrderPage() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<Record<number, boolean>>({});
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
+  
+  const productSelectorRef = useRef<HTMLDivElement>(null); 
+  const formGridRef = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (formGridRef.current && !formGridRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
     }
@@ -30,7 +31,7 @@ export default function CreateOrderPage() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [dropdownRef]);
+  }, []); 
 
   const handleProductSelect = (productId: number) => {
     setSelectedProducts((prev) => ({
@@ -50,72 +51,105 @@ export default function CreateOrderPage() {
   };
 
   return (
-    <div className={styles.pageContainer}>
-      <h1 className={styles.pageTitle}>Order lists</h1>
-      <div className={styles.banner}>
-        <h2 className={styles.bannerTitle}>Create new order</h2>
+    <div className="w-100">
+      <h1 className="fs-3 fw-bold text-dark mb-4">Order lists</h1> 
+
+      <div className="rounded-3 p-4 mb-4" style={{ backgroundColor: '#C0FBFF' }}>
+        <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
+          Create new order
+        </h2>
       </div>
-      <div className={styles.formContainer}>
-        <div className={styles.formGrid} ref={dropdownRef}>
-          <div className={styles.formLeft}>
-            <div className={styles.formGroup}>
-              <label htmlFor="productName" className={styles.label}>
+
+      <div className="bg-white rounded-3 shadow p-4">
+        <div className="d-flex gap-4 position-relative" ref={formGridRef}>
+          <div className="d-flex flex-column gap-3" style={{ width: '350px', flexShrink: 0 }}>
+            <div className="d-flex flex-column position-relative">
+              <label htmlFor="productName" className="form-label small fw-semibold text-secondary mb-1">
                 Product Name
               </label>
               <div
-                className={styles.productSelector}
+                ref={productSelectorRef}
+                className="d-flex justify-content-between align-items-center p-3 border rounded-3 bg-light text-dark fw-medium"
+                role="button"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                style={{ cursor: 'pointer', borderColor: '#d1d5db' }}
               >
                 <span>{getSelectedProductsText()}</span>
-                <ChevronRight size={20} className={styles.productSelectorIcon} />
+                <ChevronRight size={20} className="text-primary" />
               </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="price" className={styles.label}>
+            <div className="d-flex flex-column">
+              <label htmlFor="price" className="form-label small fw-semibold text-secondary mb-1">
                 Price
               </label>
               <input
                 type="text"
                 id="price"
-                className={styles.input}
+                className="form-control p-3 border rounded-3 bg-light"
                 placeholder="-"
+                style={{ fontSize: '0.875rem' }}
               />
             </div>
 
-            <div className={styles.formGroup}>
-              <label htmlFor="quantity" className={styles.label}>
+            <div className="d-flex flex-column">
+              <label htmlFor="quantity" className="form-label small fw-semibold text-secondary mb-1">
                 Configure quantity
               </label>
               <QuantityInput defaultValue={1} />
             </div>
           </div>
+
           {isDropdownOpen && (
-            <div className={styles.dropdownPanel}>
-              <div className={styles.productList}>
+            <div 
+              className="position-absolute bg-white rounded-3 shadow-lg border p-3" 
+              style={{ 
+                top: '0', 
+                left: '370px',
+                width: '350px',
+                zIndex: 20,
+                marginTop: '0.75rem', 
+              }}
+            >
+              <div className="row row-cols-2 g-3 mb-3">
                 {products.map((product) => (
-                  <label key={product.id} className={styles.productItem}>
-                    <input
-                      type="checkbox"
-                      className={styles.checkbox}
-                      checked={!!selectedProducts[product.id]}
-                      onChange={() => handleProductSelect(product.id)}
-                    />
-                    {product.name}
-                  </label>
+                  <div key={product.id} className="col">
+                    <div className="form-check small text-dark">
+                      <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id={`product-${product.id}`}
+                        checked={!!selectedProducts[product.id]}
+                        onChange={() => handleProductSelect(product.id)}
+                      />
+                      <label 
+                        className="form-check-label" 
+                        htmlFor={`product-${product.id}`}
+                      >
+                        {product.name}
+                      </label>
+                    </div>
+                  </div>
                 ))}
               </div>
-              <div className={styles.pagination}>
-                <ChevronLeft size={20} className={styles.paginationArrow} />
-                <ChevronRight size={20} className={styles.paginationArrow} />
+              
+              <div className="d-flex justify-content-end gap-2 pt-3 border-top">
+                <ChevronLeft size={20} className="text-muted" role="button" />
+                <ChevronRight size={20} className="text-muted" role="button" />
               </div>
             </div>
           )}
+          
+          <div className="flex-grow-1"></div>
         </div>
       </div>
 
-      <div className={styles.buttonWrapper}>
-        <button type="submit" className={styles.createButton}>
+      <div className="d-flex justify-content-end mt-4">
+        <button 
+          type="submit" 
+          className="btn btn-secondary px-4 py-2 rounded-3 small fw-semibold disabled"
+          disabled
+        >
           Create
         </button>
       </div>
