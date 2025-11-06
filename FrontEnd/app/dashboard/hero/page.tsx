@@ -1,13 +1,15 @@
-import pageStyles from '../DashboardPage.module.css';
+'use client';
 
+import React from 'react';
 export default function HeroPage() {
   return (
-    <div>
-      <h1 className={pageStyles.adminTitle}>Hero</h1>
+    <div className="container-fluid py-4"> 
+      <h1 className="fs-3 fw-semibold text-dark mb-4">Hero</h1>
       
-      <div className={pageStyles.placeholder}>
-        <p>Konten untuk halaman Hero (section) akan ada di sini.</p>
+      <div className="bg-light p-5 border rounded-3 text-center text-muted">
+        <p className="lead mb-0">Konten untuk halaman Hero akan ada di sini.</p>
       </div>
+      
     </div>
   );
 }

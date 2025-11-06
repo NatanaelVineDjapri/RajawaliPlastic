@@ -1,11 +1,19 @@
 'use client';
 
 import React from 'react';
-import StatCard from './statcards';
-import styles from './StatsGrid.module.css';
-import { Users, Archive, TrendingUp } from 'lucide-react';
+import StatCard from './StatCard';
+import { Users, Archive, TrendingUp, type LucideIcon } from 'lucide-react';
 
-const stats = [
+interface StatItem {
+  title: string;
+  value: string;
+  icon: LucideIcon;
+  iconBgColor: string;
+  iconColor: string;
+}
+
+const stats: StatItem[] = [
+  // ... (data stats Anda tetap sama) ...
   {
     title: 'Total Customer',
     value: '40,689',
@@ -31,16 +39,17 @@ const stats = [
 
 export default function StatsGrid() {
   return (
-    <div className={styles.grid}>
+    <div className="row row-cols-1 row-cols-md-3 g-4 mb-4">
       {stats.map((stat) => (
-        <StatCard
-          key={stat.title}
-          title={stat.title}
-          value={stat.value}
-          icon={stat.icon}
-          iconBgColor={stat.iconBgColor}
-          iconColor={stat.iconColor}
-        />
+        <div key={stat.title} className="col">
+          <StatCard
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            iconBgColor={stat.iconBgColor}
+            iconColor={stat.iconColor}
+          />
+        </div>
       ))}
     </div>
   );

@@ -151,8 +151,8 @@ export default function CreateProductPage() {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-            <div className={styles.formGroup}>
-              <label htmlFor="quantity" className={styles.label}>
+            <div className="d-flex flex-column">
+              <label htmlFor="quantity" className="form-label small fw-medium text-secondary mb-1">
                 Configure quantity
               </label>
               <QuantityInput
