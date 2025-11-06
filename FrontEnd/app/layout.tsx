@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Toaster } from 'react-hot-toast'; // <-- 1. Tambah ini
+// import Navbar from "./components/navbar";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const geistSans = localFont({
