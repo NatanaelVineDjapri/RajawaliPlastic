@@ -19,7 +19,8 @@ class Order extends Model
         'order_no',
         'quantity',
         'total_price',
-        'status',
+        'status_delivery',
+        'status_payment',
         'notes',
     ];
 

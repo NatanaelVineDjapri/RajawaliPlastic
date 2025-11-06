@@ -1,158 +1,243 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
-import QuantityInput from '@/app/components/admincomponents/QuantityInput'; 
+import React, { useState, useEffect, FormEvent } from 'react';
+import { addOrder } from '@/services/orderService';
+import { getProducts } from '@/services/productService';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import PageHeader from '@/app/components/admincomponents/PageHeader';
+import SubmitButton from '@/app/components/admincomponents/submitButton';
+import CustomSelect, { SelectOption } from '@/app/components/admincomponents/customSelect';
 
-const products = [
-  { id: 1, name: 'Product 1' },
-  { id: 2, name: 'Product 2' },
-  { id: 3, name: 'Product 3' },
-  { id: 4, name: 'Product 4' },
-  { id: 5, name: 'Product 5' },
-  { id: 6, name: 'Product 6' },
-  { id: 7, name: 'Product 7' },
+const MySwal = withReactContent(Swal);
+
+interface Product {
+  id: number;
+  name: string;
+}
+
+const statusOptions: SelectOption[] = [
+  { value: 'pending', label: 'Pending' },
+  { value: 'proses', label: 'Processing' },
+  { value: 'kirim', label: 'Shipped' },
+  { value: 'selesai', label: 'Completed' },
 ];
 
 export default function CreateOrderPage() {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState<Record<number, boolean>>({});
-  
-  const productSelectorRef = useRef<HTMLDivElement>(null); 
-  const formGridRef = useRef<HTMLDivElement>(null);
-  
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [productId, setProductId] = useState<string>(''); 
+  const [quantity, setQuantity] = useState<number>(1);
+  const [totalPrice, setTotalPrice] = useState<string>('');
+  const [status, setStatus] = useState<string>('pending');
+  const [notes, setNotes] = useState<string>('');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [productOptions, setProductOptions] = useState<SelectOption[]>([]);
+
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (formGridRef.current && !formGridRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
+    async function fetchProducts() {
+      try {
+        const result = await getProducts();
+        if (result.data && Array.isArray(result.data)) {
+          setProducts(result.data);
+          const options = result.data.map((product: Product) => ({
+            value: String(product.id),
+            label: product.name
+          }));
+          setProductOptions(options);
+          if (result.data.length > 0) {
+            setProductId(String(result.data[0].id)); 
+          }
+        } else {
+          setProducts([]);
+          setProductOptions([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+        MySwal.fire({
+          title: 'Error Fetching',
+          text: 'Failed to load product data. Please try refreshing the page.',
+          icon: 'error',
+        });
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []); 
+    fetchProducts();
+  }, []);
 
-  const handleProductSelect = (productId: number) => {
-    setSelectedProducts((prev) => ({
-      ...prev,
-      [productId]: !prev[productId],
-    }));
-  };
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  const getSelectedProductsText = () => {
-    const selected = Object.values(selectedProducts).filter(Boolean);
-    if (selected.length === 0) return '-';
-    if (selected.length === 1) {
-      const id = Object.keys(selectedProducts).find(key => selectedProducts[Number(key)]);
-      return products.find(p => p.id === Number(id))?.name || '1 product selected';
+    const formData = new FormData();
+    formData.append('user_email', userEmail);
+    formData.append('product_id', productId); 
+    formData.append('quantity', String(quantity));
+    formData.append('total_price', totalPrice);
+    formData.append('status', status);
+    formData.append('notes', notes);
+
+    try {
+      const result = await addOrder(formData);
+      MySwal.fire({ title: 'Success!', text: result.message, icon: 'success' });
+      setUserEmail('');
+      setProductId(products.length > 0 ? String(products[0].id) : '');
+      setQuantity(1);
+      setTotalPrice('');
+      setStatus('pending');
+      setNotes('');
+    } catch (error) {
+      let errorMessage = 'An unknown error occurred.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      MySwal.fire({ title: 'Oops...', text: errorMessage, icon: 'error' });
+    } finally {
+      setIsLoading(false);
     }
-    return `${selected.length} products selected`;
   };
+
+  const breadcrumbs = [
+    { label: "Order List", href: "/dashboard/orders" },
+    { label: "Create Order" }
+  ];
 
   return (
     <div className="w-100">
-      <h1 className="fs-3 fw-bold text-dark mb-4">Order lists</h1> 
+      
+      <PageHeader title="Create New Order" breadcrumbs={breadcrumbs} />
 
-      <div className="rounded-3 p-4 mb-4" style={{ backgroundColor: '#C0FBFF' }}>
-        <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
-          Create new order
-        </h2>
-      </div>
+      <form onSubmit={handleSubmit}>
+        
+        <div className="row g-4">
 
-      <div className="bg-white rounded-3 shadow p-4">
-        <div className="d-flex gap-4 position-relative" ref={formGridRef}>
-          <div className="d-flex flex-column gap-3" style={{ width: '350px', flexShrink: 0 }}>
-            <div className="d-flex flex-column position-relative">
-              <label htmlFor="productName" className="form-label small fw-semibold text-secondary mb-1">
-                Product Name
-              </label>
-              <div
-                ref={productSelectorRef}
-                className="d-flex justify-content-between align-items-center p-3 border rounded-3 bg-light text-dark fw-medium"
-                role="button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                style={{ cursor: 'pointer', borderColor: '#d1d5db' }}
-              >
-                <span>{getSelectedProductsText()}</span>
-                <ChevronRight size={20} className="text-primary" />
+          <div className="col-lg-8">
+            <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-100">
+              <h5 className="fw-bold mb-4">Order Information</h5>
+              
+              <div className="mb-3">
+                <label htmlFor="userEmail" className="form-label fw-semibold text-secondary small">
+                  User Email <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="email"
+                  id="userEmail"
+                  className="form-control p-3"
+                  placeholder="e.g., user@gmail.com"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                  required
+                />
               </div>
-            </div>
 
-            <div className="d-flex flex-column">
-              <label htmlFor="price" className="form-label small fw-semibold text-secondary mb-1">
-                Price
-              </label>
-              <input
-                type="text"
-                id="price"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="-"
-                style={{ fontSize: '0.875rem' }}
-              />
-            </div>
+              <div className="mb-3">
+                <label htmlFor="productName" className="form-label fw-semibold text-secondary small">
+                  Product Name <span className="text-danger">*</span>
+                </label>
+                <CustomSelect
+                  id="productName"
+                  options={productOptions}
+                  value={productOptions.find(opt => opt.value === productId) || null}
+                  onChange={(selectedOption) => {
+                    setProductId(selectedOption ? selectedOption.value : '');
+                  }}
+                  placeholder={(!products || products.length === 0) ? "Loading products..." : "Select a product"}
+                  required
+                />
+              </div>
 
-            <div className="d-flex flex-column">
-              <label htmlFor="quantity" className="form-label small fw-semibold text-secondary mb-1">
-                Configure quantity
-              </label>
-              <QuantityInput defaultValue={1} />
+              <div className="row g-3">
+                <div className="col-md-6">
+                  <label htmlFor="quantity" className="form-label fw-semibold text-secondary small">
+                    Quantity <span className="text-danger">*</span>
+                  </label>
+                  <div className="input-group">
+                    <button 
+                      className="btn btn-light" 
+                      type="button"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      id="quantity"
+                      className="form-control text-center p-3"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Number(e.target.value))}
+                      min="1"
+                      required
+                    />
+                    <button 
+                      className="btn btn-light" 
+                      type="button"
+                      onClick={() => setQuantity(quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <label htmlFor="totalPrice" className="form-label fw-semibold text-secondary small">
+                    Total Price
+                  </label>
+                  <input
+                    type="number"
+                    id="totalPrice"
+                    className="form-control p-3"
+                    placeholder="e.g., 50000"
+                    value={totalPrice}
+                    onChange={(e) => setTotalPrice(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          {isDropdownOpen && (
-            <div 
-              className="position-absolute bg-white rounded-3 shadow-lg border p-3" 
-              style={{ 
-                top: '0', 
-                left: '370px',
-                width: '350px',
-                zIndex: 20,
-                marginTop: '0.75rem', 
-              }}
-            >
-              <div className="row row-cols-2 g-3 mb-3">
-                {products.map((product) => (
-                  <div key={product.id} className="col">
-                    <div className="form-check small text-dark">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        id={`product-${product.id}`}
-                        checked={!!selectedProducts[product.id]}
-                        onChange={() => handleProductSelect(product.id)}
-                      />
-                      <label 
-                        className="form-check-label" 
-                        htmlFor={`product-${product.id}`}
-                      >
-                        {product.name}
-                      </label>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div className="col-lg-4">
+            <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-60">
+              <h5 className="fw-bold mb-4">Order Settings</h5>
               
-              <div className="d-flex justify-content-end gap-2 pt-3 border-top">
-                <ChevronLeft size={20} className="text-muted" role="button" />
-                <ChevronRight size={20} className="text-muted" role="button" />
+              <div className="mb-3">
+                <label htmlFor="status" className="form-label fw-semibold text-secondary small">
+                  Delivery Status <span className="text-danger">*</span>
+                </label>
+                <CustomSelect
+                  id="status"
+                  options={statusOptions}
+                  value={statusOptions.find(opt => opt.value === status)}
+                  onChange={(selectedOption) => {
+                    setStatus(selectedOption ? selectedOption.value : 'pending');
+                  }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="notes" className="form-label fw-semibold text-secondary small">
+                  Notes
+                </label>
+                <textarea
+                  id="notes"
+                  className="form-control"
+                  rows={6}
+                  placeholder="Additional notes (optional)"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                ></textarea>
               </div>
             </div>
-          )}
-          
-          <div className="flex-grow-1"></div>
-        </div>
-      </div>
 
-      <div className="d-flex justify-content-end mt-4">
-        <button 
-          type="submit" 
-          className="btn btn-secondary px-4 py-2 rounded-3 small fw-semibold disabled"
-          disabled
-        >
-          Create
-        </button>
-      </div>
+            <div className="d-grid">
+              <SubmitButton 
+                isLoading={isLoading}
+                text="Create Order"
+                loadingText="Creating Order..."
+              />
+            </div>
+
+          </div>
+        </div>
+      </form>
     </div>
   );
 }
