@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../globals.css"; // tempat CSS tambahan
+import "../globals.css"; 
 
 const SendEmail: React.FC = () => {
   return (

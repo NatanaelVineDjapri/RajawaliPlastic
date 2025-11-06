@@ -20,15 +20,16 @@ const Navbar: React.FC = () => {
           className="navbar-brand d-flex align-items-center"
           style={{
             marginLeft: '-20px',
+            position: 'relative',
+            zIndex: 10,
           }}
         >
           <div
             style={{
               backgroundColor: '#ffff',
               borderRadius: '50%',
-              border: '6px solid #ffffff',
-              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-              padding: '10px',
+              border: '3px solid rgba(0, 123, 255, 0.7)',
+              padding: '14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
