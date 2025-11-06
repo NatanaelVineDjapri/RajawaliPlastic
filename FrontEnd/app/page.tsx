@@ -1,13 +1,14 @@
 'use client';
 import React from 'react';
-import Hero from './components/heroSlider';
-import About from './components/about';
-
-export default function HomePage() {
+import SendEmail from './components/sendEmail';
+import Footer from './components/footer';
+const Page: React.FC = () => {
   return (
-    <>
-      <Hero />
-      <About />
-    </>
+    <main>
+      <SendEmail />
+      <Footer />
+    </main>
   );
-}
+};
+
+export default Page;
