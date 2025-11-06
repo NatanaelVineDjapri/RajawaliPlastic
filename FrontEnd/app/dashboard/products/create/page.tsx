@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Camera } from 'lucide-react';
-import QuantityInput from '@/app/components/admincomponents/QuantityInput';
 
 export default function CreateProductPage() {
   const pageTitle = 'Add Product';
@@ -15,9 +14,9 @@ export default function CreateProductPage() {
           <div 
             className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light"
             style={{ 
-              flex: '1',
-              maxWidth: '300px',
-              minHeight: '200px',
+              flex: '0 0 auto',
+              width: '330px', 
+              height: '330px',
               borderColor: '#d1d5db',
               cursor: 'pointer',
               transition: 'background-color 0.2s',
@@ -29,6 +28,7 @@ export default function CreateProductPage() {
             <Camera size={48} style={{ color: '#9ca3af' }} />
             <span className="small mt-2">Upload Product Image</span>
           </div>
+
           <form className="d-flex flex-column gap-3 flex-grow-1" style={{ flex: 2 }}>
             <div className="d-flex flex-column">
               <label htmlFor="productName" className="form-label small fw-medium text-secondary mb-1">Product Name</label>
@@ -40,31 +40,16 @@ export default function CreateProductPage() {
                 style={{ fontSize: '0.875rem' }}
               />
             </div>
-            <div className="d-flex flex-column">
-              <label htmlFor="price" className="form-label small fw-medium text-secondary mb-1">Price</label>
-              <input 
-                type="text" 
-                id="price" 
-                className="form-control p-3 border rounded-3 bg-light" 
-                placeholder="Enter product price" 
-                style={{ fontSize: '0.875rem' }}
-              />
-            </div>
-            <div className="d-flex flex-column">
+
+            <div className="d-flex flex-column flex-grow-1">
               <label htmlFor="description" className="form-label small fw-medium text-secondary mb-1">Description</label>
               <textarea 
                 id="description" 
                 className="form-control p-3 border rounded-3 bg-light" 
                 placeholder="Enter product description" 
-                rows={3}
-                style={{ fontSize: '0.875rem', minHeight: '100px', resize: 'vertical' }}
+                rows={5}
+                style={{ fontSize: '0.875rem', minHeight: '150px', resize: 'vertical' }}
               />
-            </div>
-            <div className="d-flex flex-column">
-              <label htmlFor="quantity" className="form-label small fw-medium text-secondary mb-1">
-                Configure quantity
-              </label>
-              <QuantityInput defaultValue={1} />
             </div>
 
             <button 

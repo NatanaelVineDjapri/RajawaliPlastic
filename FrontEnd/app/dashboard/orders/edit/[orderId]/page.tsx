@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
-import QuantityInput from '@/app/components/admincomponents/QuantityInput'; 
+import QuantityInput from '@/app/components/admincomponents/QuantityInput';
 
 const products = [
   { id: 1, name: 'Product 1' },
@@ -17,15 +17,15 @@ const products = [
 export default function EditOrderPage({ params }: { params: { orderId: string } }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<Record<number, boolean>>({});
-  const dropdownRef = useRef<HTMLDivElement>(null); 
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     console.log("Loading data for order:", params.orderId);
     setSelectedProducts({
       1: true,
       3: true,
-    });    
-  }, [params.orderId]); 
+    });
+  }, [params.orderId]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -42,13 +42,13 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
   const handleProductSelect = (productId: number) => {
     setSelectedProducts((prev) => ({
       ...prev,
-      [productId]: !prev[productId], 
+      [productId]: !prev[productId],
     }));
   };
 
   const getSelectedProductsText = () => {
     const selected = Object.values(selectedProducts).filter(Boolean);
-    if (selected.length === 0) return '-'; 
+    if (selected.length === 0) return '-';
     if (selected.length === 1) {
       const id = Object.keys(selectedProducts).find(key => selectedProducts[Number(key)]);
       return products.find(p => p.id === Number(id))?.name || '1 product selected';
@@ -60,10 +60,7 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
     <div className="w-100">
       <h1 className="fs-3 fw-bold text-dark mb-4">Order lists</h1>
 
-      <div 
-        className="rounded-3 p-4 mb-4" 
-        style={{ backgroundColor: '#C0FBFF' }}
-      >
+      <div className="rounded-3 p-4 mb-4" style={{ backgroundColor: '#C0FBFF' }}>
         <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
           Edit Order #{params.orderId}
         </h2>
@@ -86,7 +83,7 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
                 <ChevronRight size={20} className="text-primary" />
               </div>
             </div>
-            
+
             <div className="d-flex flex-column">
               <label htmlFor="price" className="form-label small fw-medium text-secondary mb-1">Price</label>
               <input
@@ -97,7 +94,18 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
                 style={{ fontSize: '0.875rem' }}
               />
             </div>
-            
+
+            <div className="d-flex flex-column">
+              <label htmlFor="address" className="form-label small fw-medium text-secondary mb-1">Address</label>
+              <textarea
+                id="address"
+                className="form-control p-3 border rounded-3 bg-light"
+                placeholder="..."
+                rows={3}
+                style={{ fontSize: '0.875rem', resize: 'none' }}
+              />
+            </div>
+
             <div className="d-flex flex-column">
               <label htmlFor="quantity" className="form-label small fw-medium text-secondary mb-1">
                 Configure quantity
@@ -105,16 +113,16 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
               <QuantityInput defaultValue={1} />
             </div>
           </div>
-          
+
           {isDropdownOpen && (
-            <div 
+            <div
               className="position-absolute bg-white rounded-3 shadow-lg border p-3"
-              style={{ 
-                top: '0',        
+              style={{
+                top: '0',
                 left: '370px',
                 width: '350px',
                 zIndex: 20,
-                marginTop: '0.75rem', 
+                marginTop: '0.75rem',
               }}
             >
               <div className="row row-cols-2 g-3 mb-3">
@@ -128,7 +136,7 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
                         checked={!!selectedProducts[product.id]}
                         onChange={() => handleProductSelect(product.id)}
                       />
-                      <label 
+                      <label
                         className="form-check-label"
                         htmlFor={`product-${product.id}`}
                       >
@@ -138,7 +146,7 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
                   </div>
                 ))}
               </div>
-              
+
               <div className="d-flex justify-content-end gap-2 pt-3 border-top">
                 <ChevronLeft size={20} className="text-muted" role="button" />
                 <ChevronRight size={20} className="text-muted" role="button" />
@@ -147,10 +155,10 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
           )}
         </div>
       </div>
-      
+
       <div className="d-flex justify-content-end mt-4">
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           className="btn px-4 py-2 rounded-3 fw-semibold"
           style={{
             backgroundColor: '#2563eb',
