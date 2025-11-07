@@ -13,11 +13,11 @@ Route::prefix('rs')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/products', [ProductController::class, 'index']);
-    Route::get('/testimonials', [TestimonialController::class, 'index']);
+    Route::get('/testimonials', action: [TestimonialController::class, 'index']);
     Route::get('/galleries', action: [GalleryController::class, 'index']);
     Route::get('/orders', [OrderController::class, 'index']);
 
-    Route::middleware('auth.api')->group(function () {
+    // Route::middleware('auth.api')->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout']);
 
         Route::get('/messages/{receiverId}', [MessageController::class, 'index']);
@@ -25,11 +25,8 @@ Route::prefix('rs')->group(function () {
         Route::put('/messages/{id}/read', [MessageController::class, 'markAsRead']);
         Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
 
-        Route::middleware('role:user')->group(function () {
-            //kosong
-        });
-
-        Route::middleware('role:admin')->group(function () {
+ 
+        // Route::middleware('role:admin')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
             Route::put('/products/{id}', [ProductController::class, 'update']);
             Route::delete('/products/{id}', [ProductController::class, 'destroy']);
@@ -51,6 +48,6 @@ Route::prefix('rs')->group(function () {
             Route::get('/sliders', [SliderController::class, 'index']);
             Route::post('/sliders', [SliderController::class, 'store']);
             Route::delete('/sliders/{id}', [SliderController::class, 'destroy']);
-        });
-    });
+        // });
+    // });
 });
