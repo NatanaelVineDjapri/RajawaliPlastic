@@ -72,7 +72,7 @@ const About: React.FC = () => {
               <Card
                 className="p-4 shadow-lg border-0"
                 style={{
-                  backgroundColor: '#5D6E83',
+                  backgroundColor: '#657a95ff',
                   color: '#e6e6e6',
                   borderRadius: '10px',
                   position: 'absolute',

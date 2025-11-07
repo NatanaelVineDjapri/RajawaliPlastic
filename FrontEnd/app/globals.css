@@ -1,3 +1,5 @@
+/*HERO SECTION (heroSlider.tsx)*/
+
 .hero-title {
   font-weight: 700;
   letter-spacing: -2px;
@@ -30,7 +32,7 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: transparent; /* ✅ hilangin putihnya */
+  background-color: transparent;
   border: none;
   color: rgba(255, 255, 255, 0.8);
   font-size: 3rem;
@@ -42,9 +44,8 @@
 }
 
 .hero-btn:hover {
-  color: #ffffff; /* sedikit lebih cerah saat hover */
+  color: #ffffff;
 }
-
 
 .hero-btn.left {
   left: 2%;
@@ -53,6 +54,88 @@
 .hero-btn.right {
   right: 2%;
 }
+
+/* PRODUCT SECTION (ProductSection.tsx) */
+
+.products-section {
+  transition: all 0.3s ease-in-out;
+}
+
+.product-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.product-image {
+  object-fit: cover;
+  border-radius: 12px;
+  transition: transform 0.3s ease;
+}
+
+.product-image-wrapper:hover .product-image {
+  transform: scale(1.05);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+}
+
+.order-btn {
+  background: linear-gradient(0deg, #162737, #3F719D);
+  border: none !important;
+  color: #fff;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(22, 39, 55, 0.15);
+}
+
+.order-btn:hover {
+  box-shadow: 0 8px 20px rgba(22, 39, 55, 0.35);
+  transform: translateY(-2px);
+}
+
+.product-desc {
+  text-align: justify;
+  line-height: 1.6;
+}
+
+@media (max-width: 992px) {
+  .products-section {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .products-section {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .product-desc {
+    max-width: 100%;
+    text-align: left;
+    line-height: 1.6;
+  }
+
+  .products-section h2 {
+    font-size: 2.2rem;
+  }
+}
+
+
+.carousel-caption {
+  bottom: 1rem !important;
+  right: 2rem !important;
+  left: 2rem !important;
+}
+
+.carousel-caption p {
+  margin-bottom: 0.3rem;
+  font-size: 0.95rem;
+}
+
 
 :root {
   --background: #ffffff;
