@@ -32,7 +32,7 @@ const Navbar: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+              MozBoxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
             }}
           >
             <Image

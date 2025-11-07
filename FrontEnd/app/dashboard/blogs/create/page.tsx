@@ -5,14 +5,12 @@ import { Camera } from 'lucide-react';
 
 export default function CreateBlogPage() {
   return (
-    <div className="container-fluid py-4">
+    <div className="container-fluid p-0 pt-4">
       <h1 className="fs-3 fw-semibold text-dark mb-4">Blogs</h1>
-      
-      <div className="bg-info-subtle border border-info-subtle rounded-3 p-4 mb-4">
+      <div className="bg-info-subtle border border-info-subtle rounded-3 p-4">
         <h2 className="fs-5 fw-semibold text-info">Add Blog</h2>
       </div>
-      
-      <form className="bg-white rounded-3 shadow-sm p-4">
+      <form className="bg-white rounded-3 shadow-sm p-4 mt-0">
         <div className="d-flex gap-4 align-items-start flex-column flex-lg-row">
           <div 
             className="d-flex flex-column align-items-center justify-content-center border-dashed border-2 border-secondary-subtle bg-light rounded-3 p-4 text-muted small"
@@ -64,7 +62,7 @@ export default function CreateBlogPage() {
             
             <button 
               type="submit" 
-              className="btn btn-secondary btn-sm mt-3 align-self-end" 
+              className="btn btn-primary btn-sm mt-3 align-self-end" 
               style={{ fontWeight: 600, fontSize: '0.875rem' }}
             >
               Add
