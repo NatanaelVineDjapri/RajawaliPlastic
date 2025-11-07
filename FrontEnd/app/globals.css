@@ -1,3 +1,7 @@
+html {
+  scroll-behavior: smooth;
+}
+
 /*HERO SECTION (heroSlider.tsx)*/
 
 .hero-title {
@@ -126,6 +130,20 @@
 
 /* TESTIMONY SECTION */
 
+.testimony-section {
+  background-color: #ffffff;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  margin-top: -60px;
+  transition: all 0.3s ease;
+}
+
+.testimony-section h2 {
+  font-size: 3.4rem;
+  color: #162737;
+  margin-bottom: 2rem;
+}
+
 .carousel-caption {
   bottom: 1rem !important;
   right: 2rem !important;
@@ -135,6 +153,102 @@
 .carousel-caption p {
   margin-bottom: 0.3rem;
   font-size: 0.95rem;
+}
+
+/* BLOGS SECTION */
+
+.blogs-section {
+  position: relative;
+  background: linear-gradient(180deg, #3F719D, #162737);
+  border-radius: 40px;
+  color: white;
+  padding-top: 80px;
+  padding-bottom: 80px;
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.blogs-title {
+  font-size: 3.4rem;
+  color: white;
+}
+
+.blogs-card {
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.blogs-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+}
+
+.blogs-image-wrapper {
+  position: relative;
+  height: 200px;
+}
+
+.blogs-image {
+  object-fit: cover;
+}
+
+.blogs-more-btn {
+  color: #162737 !important;
+  background-color: white !important;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.blogs-more-btn:hover {
+  background-color: #e9ecef !important;
+  transform: translateY(-2px);
+}
+
+/* GALLERY SECTION */
+
+.gallery-section {
+  background-color: #ffffff;
+  border-top-left-radius: 60px;
+  border-top-right-radius: 60px;
+  transition: all 0.3s ease;
+}
+
+.gallery-container {
+  max-width: 1200px;
+}
+
+.gallery-title {
+  font-size: 3.4rem;
+  color: #162737;
+}
+
+.gallery-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.gallery-image {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.gallery-image-wrapper:hover .gallery-image {
+  transform: scale(1.05);
+}
+
+@media (max-width: 992px) {
+  .gallery-title {
+    font-size: 2.5rem;
+  }
 }
 
 /* CONTACT SECTION */

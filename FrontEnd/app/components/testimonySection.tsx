@@ -1,6 +1,7 @@
-"use client";
+'use client';
 import Image from "next/image";
 import React from "react";
+import { Carousel } from "react-bootstrap"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const testimonies = [
@@ -22,68 +23,47 @@ const testimonies = [
 ];
 
 const partners = [
-  "/images/partnersSection/nivea.png",
-  "/images/partnersSection/apple.png",
-  "/images/partnersSection/mcd.png",
-  "/images/partnersSection/shell.png",
-  "/images/partnersSection/dove.png",
-  "/images/partnersSection/chanel.png",
+  "/images/partnersSection/partner.png",
+  "/images/partnersSection/partner.png",
+  "/images/partnersSection/partner.png",
+  "/images/partnersSection/partner.png",
+  "/images/partnersSection/partner.png",
+  "/images/partnersSection/partner.png",
 ];
 
 export default function TestimonySection() {
   return (
-    <section id="testimony" className="py-5 bg-light">
+    <section id="testimony" className="testimony-section">
       <div className="container text-center">
-        <h2 className="fw-bold mb-4">Testimoni</h2>
-        <hr className="mx-auto mb-5" style={{ width: "100px", borderTop: "3px solid #999" }} />
+        <h2 className="fw-bold mb-4" style={{ fontSize: '3.4rem', color: '#162737' }}>Testimoni</h2>
 
-        {/* Carousel Section */}
-        <div id="testimonyCarousel" className="carousel slide mb-5" data-bs-ride="carousel">
-          <div className="carousel-inner rounded-4 shadow">
+        <div className="mb-5"> 
+          <Carousel indicators={false} className="rounded-4 shadow">
             {testimonies.map((item, index) => (
-              <div
-                className={`carousel-item ${index === 0 ? "active" : ""}`}
+              <Carousel.Item 
                 key={index}
               >
-                <Image
-                  src={item.image}
-                  alt={`Testimony ${index + 1}`}
-                  width={1000}
-                  height={500}
-                  className="d-block w-100"
-                  style={{ objectFit: "cover", borderRadius: "15px" }}
-                />
-                <div className="carousel-caption d-none d-md-block bg-white bg-opacity-75 p-3 rounded text-dark">
+                <div style={{ position: 'relative', height: '500px' }}>
+                    <Image
+                      src={item.image}
+                      alt={`Testimony ${index + 1}`}
+                      fill 
+                      className="d-block w-100"
+                      style={{ objectFit: "cover", borderRadius: "15px" }}
+                    />
+                </div>
+                
+                <Carousel.Caption className="d-none d-md-block bg-white bg-opacity-75 p-3 rounded text-dark">
                   <p className="fst-italic">
                     <i className="bi bi-quote text-primary fs-3"></i> {item.text}
                   </p>
                   <small className="fw-bold">- {item.author}</small>
-                </div>
-              </div>
+                </Carousel.Caption>
+              </Carousel.Item>
             ))}
-          </div>
-
-          <button
-            className="carousel-control-prev"
-            type="button"
-            data-bs-target="#testimonyCarousel"
-            data-bs-slide="prev"
-          >
-            <span className="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Previous</span>
-          </button>
-          <button
-            className="carousel-control-next"
-            type="button"
-            data-bs-target="#testimonyCarousel"
-            data-bs-slide="next"
-          >
-            <span className="carousel-control-next-icon" aria-hidden="true"></span>
-            <span className="visually-hidden">Next</span>
-          </button>
+          </Carousel>
         </div>
 
-        {/* Partners Section */}
         <div className="row justify-content-center align-items-center gy-4">
           {partners.map((logo, idx) => (
             <div className="col-4 col-sm-2 text-center" key={idx}>

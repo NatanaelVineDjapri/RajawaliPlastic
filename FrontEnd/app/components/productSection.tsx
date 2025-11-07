@@ -9,7 +9,7 @@ const ProductsSection: React.FC = () => {
       id="products"
       className="products-section py-5"
       style={{
-        backgroundColor: '#f7f9fc',
+        backgroundColor: '#ffffff',
         borderTopLeftRadius: '60px',
         borderTopRightRadius: '60px',
         marginTop: '-10px',
