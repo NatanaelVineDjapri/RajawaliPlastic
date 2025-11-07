@@ -1,22 +1,20 @@
-'use client';
-
 import React from 'react';
 
-// Tipe untuk props
 interface SubmitButtonProps {
   isLoading: boolean;
-  text: string; // Teks normal (cth: "Create Order")
-  loadingText: string; // Teks pas loading (cth: "Creating Order...")
+  text: string;
+  loadingText: string;
+  form?: string; 
 }
 
-export default function SubmitButton({ isLoading, text, loadingText }: SubmitButtonProps) {
+export default function SubmitButton({ isLoading, text, loadingText, form }: SubmitButtonProps) {
   return (
     <div className="d-grid">
       <button 
         type="submit" 
-        // Kita pakai btn-primary (biru) sebagai default
         className="btn btn-primary btn-md fw-semibold"
         disabled={isLoading}
+        form={form} 
       >
         {isLoading ? loadingText : text}
       </button>

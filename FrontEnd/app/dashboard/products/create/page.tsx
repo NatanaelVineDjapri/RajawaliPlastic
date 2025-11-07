@@ -53,8 +53,12 @@ export default function CreateProductPage() {
 
     try {
       const result = await addProduct(formData);
-      MySwal.fire("Success!", result.message, "success");
-
+      MySwal.fire({
+        title: "Success!",
+        text: result.message,
+        icon: "success",
+        confirmButtonColor: "#0d6efd",
+      });
       setProductName("");
       setPrice("");
       setDescription("");
@@ -67,7 +71,12 @@ export default function CreateProductPage() {
     } catch (error) {
       let msg = "An unknown error occurred.";
       if (error instanceof Error) msg = error.message;
-      MySwal.fire("Oops...", msg, "error");
+      MySwal.fire({
+        title: "Oops...",
+        text: msg,
+        icon: "error",
+        confirmButtonColor: "#dc3545",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -78,16 +87,19 @@ export default function CreateProductPage() {
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
 
       <form onSubmit={handleSubmit}>
-        <div className="row g-4"> {/* Row utama */}
-          
+        <div className="row g-4">
+          {" "}
+          {/* Row utama */}
           <div className="col-lg-8">
-          
             <div className="bg-white rounded-3 shadow-sm p-4 h-100">
               <h5 className="fw-bold mb-4">Product Details</h5>
 
               <div className="d-flex flex-column gap-3">
                 <div className="d-flex flex-column">
-                  <label htmlFor="productName" className="form-label fw-semibold text-secondary small mb-1">
+                  <label
+                    htmlFor="productName"
+                    className="form-label fw-semibold text-secondary small mb-1"
+                  >
                     Product Name <span className="text-danger">*</span>
                   </label>
                   <input
@@ -102,7 +114,10 @@ export default function CreateProductPage() {
                 </div>
                 <div className="row g-3">
                   <div className="col-md-6">
-                    <label htmlFor="price" className="form-label fw-semibold text-secondary small mb-1">
+                    <label
+                      htmlFor="price"
+                      className="form-label fw-semibold text-secondary small mb-1"
+                    >
                       Price <span className="text-danger">*</span>
                     </label>
                     <input
@@ -116,7 +131,10 @@ export default function CreateProductPage() {
                     />
                   </div>
                   <div className="col-md-6">
-                    <label htmlFor="quantity" className="form-label fw-semibold text-secondary small mb-1">
+                    <label
+                      htmlFor="quantity"
+                      className="form-label fw-semibold text-secondary small mb-1"
+                    >
                       Quantity <span className="text-danger">*</span>
                     </label>
                     <div className="input-group">
@@ -148,14 +166,17 @@ export default function CreateProductPage() {
                 </div>
 
                 <div className="d-flex flex-column">
-                  <label htmlFor="description" className="form-label fw-semibold text-secondary small mb-1">
+                  <label
+                    htmlFor="description"
+                    className="form-label fw-semibold text-secondary small mb-1"
+                  >
                     Description
                   </label>
                   <textarea
                     id="description"
                     className="form-control p-3 border rounded-3"
                     placeholder="Enter product description"
-                    rows={5} 
+                    rows={5}
                     style={{ minHeight: "150px", resize: "vertical" }}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
@@ -164,11 +185,10 @@ export default function CreateProductPage() {
               </div>
             </div>
           </div>
-
           <div className="col-lg-4">
             <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-60 ">
               <h5 className="fw-bold mb-4">Product Image</h5>
-              
+
               <label
                 className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 position-relative"
                 style={{
@@ -189,7 +209,11 @@ export default function CreateProductPage() {
                     src={previewImage}
                     alt="Product Preview"
                     fill
-                    style={{ objectFit: "contain", borderRadius: "8px",  padding: '20px' }}
+                    style={{
+                      objectFit: "contain",
+                      borderRadius: "8px",
+                      padding: "20px",
+                    }}
                   />
                 ) : (
                   <>
@@ -206,19 +230,15 @@ export default function CreateProductPage() {
                 />
               </label>
             </div>
-             <div className="d-grid">
-                  <SubmitButton
-                    isLoading={isLoading}
-                    text="Add Product"
-                    loadingText="Adding Product..."
-                  />
-                </div>
+            <div className="d-grid">
+              <SubmitButton
+                isLoading={isLoading}
+                text="Add Product"
+                loadingText="Adding Product..."
+              />
+            </div>
           </div>
-         
-
         </div>
-
-      
       </form>
     </div>
   );

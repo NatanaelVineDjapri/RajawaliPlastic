@@ -80,7 +80,12 @@ export default function CreateOrderPage() {
 
     try {
       const result = await addOrder(formData);
-      MySwal.fire({ title: "Success!", text: result.message, icon: "success" });
+      MySwal.fire({
+        title: "Success!",
+        text: result.message,
+        icon: "success",
+        confirmButtonColor: "#0d6efd",
+      });
       setUserEmail("");
       setProductId(products.length > 0 ? String(products[0].id) : "");
       setQuantity(1);
@@ -92,7 +97,12 @@ export default function CreateOrderPage() {
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      MySwal.fire({ title: "Oops...", text: errorMessage, icon: "error" });
+      MySwal.fire({
+        title: "Oops...",
+        text: errorMessage,
+        icon: "error",
+        confirmButtonColor: "#dc3545",
+      });
     } finally {
       setIsLoading(false);
     }

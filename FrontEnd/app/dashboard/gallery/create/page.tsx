@@ -4,33 +4,33 @@ import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/SubmitButton";
-import { addTestimonial } from "@/services/testimonialService";
+import { addGallery } from "@/services/galleryService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Image from "next/image";
 
 const MySwal = withReactContent(Swal);
 
-export default function CreateTestimonyPage() {
-  const pageTitle = "Add Testimony";
+export default function CreateGalleryPage() {
+  const pageTitle = "Add Gallery Item";
 
-  const [name, setName] = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [logo, setLogo] = useState<File | null>(null);
-  const [previewLogo, setPreviewLogo] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const breadcrumbs = [
-    { label: "Testimony List", href: "/dashboard/testimony" },
-    { label: "Add Testimony" },
+    { label: "Gallery List", href: "/dashboard/gallery" },
+    { label: "Add Gallery" },
   ];
 
-  const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setLogo(file);
-      if (previewLogo) URL.revokeObjectURL(previewLogo);
-      setPreviewLogo(URL.createObjectURL(file));
+      setImage(file);
+      if (previewImage) URL.revokeObjectURL(previewImage);
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
@@ -39,25 +39,26 @@ export default function CreateTestimonyPage() {
     setIsLoading(true);
 
     const formData = new FormData();
-    formData.append("name", name);
+    formData.append("title", title);
     formData.append("description", description);
-    if (logo) formData.append("logo", logo);
+    if (image) {
+      formData.append("image", image);
+    }
 
     try {
-      const result = await addTestimonial(formData);
+      const result = await addGallery(formData);
       MySwal.fire({
         title: "Success!",
         text: result.message,
         icon: "success",
         confirmButtonColor: "#0d6efd",
       });
-
-      setName("");
+      setTitle("");
       setDescription("");
-      setLogo(null);
-      if (previewLogo) {
-        URL.revokeObjectURL(previewLogo);
-        setPreviewLogo(null);
+      setImage(null);
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+        setPreviewImage(null);
       }
     } catch (error) {
       let msg = "An unknown error occurred.";
@@ -66,7 +67,7 @@ export default function CreateTestimonyPage() {
         title: "Oops...",
         text: msg,
         icon: "error",
-        confirmButtonColor: "#dc3545", 
+        confirmButtonColor: "#dc3545",
       });
     } finally {
       setIsLoading(false);
@@ -81,23 +82,23 @@ export default function CreateTestimonyPage() {
         <div className="row g-4">
           <div className="col-lg-8">
             <div className="bg-white rounded-3 shadow-sm p-4 h-100">
-              <h5 className="fw-bold mb-4">Testimony Details</h5>
+              <h5 className="fw-bold mb-4">Gallery Details</h5>
 
               <div className="d-flex flex-column gap-3">
                 <div className="d-flex flex-column">
                   <label
-                    htmlFor="clientName"
+                    htmlFor="title"
                     className="form-label fw-semibold text-secondary small mb-1"
                   >
-                    Client Name <span className="text-danger">*</span>
+                    Title <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
-                    id="clientName"
+                    id="title"
                     className="form-control p-3 border rounded-3"
-                    placeholder="Enter client or company name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter gallery title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     required
                   />
                 </div>
@@ -112,7 +113,7 @@ export default function CreateTestimonyPage() {
                   <textarea
                     id="description"
                     className="form-control p-3 border rounded-3"
-                    placeholder="Enter testimony description..."
+                    placeholder="Enter gallery description (optional)"
                     rows={9}
                     style={{ minHeight: "150px", resize: "vertical" }}
                     value={description}
@@ -125,7 +126,7 @@ export default function CreateTestimonyPage() {
 
           <div className="col-lg-4">
             <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-60">
-              <h5 className="fw-bold mb-4">Client Logo</h5>
+              <h5 className="fw-bold mb-4">Gallery Image</h5>
 
               <label
                 className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 position-relative"
@@ -142,10 +143,10 @@ export default function CreateTestimonyPage() {
                   (e.currentTarget.style.backgroundColor = "#f9fafb")
                 }
               >
-                {previewLogo ? (
+                {previewImage ? (
                   <Image
-                    src={previewLogo}
-                    alt="Logo Preview"
+                    src={previewImage}
+                    alt="Gallery Preview"
                     fill
                     style={{
                       objectFit: "contain",
@@ -156,13 +157,13 @@ export default function CreateTestimonyPage() {
                 ) : (
                   <>
                     <Camera size={48} style={{ color: "#9ca3af" }} />
-                    <span className="small mt-2">Upload Client Logo</span>
+                    <span className="small mt-2">Upload Gallery Image</span>
                   </>
                 )}
                 <input
                   type="file"
                   className="d-none"
-                  onChange={handleLogoChange}
+                  onChange={handleImageChange}
                   accept="image/png, image/jpeg, image/webp"
                   required
                 />
@@ -172,8 +173,8 @@ export default function CreateTestimonyPage() {
             <div className="d-grid">
               <SubmitButton
                 isLoading={isLoading}
-                text="Add Testimony"
-                loadingText="Saving..."
+                text="Add Gallery Item"
+                loadingText="Uploading..."
               />
             </div>
           </div>

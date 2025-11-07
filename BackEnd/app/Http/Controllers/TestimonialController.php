@@ -38,7 +38,7 @@ class TestimonialController extends Controller
         ]);
 
         return response()->json([
-            'message' => 'Testimoni berhasil ditambahkan',
+            'message' => 'Testimony added successfully!',
             'testimonials' => $testimonials,
         ], 200);
     }
