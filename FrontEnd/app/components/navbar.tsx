@@ -48,17 +48,17 @@ const Navbar: React.FC = () => {
     };
     
     const navLinks = [
-        { href: '#home', label: 'Beranda' },
-        { href: '#about', label: 'Tentang Kami' },
-        { href: '#products', label: 'Produk' },
-        { href: '#testimonies', label: 'Testimoni' },
-        { href: '#blogs', label: 'Blogs' },
-        { href: '#gallery', label: 'Gallery' },
+        { href: '/#home', label: 'Beranda' },
+        { href: '/#about', label: 'Tentang Kami' },
+        { href: '/#products', label: 'Produk' },
+        { href: '/#testimonies', label: 'Testimoni' },
+        { href: '/#blogs', label: 'Blogs' },
+        { href: '/#gallery', label: 'Gallery' },
     ];
 
     return (
         <nav
-            className="navbar navbar-expand-lg rounded-pill px-5 py-0 position-fixed top-0 start-50 translate-middle-x mt-3"
+            className="navbar navbar-expand-lg rounded-pill px-5 py-0 position-fixed top-0 start-50 translate-middle-x mt-3 d-none d-lg-flex"
             style={navbarStyle}
         >
             <div className="container-fluid d-flex justify-content-between align-items-center">
@@ -134,14 +134,14 @@ const Navbar: React.FC = () => {
                         
                         <li className="nav-item">
                             <Link
-                                href="/contact"
+                                href="/chat"
                                 className={`btn ${buttonVariant} rounded-pill px-4 d-inline-flex align-items-center justify-content-center fw-bold`}
                                 style={{
                                     whiteSpace: 'nowrap',
                                     transition: 'background-color 0.3s ease, color 0.3s ease',
                                     color: buttonTextColor,
                                 }}
-                            >
+                                >
                                 Hubungi Kami!
                             </Link>
                         </li>

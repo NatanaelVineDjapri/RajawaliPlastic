@@ -2,6 +2,19 @@ html {
   scroll-behavior: smooth;
 }
 
+#about, #products, #gallery, #home {
+  scroll-margin-top: 90px; 
+}
+
+#blogs {
+  scroll-margin-top: 70px; 
+}
+
+#testimonies {
+  scroll-margin-top: 90px; 
+}
+
+
 /*HERO SECTION (heroSlider.tsx)*/
 
 .hero-title {
@@ -59,10 +72,187 @@ html {
   right: 2%;
 }
 
+/* ABOUT SECTION */
+
+.about-section {
+  position: relative;
+  background: linear-gradient(0deg, #162737, #3F719D);
+  color: white;
+  border-radius: 40px;
+  padding: 100px 0 140px 0;
+  margin-top: -70px;
+  overflow: hidden;
+}
+
+.about-container {
+  position: relative;
+  z-index: 2;
+}
+
+.about-title {
+  text-align: center;
+  font-size: 3.4rem;
+  font-weight: 700;
+  margin-bottom: 60px;
+  color: #fff;
+  text-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+.about-glass-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(16px);
+  border-radius: 25px;
+  padding: 50px;
+  gap: 40px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.25);
+}
+
+.about-image-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.about-image {
+  border-radius: 20px;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  transform: rotate(-2deg);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.about-image:hover {
+  transform: rotate(0deg) scale(1.03);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+}
+
+.about-content {
+  flex: 1.2;
+  color: #e8e8e8;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.about-vision-mission {
+  margin-top: 30px;
+}
+
+.about-vision-mission h5 {
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.about-vision-mission ul li {
+  margin-bottom: 6px;
+}
+
+.about-bg-orb {
+  position: absolute;
+  bottom: -120px;
+  right: -150px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0) 70%);
+  filter: blur(80px);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+@media (max-width: 992px) {
+  .about-glass-card {
+    flex-direction: column;
+    padding: 40px 30px;
+    gap: 25px;
+  }
+
+  .about-image {
+    transform: none;
+  }
+
+  .about-content {
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .about-title {
+    font-size: 2.4rem;
+    margin-bottom: 40px;
+  }
+
+  .about-glass-card {
+    padding: 30px 20px;
+  }
+
+  .about-content {
+    font-size: 0.95rem;
+  }
+}
+
+
 /* PRODUCT SECTION (ProductSection.tsx) */
 
 .products-section {
   transition: all 0.3s ease-in-out;
+  background-color: #ffffff;
+  border-top-left-radius: 60px;
+  border-top-right-radius: 60px;
+  margin-top: -10px;
+  padding-top: 150px;
+}
+
+.products-container {
+  max-width: 1200px;
+  padding-left: 5rem;
+  padding-right: 5rem;
+}
+
+.products-title {
+  font-size: 3.4rem;
+  color: #162737;
+}
+
+.product-name {
+  color: #162737;
+}
+
+.product-desc {
+  color: #333333;
+  line-height: 1.7;
+  text-align: justify;
+}
+
+.product-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-image {
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-image:hover {
+  transform: scale(1.05);
+}
+
+.order-btn {
+  background-color: #007bff;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.order-btn:hover {
+  background-color: #0056b3;
 }
 
 .product-image-wrapper {
