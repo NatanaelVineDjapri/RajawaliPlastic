@@ -1,121 +1,225 @@
 "use client";
 
-import React from "react";
+import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
-import QuantityInput from "@/app/components/admincomponents/QuantityInput";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import SubmitButton from "@/app/components/admincomponents/SubmitButton";
+import { addProduct } from "@/services/productService";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import Image from "next/image";
+
+const MySwal = withReactContent(Swal);
 
 export default function CreateProductPage() {
   const pageTitle = "Add Product";
 
+  const [productName, setProductName] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [image, setImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const breadcrumbs = [
+    { label: "Product List", href: "/dashboard/products" },
+    { label: "Add Product" },
+  ];
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImage(file);
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+      }
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append("name", productName);
+    formData.append("price", price);
+    formData.append("description", description);
+    formData.append("quantity", String(quantity));
+    if (image) {
+      formData.append("image", image);
+    }
+
+    try {
+      const result = await addProduct(formData);
+      MySwal.fire("Success!", result.message, "success");
+
+      setProductName("");
+      setPrice("");
+      setDescription("");
+      setQuantity(1);
+      setImage(null);
+      if (previewImage) {
+        URL.revokeObjectURL(previewImage);
+        setPreviewImage(null);
+      }
+    } catch (error) {
+      let msg = "An unknown error occurred.";
+      if (error instanceof Error) msg = error.message;
+      MySwal.fire("Oops...", msg, "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="w-100">
-      <h1 className="fs-3 fw-semibold text-dark mb-4">{pageTitle}</h1>
-      <div className="bg-white rounded-3 shadow p-4 mb-4">
-        <div className="d-flex gap-4">
-          <div
-            className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light"
-            style={{
-              flex: "1",
-              maxWidth: "300px",
-              minHeight: "200px",
-              borderColor: "#d1d5db",
-              cursor: "pointer",
-              transition: "background-color 0.2s",
-            }}
-            role="button"
-            onMouseOver={(e) =>
-              (e.currentTarget.style.backgroundColor = "#f3f4f6")
-            }
-            onMouseOut={(e) =>
-              (e.currentTarget.style.backgroundColor = "#f9fafb")
-            }
-          >
-            <Camera size={48} style={{ color: "#9ca3af" }} />
-            <span className="small mt-2">Upload Product Image</span>
-          </div>
-          <form
-            className="d-flex flex-column gap-3 flex-grow-1"
-            style={{ flex: 2 }}
-          >
-            <div className="d-flex flex-column">
-              <label
-                htmlFor="productName"
-                className="form-label small fw-medium text-secondary mb-1"
-              >
-                Product Name
-              </label>
-              <input
-                type="text"
-                id="productName"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="Enter product name"
-                style={{ fontSize: "0.875rem" }}
-              />
-            </div>
-            <div className="d-flex flex-column">
-              <label
-                htmlFor="price"
-                className="form-label small fw-medium text-secondary mb-1"
-              >
-                Price
-              </label>
-              <input
-                type="text"
-                id="price"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="Enter product price"
-                style={{ fontSize: "0.875rem" }}
-              />
-            </div>
-            <div className="d-flex flex-column">
-              <label
-                htmlFor="description"
-                className="form-label small fw-medium text-secondary mb-1"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="Enter product description"
-                rows={3}
-                style={{
-                  fontSize: "0.875rem",
-                  minHeight: "100px",
-                  resize: "vertical",
-                }}
-              />
-            </div>
-            <div className="d-flex flex-column">
-              <label
-                htmlFor="quantity"
-                className="form-label small fw-medium text-secondary mb-1"
-              >
-                Configure quantity
-              </label>
-              <QuantityInput defaultValue={1} />
-            </div>
+      <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
 
-            <button
-              type="submit"
-              className="btn btn-primary px-4 py-2 rounded-3 small fw-semibold mt-3 align-self-end"
-              style={{
-                transition: "background-color 0.2s ease",
-                backgroundColor: "#2563eb",
-                borderColor: "#2563eb",
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = "#1d4ed8")
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = "#2563eb")
-              }
-            >
-              Add Product
-            </button>
-          </form>
+      <form onSubmit={handleSubmit}>
+        <div className="row g-4"> {/* Row utama */}
+          
+          <div className="col-lg-8">
+          
+            <div className="bg-white rounded-3 shadow-sm p-4 h-100">
+              <h5 className="fw-bold mb-4">Product Details</h5>
+
+              <div className="d-flex flex-column gap-3">
+                <div className="d-flex flex-column">
+                  <label htmlFor="productName" className="form-label fw-semibold text-secondary small mb-1">
+                    Product Name <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="productName"
+                    className="form-control p-3 border rounded-3"
+                    placeholder="Enter product name"
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="row g-3">
+                  <div className="col-md-6">
+                    <label htmlFor="price" className="form-label fw-semibold text-secondary small mb-1">
+                      Price <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      id="price"
+                      className="form-control p-3 border rounded-3"
+                      placeholder="Enter product price"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="col-md-6">
+                    <label htmlFor="quantity" className="form-label fw-semibold text-secondary small mb-1">
+                      Quantity <span className="text-danger">*</span>
+                    </label>
+                    <div className="input-group">
+                      <button
+                        className="btn btn-light"
+                        type="button"
+                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      >
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        id="quantity"
+                        className="form-control text-center p-3"
+                        value={quantity}
+                        onChange={(e) => setQuantity(Number(e.target.value))}
+                        min="1"
+                        required
+                      />
+                      <button
+                        className="btn btn-light"
+                        type="button"
+                        onClick={() => setQuantity(quantity + 1)}
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="d-flex flex-column">
+                  <label htmlFor="description" className="form-label fw-semibold text-secondary small mb-1">
+                    Description
+                  </label>
+                  <textarea
+                    id="description"
+                    className="form-control p-3 border rounded-3"
+                    placeholder="Enter product description"
+                    rows={5} 
+                    style={{ minHeight: "150px", resize: "vertical" }}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="col-lg-4">
+            <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-60 ">
+              <h5 className="fw-bold mb-4">Product Image</h5>
+              
+              <label
+                className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 position-relative"
+                style={{
+                  minHeight: "320px",
+                  borderColor: "#d1d5db",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f3f4f6")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f9fafb")
+                }
+              >
+                {previewImage ? (
+                  <Image
+                    src={previewImage}
+                    alt="Product Preview"
+                    fill
+                    style={{ objectFit: "contain", borderRadius: "8px",  padding: '20px' }}
+                  />
+                ) : (
+                  <>
+                    <Camera size={48} style={{ color: "#9ca3af" }} />
+                    <span className="small mt-2">Upload Product Image</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  className="d-none"
+                  onChange={handleImageChange}
+                  accept="image/png, image/jpeg, image/webp"
+                  required
+                />
+              </label>
+            </div>
+             <div className="d-grid">
+                  <SubmitButton
+                    isLoading={isLoading}
+                    text="Add Product"
+                    loadingText="Adding Product..."
+                  />
+                </div>
+          </div>
+         
+
         </div>
-      </div>
+
+      
+      </form>
     </div>
   );
 }

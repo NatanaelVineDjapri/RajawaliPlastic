@@ -1,4 +1,4 @@
-import StatsGrid from "../components/admincomponents/statsgrid";
+import StatsGrid from "../components/admincomponents/StatsGrid";
 
 export default function DashboardPage() {
   return (
