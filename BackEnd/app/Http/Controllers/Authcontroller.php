@@ -17,6 +17,8 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|',
             'password' => "required|string|min:6|max:12|confirmed",
+            'address' => 'required|string|max:255',
+            'phone_number' => 'required|string|min:10|max:13'
 
         ]);
 
@@ -30,8 +32,8 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'address' => 'Belum Diisi',
-            'phone_number' => 'Belum Diisi',
+            'address' => $request->address,
+            'phone_number' =>  $request->phone_number,,
             'role' => 'customer',
             'image' => url(''), //belum disi wkwkkw
         ]);

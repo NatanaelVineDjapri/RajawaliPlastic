@@ -11,7 +11,7 @@ const formLinks: Record<string, string> = {
   '/dashboard/partners': '/dashboard/partners/create',
   '/dashboard/blogs': '/dashboard/blogs/create',
   '/dashboard/gallery': '/dashboard/gallery/upload',
-  '/dashboard/hero': '/dashboard/hero/edit',
+  '/dashboard/hero': '/dashboard/hero/upload',
 };
 
 export default function CreateButton() {

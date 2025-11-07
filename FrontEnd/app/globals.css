@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -40,3 +42,142 @@ a {
     color-scheme: dark;
   }
 }
+
+/* send us email */
+.contact-section {
+  color: white;
+}
+
+/* Judul besar di kiri */
+.contact-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 500;
+  line-height: 1.1;
+  text-transform: none;
+  color: #f5f5f5;
+}
+
+.contact-title span {
+  display: block;
+  font-weight: 700;
+  font-size: 3rem;
+  color: #ffffff;
+}
+
+
+button.custom-btn {
+  background-color: #7ba27b;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 25px;
+  transition: all 0.2s ease;
+}
+
+button.custom-btn:hover {
+  background-color: #6a926b;
+  transform: translateY(-2px);
+}
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .contact-title {
+    text-align: center;
+    font-size: 2rem;
+  }
+
+  .contact-title span {
+    font-size: 2.5rem;
+  }
+}
+
+
+.hero-title {
+  font-weight: 700;
+  letter-spacing: -2px;
+  font-size: clamp(3rem, 12vw + 1rem, 13rem);
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0rem;
+}
+
+.hero-title .fw-light {
+  margin-top: -1.7rem;
+}
+
+.hero-title span.block {
+  display: block;
+}
+
+.hero-subtitle {
+  font-size: clamp(0.2rem, 1.5vw + 0.5rem, 2rem);
+  margin-top: 1rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #f5f5f5;
+}
+
+.hero-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent; /* ✅ hilangin putihnya */
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 3rem;
+  padding: 0.5rem 1rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  z-index: 10;
+}
+
+.hero-btn:hover {
+  color: #ffffff; /* sedikit lebih cerah saat hover */
+}
+
+
+.hero-btn.left {
+  left: 2%;
+}
+
+.hero-btn.right {
+  right: 2%;
+}
+/* 🌙 FOOTER */
+.hover-icon:hover {
+  color: #00b4d8 !important;
+  transform: scale(1.2);
+  transition: all 0.2s ease;
+}
+
+.hover-link:hover {
+  color: #00b4d8 !important;
+  transition: color 0.2s ease;
+}
+
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer-right iframe {
+    width: 100%;
+    max-width: 320px;
+    height: 180px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+
