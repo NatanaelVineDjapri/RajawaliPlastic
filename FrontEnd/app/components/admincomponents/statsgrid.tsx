@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import StatCard from './StatCard';
 import { Users, Archive, TrendingUp, type LucideIcon } from 'lucide-react';
 

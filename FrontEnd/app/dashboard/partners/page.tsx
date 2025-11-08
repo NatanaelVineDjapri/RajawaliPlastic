@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { X } from 'lucide-react';
 
-const partners = [
+const initialPartners = [
   { id: 1, name: 'OT Group', logoSrc: '/images/logoRS.png' },
   { id: 2, name: 'Wings', logoSrc: '/images/logoRS.png' },
   { id: 3, name: 'Prima Pack', logoSrc: '/images/logoRS.png' },
@@ -14,10 +14,11 @@ const partners = [
 ];
 
 export default function PartnersPage() {
+  const [partners, setPartners] = useState(initialPartners);
   const pageTitle = 'Partners';
 
-  const handleDelete = (id: number, name: string) => {
-    console.log(`Menghapus partner ID ${id}: ${name}`);
+  const handleDelete = (id: number) => {
+    setPartners((prev) => prev.filter((partner) => partner.id !== id));
   };
 
   return (
@@ -39,13 +40,16 @@ export default function PartnersPage() {
             >
               <button
                 className="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 rounded-circle"
-                onClick={() => handleDelete(partner.id, partner.name)}
+                onClick={() => handleDelete(partner.id)}
                 style={{ width: '28px', height: '28px', padding: '0', zIndex: 10 }}
               >
                 <X size={14} />
               </button>
 
-              <div className="bg-white p-4 d-flex align-items-center justify-content-center" style={{ minHeight: '150px' }}>
+              <div
+                className="bg-white p-4 d-flex align-items-center justify-content-center"
+                style={{ minHeight: '150px' }}
+              >
                 <Image
                   src={partner.logoSrc}
                   alt={partner.name}

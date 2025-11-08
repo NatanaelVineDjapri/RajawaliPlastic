@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Camera } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface EditBlogPageProps {
   params: { blogId: string };
@@ -11,9 +12,9 @@ export default function EditBlogPage({ params }: EditBlogPageProps) {
   const [title, setTitle] = useState('');
   const [contents, setContents] = useState('');
   const [publishedAt, setPublishedAt] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
-    console.log('Loading data for blog:', params.blogId);
     setTitle('Judul Blog Lama dari Database');
     setContents('Ini adalah isi konten blog yang sudah ada sebelumnya...');
     setPublishedAt('01/11/25');
@@ -24,8 +25,7 @@ export default function EditBlogPage({ params }: EditBlogPageProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
-      console.log('Submitting updated blog data:', { title, contents, publishedAt });
-      alert('Blog Updated!');
+      router.push('../');
     } else {
       alert('Please fill in all required fields.');
     }

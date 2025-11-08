@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import QuantityInput from '@/app/components/admincomponents/QuantityInput'; 
+import { useRouter } from 'next/navigation';
 
 const products = [
   { id: 1, name: 'Product 1' },
@@ -15,6 +16,8 @@ const products = [
 ];
 
 export default function CreateOrderPage() {
+  const router = useRouter();
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<Record<number, boolean>>({});
   
@@ -49,6 +52,10 @@ export default function CreateOrderPage() {
     }
     return `${selected.length} products selected`;
   };
+  const handleCreateOrder = () => {
+      router.push('/dashboard/orders'); 
+  };
+
 
   return (
     <div className="w-100">
@@ -132,23 +139,20 @@ export default function CreateOrderPage() {
                   </div>
                 ))}
               </div>
-              
               <div className="d-flex justify-content-end gap-2 pt-3 border-top">
                 <ChevronLeft size={20} className="text-muted" role="button" />
                 <ChevronRight size={20} className="text-muted" role="button" />
               </div>
             </div>
           )}
-          
           <div className="flex-grow-1"></div>
         </div>
       </div>
-
       <div className="d-flex justify-content-end mt-4">
         <button 
-          type="submit" 
-          className="btn btn-secondary px-4 py-2 rounded-3 small fw-semibold disabled"
-          disabled
+          type="button"
+          className="btn btn-primary px-4 py-2 rounded-3 small fw-semibold"
+          onClick={handleCreateOrder}
         >
           Create
         </button>

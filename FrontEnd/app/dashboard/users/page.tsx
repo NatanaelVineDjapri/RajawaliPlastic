@@ -1,25 +1,35 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { MessageSquare, UserX } from 'lucide-react';
 
 type UserData = { id: number; name: string; role: string; avatar: string; };
 
-const adminList: UserData[] = [
+const initialAdminList: UserData[] = [
     { id: 1, name: 'Admin 001', role: 'Owner', avatar: '/images/avatarplaceholder.png' },
     { id: 2, name: 'Admin 002', role: 'Admin', avatar: '/images/avatarplaceholder.png' },
     { id: 3, name: 'Admin 003', role: 'Admin', avatar: '/images/avatarplaceholder.png' },
 ];
 
-const userList: UserData[] = [
+const initialUserList: UserData[] = [
     { id: 101, name: 'User_001', role: 'User', avatar: '/images/avatarplaceholder.png' },
     { id: 102, name: 'User_002', role: 'User', avatar: '/images/avatarplaceholder.png' },
     { id: 103, name: 'User_003', role: 'User', avatar: '/images/avatarplaceholder.png' },
 ];
 
-const UserListItem = ({ user, isAdmin }: { user: UserData, isAdmin: boolean, isSelected?: boolean }) => {
-    const baseBgColor = '#ffffff'; 
+const UserListItem = ({
+    user,
+    isAdmin,
+    onRemove,
+}: {
+    user: UserData;
+    isAdmin: boolean;
+    onRemove?: (id: number) => void;
+}) => {
+    const router = useRouter();
+    const baseBgColor = '#ffffff';
 
     return (
         <div
@@ -51,18 +61,23 @@ const UserListItem = ({ user, isAdmin }: { user: UserData, isAdmin: boolean, isS
             </span>
             {!isAdmin && (
                 <div className="ms-auto d-flex gap-2">
-                    <button 
-                        className="btn btn-sm rounded-circle p-1" 
+                    <button
+                        className="btn btn-sm rounded-circle p-1"
                         style={{ backgroundColor: '#e0e9ff', borderColor: '#d1e7ff', width: '32px', height: '32px' }}
+                        onClick={() => router.push(`chat`)}
                     >
                         <MessageSquare size={20} className="text-primary" />
                     </button>
-                    <button className="btn btn-sm btn-danger px-3 py-1 fw-bold rounded-3">
+                    <button
+                        className="btn btn-sm btn-danger px-3 py-1 fw-bold rounded-3"
+                        onClick={() => onRemove && onRemove(user.id)}
+                    >
                         Ban
                     </button>
-                    <button 
-                        className="btn btn-sm rounded-circle p-1" 
+                    <button
+                        className="btn btn-sm rounded-circle p-1"
                         style={{ backgroundColor: '#f8d7da', borderColor: '#f5c6cb', width: '32px', height: '32px' }}
+                        onClick={() => onRemove && onRemove(user.id)}
                     >
                         <UserX size={20} className="text-danger" />
                     </button>
@@ -73,6 +88,13 @@ const UserListItem = ({ user, isAdmin }: { user: UserData, isAdmin: boolean, isS
 };
 
 export default function UserRolePage() {
+    const [adminList] = useState(initialAdminList);
+    const [userList, setUserList] = useState(initialUserList);
+
+    const handleRemoveUser = (id: number) => {
+        setUserList((prev) => prev.filter((user) => user.id !== id));
+    };
+
     const backgroundStyle = {
         backgroundColor: '#C0FBFF',
         overflow: 'hidden',
@@ -89,27 +111,21 @@ export default function UserRolePage() {
     return (
         <div className="w-100 position-relative p-4" style={backgroundStyle}>
             <h1 className="fs-3 fw-bold text-dark mb-4">User & Role</h1>
+
             <div className="bg-white rounded-3 shadow p-4 mb-5" style={{ position: 'relative', zIndex: 10 }}>
                 <h2 className="fs-5 fw-semibold text-dark mb-3">Admin List</h2>
                 <div className="mb-4">
                     {adminList.map((admin) => (
-                        <UserListItem
-                            key={admin.id}
-                            user={admin}
-                            isAdmin={true}
-                        />
+                        <UserListItem key={admin.id} user={admin} isAdmin={true} />
                     ))}
                 </div>
             </div>
+
             <div className="bg-white rounded-3 shadow p-4" style={{ position: 'relative', zIndex: 10 }}>
                 <h2 className="fs-5 fw-semibold text-dark mb-3">User settings</h2>
                 <div>
                     {userList.map((user) => (
-                        <UserListItem
-                            key={user.id}
-                            user={user}
-                            isAdmin={false}
-                        />
+                        <UserListItem key={user.id} user={user} isAdmin={false} onRemove={handleRemoveUser} />
                     ))}
                 </div>
             </div>

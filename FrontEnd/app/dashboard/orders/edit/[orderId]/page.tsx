@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import QuantityInput from '@/app/components/admincomponents/QuantityInput';
+import { useRouter } from 'next/navigation';
 
 const products = [
   { id: 1, name: 'Product 1' },
@@ -15,16 +16,14 @@ const products = [
 ];
 
 export default function EditOrderPage({ params }: { params: { orderId: string } }) {
+  const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<Record<number, boolean>>({});
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log("Loading data for order:", params.orderId);
-    setSelectedProducts({
-      1: true,
-      3: true,
-    });
+    console.log('Loading data for order:', params.orderId);
+    setSelectedProducts({ 1: true, 3: true });
   }, [params.orderId]);
 
   useEffect(() => {
@@ -50,10 +49,15 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
     const selected = Object.values(selectedProducts).filter(Boolean);
     if (selected.length === 0) return '-';
     if (selected.length === 1) {
-      const id = Object.keys(selectedProducts).find(key => selectedProducts[Number(key)]);
-      return products.find(p => p.id === Number(id))?.name || '1 product selected';
+      const id = Object.keys(selectedProducts).find((key) => selectedProducts[Number(key)]);
+      return products.find((p) => p.id === Number(id))?.name || '1 product selected';
     }
     return `${selected.length} products selected`;
+  };
+
+  const handleSaveChanges = () => {
+    console.log('Saving changes for order:', params.orderId);
+    router.push('/dashboard/orders');
   };
 
   return (
@@ -85,7 +89,9 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
             </div>
 
             <div className="d-flex flex-column">
-              <label htmlFor="price" className="form-label small fw-medium text-secondary mb-1">Price</label>
+              <label htmlFor="price" className="form-label small fw-medium text-secondary mb-1">
+                Price
+              </label>
               <input
                 type="text"
                 id="price"
@@ -96,7 +102,9 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
             </div>
 
             <div className="d-flex flex-column">
-              <label htmlFor="address" className="form-label small fw-medium text-secondary mb-1">Address</label>
+              <label htmlFor="address" className="form-label small fw-medium text-secondary mb-1">
+                Address
+              </label>
               <textarea
                 id="address"
                 className="form-control p-3 border rounded-3 bg-light"
@@ -136,10 +144,7 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
                         checked={!!selectedProducts[product.id]}
                         onChange={() => handleProductSelect(product.id)}
                       />
-                      <label
-                        className="form-check-label"
-                        htmlFor={`product-${product.id}`}
-                      >
+                      <label className="form-check-label" htmlFor={`product-${product.id}`}>
                         {product.name}
                       </label>
                     </div>
@@ -158,7 +163,8 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
 
       <div className="d-flex justify-content-end mt-4">
         <button
-          type="submit"
+          type="button"
+          onClick={handleSaveChanges}
           className="btn px-4 py-2 rounded-3 fw-semibold"
           style={{
             backgroundColor: '#2563eb',
@@ -167,8 +173,8 @@ export default function EditOrderPage({ params }: { params: { orderId: string } 
             fontSize: '0.875rem',
             transition: 'background-color 0.2s ease',
           }}
-          onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
-          onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+          onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#1d4ed8')}
+          onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
         >
           Save Changes
         </button>

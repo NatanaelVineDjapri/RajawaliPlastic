@@ -2,8 +2,16 @@
 
 import React from 'react';
 import { Camera } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function CreatePartnerPage() {
+  const router = useRouter();
+  const handleAddPartner = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log("Adding new partner...");
+    router.push('./');
+  };
+
   return (
     <div className="w-100">
       <h1 className="fs-3 fw-bold text-dark mb-4">Partners</h1>
@@ -19,6 +27,7 @@ export default function CreatePartnerPage() {
       <form 
         className="bg-white rounded-3 shadow p-4"
         style={{ minHeight: '400px', position: 'relative' }} 
+        onSubmit={handleAddPartner}
       >
         <div className="d-flex gap-5 align-items-start">
           <div 
@@ -56,21 +65,19 @@ export default function CreatePartnerPage() {
         </div>
     
         <button 
-          type="submit" 
-          className="btn btn-secondary px-4 py-2 rounded-3 small fw-semibold disabled"
-          disabled
+          type="submit"
+          className="btn btn-primary px-4 py-2 rounded-3 small fw-semibold"
           style={{ 
             position: 'absolute',
             bottom: '1.5rem',
             right: '1.5rem',
-            backgroundColor: '#e5e7eb',
-            color: '#9ca3af',
-            cursor: 'not-allowed',
+            backgroundColor: '#2563eb',
+            color: '#ffffff',
+            border: 'none',
           }}
         >
           Add
-        </button>
-
+        </button> 
       </form>
     </div>
   );

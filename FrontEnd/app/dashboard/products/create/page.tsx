@@ -6,6 +6,7 @@ import QuantityInput from '@/app/components/admincomponents/QuantityInput';
 import { addProduct } from '@/services/productService';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { useRouter } from 'next/navigation';
 
 const MySwal = withReactContent(Swal);
 
@@ -38,6 +39,7 @@ const formInputStyle = {
 };
 
 export default function CreateProductPage() {
+  const router = useRouter();
   const pageTitle = 'Add Product';
 
   const [productName, setProductName] = useState<string>('');
@@ -90,6 +92,7 @@ export default function CreateProductPage() {
         URL.revokeObjectURL(previewImage);
         setPreviewImage(null);
       }
+      router.push('/dashboard/products');
     } catch (error) {
       let errorMessage = 'Terjadi kesalahan tidak diketahui.';
       if (error instanceof Error) {
