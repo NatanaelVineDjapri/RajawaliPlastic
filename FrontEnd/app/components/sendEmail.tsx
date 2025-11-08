@@ -8,7 +8,7 @@ const SendEmail: React.FC = () => {
     <section
       className="py-5 contact-section"
       style={{
-        backgroundImage: "url('/images/bg_daun.jpg')",
+        backgroundImage: "url('/images/bg_daun2.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}

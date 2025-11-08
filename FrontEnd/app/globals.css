@@ -14,6 +14,64 @@ html {
   scroll-margin-top: 90px; 
 }
 
+/* === AUTH SHARED STYLES === */
+.auth-container {
+  background-color: #f8f9fa;
+}
+
+.auth-card {
+  max-width: 900px;
+  background-color: white;
+  border-radius: 20px;
+}
+
+.auth-image img {
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+}
+
+/* === AUTH BACKGROUND VIDEO PAGE === */
+.auth-page-wrapper {
+  overflow: hidden;
+}
+
+.auth-bg-video {
+  object-fit: cover;
+  z-index: 0;
+}
+
+.auth-overlay {
+  z-index: 1;
+}
+
+.auth-card {
+  position: relative;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .auth-image {
+    height: 250px;
+  }
+}
+
+/* === GRADIENT BUTTON === */
+.btn-gradient {
+  background: linear-gradient(0deg, #162737, #3F719D);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(63, 113, 157, 0.4);
+  color: #fff;
+}
+
 
 /*HERO SECTION (heroSlider.tsx)*/
 
@@ -442,8 +500,10 @@ html {
 }
 
 /* CONTACT SECTION */
+
 .contact-section {
-  color: white;
+  padding-bottom: 6rem;
+  margin-bottom: -10px;
 }
 
 .contact-title {

@@ -8,7 +8,7 @@ const ChatPage: React.FC = () => {
     <div
       className="chat-page d-flex flex-column align-items-center justify-content-center"
       style={{
-        backgroundImage: 'url("/images/bg_Chat.jpg")', // ganti ke path image lo
+        backgroundImage: 'url("/images/Background_Hero.png")',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         minHeight: '100vh',

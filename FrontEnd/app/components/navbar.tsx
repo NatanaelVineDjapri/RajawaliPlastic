@@ -148,7 +148,7 @@ const Navbar: React.FC = () => {
                         
                         <li className="nav-item ms-2">
                             <Link 
-                                href="/profile" 
+                                href="/auth/login" 
                                 className={`nav-link fs-4 d-flex align-items-center`}
                                 style={{ color: iconColor, transition: 'color 0.3s ease' }}
                             >
