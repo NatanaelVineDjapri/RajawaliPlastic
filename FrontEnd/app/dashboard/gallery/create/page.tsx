@@ -146,19 +146,18 @@ export default function CreateGalleryPage() {
                 {previewImage ? (
                   <Image
                     src={previewImage}
-                    alt="Gallery Preview"
+                    alt="Slider Preview"
                     fill
-                    style={{
-                      objectFit: "contain",
-                      borderRadius: "8px",
-                      padding: "20px",
-                    }}
+                    style={{ objectFit: "cover", borderRadius: "8px" }}
+                    unoptimized
                   />
                 ) : (
-                  <>
+                  <div className="d-flex flex-column align-items-center">
                     <Camera size={48} style={{ color: "#9ca3af" }} />
-                    <span className="small mt-2">Upload Gallery Image</span>
-                  </>
+                    <span className="small mt-2">
+                      Click to upload (Max 2MB, 16:9)
+                    </span>
+                  </div>
                 )}
                 <input
                   type="file"

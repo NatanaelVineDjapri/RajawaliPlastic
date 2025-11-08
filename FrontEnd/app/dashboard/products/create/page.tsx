@@ -88,8 +88,6 @@ export default function CreateProductPage() {
 
       <form onSubmit={handleSubmit}>
         <div className="row g-4">
-          {" "}
-          {/* Row utama */}
           <div className="col-lg-8">
             <div className="bg-white rounded-3 shadow-sm p-4 h-100">
               <h5 className="fw-bold mb-4">Product Details</h5>
@@ -207,19 +205,18 @@ export default function CreateProductPage() {
                 {previewImage ? (
                   <Image
                     src={previewImage}
-                    alt="Product Preview"
+                    alt="Slider Preview"
                     fill
-                    style={{
-                      objectFit: "contain",
-                      borderRadius: "8px",
-                      padding: "20px",
-                    }}
+                    style={{ objectFit: "cover", borderRadius: "8px" }}
+                    unoptimized
                   />
                 ) : (
-                  <>
+                  <div className="d-flex flex-column align-items-center">
                     <Camera size={48} style={{ color: "#9ca3af" }} />
-                    <span className="small mt-2">Upload Product Image</span>
-                  </>
+                    <span className="small mt-2">
+                      Click to upload (Max 2MB, 16:9)
+                    </span>
+                  </div>
                 )}
                 <input
                   type="file"

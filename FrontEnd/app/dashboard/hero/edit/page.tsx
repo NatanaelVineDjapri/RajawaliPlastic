@@ -168,10 +168,10 @@ export default function SliderManagementPage() {
                   unoptimized
                 />
               ) : (
-                <div className="text-muted text-center">
+                <div className="d-flex flex-column align-items-center">
                   <Camera size={48} style={{ color: "#9ca3af" }} />
                   <span className="small mt-2">
-                    Click to upload (Max 2MB, 16:9 ratio recommended)
+                    Click to upload (Max 2MB, 16:9)
                   </span>
                 </div>
               )}

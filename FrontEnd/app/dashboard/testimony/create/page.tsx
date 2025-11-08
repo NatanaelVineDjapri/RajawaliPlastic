@@ -66,7 +66,7 @@ export default function CreateTestimonyPage() {
         title: "Oops...",
         text: msg,
         icon: "error",
-        confirmButtonColor: "#dc3545", 
+        confirmButtonColor: "#dc3545",
       });
     } finally {
       setIsLoading(false);
@@ -155,8 +155,12 @@ export default function CreateTestimonyPage() {
                   />
                 ) : (
                   <>
-                    <Camera size={48} style={{ color: "#9ca3af" }} />
-                    <span className="small mt-2">Upload Client Logo</span>
+                    <div className="d-flex flex-column align-items-center">
+                      <Camera size={48} style={{ color: "#9ca3af" }} />
+                      <span className="small mt-2">
+                        Click to upload (Max 2MB, 16:9)
+                      </span>
+                    </div>
                   </>
                 )}
                 <input

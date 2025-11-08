@@ -80,12 +80,7 @@ export default function CreateOrderPage() {
 
     try {
       const result = await addOrder(formData);
-      MySwal.fire({
-        title: "Success!",
-        text: result.message,
-        icon: "success",
-        confirmButtonColor: "#0d6efd",
-      });
+      MySwal.fire({ title: "Success!", text: result.message, icon: "success", confirmButtonColor: "#0d6efd" });
       setUserEmail("");
       setProductId(products.length > 0 ? String(products[0].id) : "");
       setQuantity(1);
@@ -97,12 +92,7 @@ export default function CreateOrderPage() {
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      MySwal.fire({
-        title: "Oops...",
-        text: errorMessage,
-        icon: "error",
-        confirmButtonColor: "#dc3545",
-      });
+      MySwal.fire({ title: "Oops...", text: errorMessage, icon: "error", confirmButtonColor: "#dc3545" });
     } finally {
       setIsLoading(false);
     }
@@ -116,63 +106,49 @@ export default function CreateOrderPage() {
   return (
     <div className="w-100">
       <PageHeader title="Create New Order" breadcrumbs={breadcrumbs} />
-
       <form onSubmit={handleSubmit}>
         <div className="row g-4">
           <div className="col-lg-8">
             <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-100">
               <h5 className="fw-bold mb-4">Order Information</h5>
-
-              <div className="mb-3">
-                <label
-                  htmlFor="userEmail"
-                  className="form-label fw-semibold text-secondary small"
-                >
-                  User Email <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="email"
-                  id="userEmail"
-                  className="form-control p-3"
-                  placeholder="e.g., user@gmail.com"
-                  value={userEmail}
-                  onChange={(e) => setUserEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="mb-3">
-                <label
-                  htmlFor="productName"
-                  className="form-label fw-semibold text-secondary small"
-                >
-                  Product Name <span className="text-danger">*</span>
-                </label>
-                <CustomSelect
-                  id="productName"
-                  options={productOptions}
-                  value={
-                    productOptions.find((opt) => opt.value === productId) ||
-                    null
-                  }
-                  onChange={(selectedOption) => {
-                    setProductId(selectedOption ? selectedOption.value : "");
-                  }}
-                  placeholder={
-                    !products || products.length === 0
-                      ? "Loading products..."
-                      : "Select a product"
-                  }
-                  required
-                />
-              </div>
-
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <label
-                    htmlFor="quantity"
-                    className="form-label fw-semibold text-secondary small"
-                  >
+                <div className="mb-3"> 
+                  <label htmlFor="userEmail" className="form-label fw-semibold text-secondary small">
+                    User Email <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="userEmail"
+                    className="form-control p-3"
+                    placeholder="e.g., user@gmail.com"
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="productName" className="form-label fw-semibold text-secondary small">
+                    Product Name <span className="text-danger">*</span>
+                  </label>
+                  <CustomSelect
+                    id="productName"
+                    options={productOptions}
+                    value={
+                      productOptions.find((opt) => opt.value === productId) ||
+                      null
+                    }
+                    onChange={(selectedOption) => {
+                      setProductId(selectedOption ? selectedOption.value : "");
+                    }}
+                    placeholder={
+                      !products || products.length === 0
+                        ? "Loading products..."
+                        : "Select a product"
+                    }
+                    required
+                  />
+                </div>
+                <div className="mb"> 
+                  <label htmlFor="quantity" className="form-label fw-semibold text-secondary small">
                     Quantity <span className="text-danger">*</span>
                   </label>
                   <div className="input-group">
@@ -201,11 +177,9 @@ export default function CreateOrderPage() {
                     </button>
                   </div>
                 </div>
-                <div className="col-md-6">
-                  <label
-                    htmlFor="totalPrice"
-                    className="form-label fw-semibold text-secondary small"
-                  >
+
+                <div className="mb"> 
+                  <label htmlFor="totalPrice" className="form-label fw-semibold text-secondary small">
                     Total Price
                   </label>
                   <input
@@ -217,7 +191,6 @@ export default function CreateOrderPage() {
                     onChange={(e) => setTotalPrice(e.target.value)}
                   />
                 </div>
-              </div>
             </div>
           </div>
 
@@ -226,10 +199,7 @@ export default function CreateOrderPage() {
               <h5 className="fw-bold mb-4">Order Settings</h5>
 
               <div className="mb-3">
-                <label
-                  htmlFor="status"
-                  className="form-label fw-semibold text-secondary small"
-                >
+                <label htmlFor="status" className="form-label fw-semibold text-secondary small">
                   Delivery Status <span className="text-danger">*</span>
                 </label>
                 <CustomSelect
@@ -246,16 +216,13 @@ export default function CreateOrderPage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="notes"
-                  className="form-label fw-semibold text-secondary small"
-                >
+                <label htmlFor="notes" className="form-label fw-semibold text-secondary small">
                   Notes
                 </label>
                 <textarea
                   id="notes"
                   className="form-control"
-                  rows={6}
+                  rows={8}
                   placeholder="Additional notes (optional)"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
