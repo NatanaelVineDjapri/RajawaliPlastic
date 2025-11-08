@@ -15,9 +15,7 @@ export default function CreateProductPage() {
   const pageTitle = "Add Product";
 
   const [productName, setProductName] = useState("");
-  const [price, setPrice] = useState("");
   const [description, setDescription] = useState("");
-  const [quantity, setQuantity] = useState(1);
   const [image, setImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,9 +42,7 @@ export default function CreateProductPage() {
 
     const formData = new FormData();
     formData.append("name", productName);
-    formData.append("price", price);
     formData.append("description", description);
-    formData.append("quantity", String(quantity));
     if (image) {
       formData.append("image", image);
     }
@@ -60,9 +56,7 @@ export default function CreateProductPage() {
         confirmButtonColor: "#0d6efd",
       });
       setProductName("");
-      setPrice("");
       setDescription("");
-      setQuantity(1);
       setImage(null);
       if (previewImage) {
         URL.revokeObjectURL(previewImage);
@@ -110,58 +104,6 @@ export default function CreateProductPage() {
                     required
                   />
                 </div>
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <label
-                      htmlFor="price"
-                      className="form-label fw-semibold text-secondary small mb-1"
-                    >
-                      Price <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      id="price"
-                      className="form-control p-3 border rounded-3"
-                      placeholder="Enter product price"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="col-md-6">
-                    <label
-                      htmlFor="quantity"
-                      className="form-label fw-semibold text-secondary small mb-1"
-                    >
-                      Quantity <span className="text-danger">*</span>
-                    </label>
-                    <div className="input-group">
-                      <button
-                        className="btn btn-light"
-                        type="button"
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      >
-                        -
-                      </button>
-                      <input
-                        type="number"
-                        id="quantity"
-                        className="form-control text-center p-3"
-                        value={quantity}
-                        onChange={(e) => setQuantity(Number(e.target.value))}
-                        min="1"
-                        required
-                      />
-                      <button
-                        className="btn btn-light"
-                        type="button"
-                        onClick={() => setQuantity(quantity + 1)}
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-                </div>
 
                 <div className="d-flex flex-column">
                   <label
@@ -174,7 +116,7 @@ export default function CreateProductPage() {
                     id="description"
                     className="form-control p-3 border rounded-3"
                     placeholder="Enter product description"
-                    rows={5}
+                    rows={9}
                     style={{ minHeight: "150px", resize: "vertical" }}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
