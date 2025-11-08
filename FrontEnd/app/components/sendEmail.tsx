@@ -1,21 +1,20 @@
 "use client";
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../globals.css"; // tempat CSS tambahan
+import "../globals.css";
 
 const SendEmail: React.FC = () => {
   return (
     <section
       className="py-5 contact-section"
       style={{
-        backgroundImage: "url('/images/bg_daun.jpg')",
+        backgroundImage: "url('/images/bg_daun2.png')",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
       <div className="container text-light">
         <div className="row align-items-center g-5">
-          {/* Kiri: Text */}
           <div className="col-md-5 text-md-start text-center">
             <h2 className="contact-title">
               Send Us an <span>Email!</span>
@@ -26,7 +25,6 @@ const SendEmail: React.FC = () => {
             </p>
           </div>
 
-          {/* Kanan: Form */}
           <div className="col-md-7">
             <form className="bg-light bg-opacity-75 p-4 rounded-4 shadow-sm">
               <div className="row mb-3">
