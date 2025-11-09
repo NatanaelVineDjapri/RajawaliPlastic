@@ -13,7 +13,6 @@ interface StatItem {
 }
 
 const stats: StatItem[] = [
-  // ... (data stats Anda tetap sama) ...
   {
     title: 'Total Customer',
     value: '40,689',

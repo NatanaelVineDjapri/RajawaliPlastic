@@ -75,14 +75,14 @@ export default function QuantityInput({
           margin: 0;
         }
         input[type='number'] {
-          -moz-appearance: textfield; /* Untuk Firefox */
+          -moz-appearance: textfield;
         }
         .btn-link {
           text-decoration: none;
           box-shadow: none;
         }
         .btn-link:hover {
-          background-color: #f3f4f6; /* Efek hover dari CSS asli */
+          background-color: #f3f4f6; 
         }
       `}</style>
     </div>

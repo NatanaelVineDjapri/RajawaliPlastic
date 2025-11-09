@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
+import LogoutModal from './LogoutModal';
 import {
   LayoutDashboard,
   Boxes,
@@ -15,7 +15,6 @@ import {
   FileText,
   GalleryVertical,
   Layers,
-  Settings,
   LogOut,
   type LucideIcon,
 } from 'lucide-react';
@@ -44,11 +43,18 @@ interface NavLinkProps {
 
 export default function Sidenavbar() {
   const pathname = usePathname();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleLogoutConfirm = () => {
+    console.log("Sidenav: User confirmed logout. Redirecting...");
+    setIsModalOpen(false);
+  };
+
   const renderLink = (link: NavLinkProps) => {
     const { href, label, icon: Icon } = link;
     const isActive = pathname === href;
-    const linkClassName = `nav-link d-flex align-items-center gap-2 rounded-3 ${
-      isActive ? 'active' : 'text-dark'
+    const linkClassName = `nav-link d-flex align-items-center gap-2 rounded-3 py-2 px-3 ${
+      isActive ? 'active fw-semibold' : 'text-dark'
     }`;
 
     return (
@@ -62,41 +68,54 @@ export default function Sidenavbar() {
   return (
     <aside
       className="d-flex flex-column vh-100 bg-white border-end"
-      style={{ width: '16rem' }}
+      style={{ width: '14rem' }}
     >
-      <div className="flex-grow-1 overflow-y-auto">
-        <nav className="nav nav-pills flex-column p-3 gap-1">
+      <div className="flex-grow-1"> 
+        <nav className="nav nav-pills flex-column p-3 pt-1 mt-1 gap-1"> 
           {mainNavLinks.map(renderLink)}
         </nav>
-        <div className="px-3 pt-2 pb-1">
+
+        <div className="px-3 pt-3 pb-1">
           <span className="small fw-semibold text-muted text-uppercase">
             Pages
           </span>
         </div>
-        <nav className="nav nav-pills flex-column p-3 pt-1 gap-1">
+
+        <nav className="nav nav-pills flex-column px-3 pt-1 pb-3 gap-1">
           {pageNavLinks.map(renderLink)}
         </nav>
+        
+        <div className="border-top mt-2 p-3">
+          <nav className="nav nav-pills flex-column gap-1">
+            <Link
+              href="/dashboard/adminsettings"
+              className={`nav-link d-flex align-items-center gap-2 rounded-3 py-2 px-3 ${
+                pathname === '/dashboard/adminsettings'
+                  ? 'active fw-semibold'
+                  : 'text-dark'
+              }`}
+            >
+              <UserCog size={16} />
+              Admin Settings
+            </Link>
+
+            <div
+              role="button"
+              className="nav-link text-danger d-flex align-items-center gap-2 rounded-3 py-2 px-3"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <LogOut size={16} />
+              Logout
+            </div>
+          </nav>
+        </div>
       </div>
-      <div className="mt-auto border-top p-3">
-        <nav className="nav nav-pills flex-column gap-1">
-          <Link
-            href="/dashboard/settings"
-            className={`nav-link d-flex align-items-center gap-2 rounded-3 ${
-              pathname === '/dashboard/settings' ? 'active' : 'text-dark'
-            }`}
-          >
-            <Settings size={16} />
-            Settings
-          </Link>
-          <Link
-            href="#"
-            className="nav-link text-danger d-flex align-items-center gap-2 rounded-3"
-          >
-            <LogOut size={16} />
-            Logout
-          </Link>
-        </nav>
-      </div>
+      
+      <LogoutModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onConfirm={handleLogoutConfirm} 
+      />
     </aside>
   );
 }

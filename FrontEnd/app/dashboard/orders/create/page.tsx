@@ -210,7 +210,7 @@ export default function CreateOrderPage() {
                         id={`productName-${index}`}
                         options={productOptions}
                         value={productOptions.find((opt) => opt.value === product.productId) || null}
-                        onChange={(selectedOption) => handleProductChange(index, selectedOption ? selectedOption.value : "")}
+                        // onChange={(selectedOption) => handleProductChange(index, selectedOption ? selectedOption.value : "")}
                         placeholder={!products || products.length === 0 ? "Loading..." : "Select product"}
                         required
                       />
@@ -285,7 +285,7 @@ export default function CreateOrderPage() {
                   id="status"
                   options={statusOptions}
                   value={statusOptions.find((opt) => opt.value === status)}
-                  onChange={(selectedOption) => setStatus(selectedOption ? selectedOption.value : "pending")}
+                  // onChange={(selectedOption) => setStatus(selectedOption ? selectedOption.value : "pending")}
                   required
                 />
               </div>
