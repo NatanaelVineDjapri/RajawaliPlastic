@@ -112,3 +112,20 @@ export async function deleteTestimonial(id: string | number): Promise<ApiSuccess
 
   return await response.json() as ApiSuccessResponse;
 }
+
+export const getTestimonialsById = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/testimonials/${id}`, {
+    method: 'GET',
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json();
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
+    throw new Error(`Gagal mengambil data testimonial (ID: ${id}).`);
+  }
+
+  return await response.json() as ApiSuccessResponse;
+};
