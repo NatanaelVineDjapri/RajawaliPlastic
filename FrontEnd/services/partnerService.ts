@@ -1,3 +1,5 @@
+// services/partnerService.ts
+
 const API_URL = 'http://localhost:8000/api/rs';
 
 interface ApiSuccessResponse {
@@ -8,6 +10,7 @@ interface ApiSuccessResponse {
 interface ApiErrorResponse {
   message?: string;
   messages?: Record<string, string[]>;
+  errors?: Record<string, string[]>; 
 }
 
 const getToken = (): string | null => {
@@ -32,25 +35,8 @@ const getHeaders = (): HeadersInit => {
 };
 
 
-export async function getTestimonials(): Promise<ApiSuccessResponse> {
-  const response = await fetch(`${API_URL}/testimonials`, {
-    method: 'GET',
-    headers: getHeaders(),
-  });
-
-  if (!response.ok) {
-    const errorData: ApiErrorResponse = await response.json();
-    if (errorData.message) {
-      throw new Error(errorData.message);
-    }
-    throw new Error(`Gagal mengambil testimonials. Status: ${response.status}`);
-  }
-
-  return await response.json() as ApiSuccessResponse;
-}
-
-export async function addTestimonial(formData: FormData): Promise<ApiSuccessResponse> {
-  const response = await fetch(`${API_URL}/testimonials`, {
+export const addPartner = async (formData: FormData): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/partners`, {
     method: 'POST',
     headers: getHeaders(), 
     body: formData,
@@ -58,6 +44,10 @@ export async function addTestimonial(formData: FormData): Promise<ApiSuccessResp
 
   if (!response.ok) {
     const errorData: ApiErrorResponse = await response.json();
+    if (errorData.errors) {
+      const firstError = Object.values(errorData.errors)[0][0];
+      throw new Error(firstError);
+    }
     if (errorData.messages) {
       const firstError = Object.values(errorData.messages)[0][0];
       throw new Error(firstError);
@@ -65,39 +55,31 @@ export async function addTestimonial(formData: FormData): Promise<ApiSuccessResp
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal menambahkan testimonial. Status: ${response.status}`);
+    throw new Error(`Failed to add partner. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
 
-export async function updateTestimonial(id: string | number, formData: FormData): Promise<ApiSuccessResponse> {
-  
-  formData.append('_method', 'PUT'); 
-
-  const response = await fetch(`${API_URL}/testimonials/${id}`, {
-    method: 'POST', 
+export const getPartners = async (): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/partners`, {
+    method: 'GET',
     headers: getHeaders(), 
-    body: formData,
   });
 
   if (!response.ok) {
     const errorData: ApiErrorResponse = await response.json();
-    if (errorData.messages) {
-      const firstError = Object.values(errorData.messages)[0][0];
-      throw new Error(firstError);
-    }
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal mengupdate testimonial. Status: ${response.status}`);
+    throw new Error(`Failed to retrieve partners. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
 
-export async function deleteTestimonial(id: string | number): Promise<ApiSuccessResponse> {
-  const response = await fetch(`${API_URL}/testimonials/${id}`, {
+export const deletePartner = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/partners/${id}`, {
     method: 'DELETE',
     headers: getHeaders(), 
   });
@@ -107,7 +89,7 @@ export async function deleteTestimonial(id: string | number): Promise<ApiSuccess
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal menghapus testimonial. Status: ${response.status}`);
+    throw new Error(`Failed to delete partner. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;

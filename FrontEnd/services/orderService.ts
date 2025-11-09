@@ -17,26 +17,25 @@ const getToken = (): string | null => {
   return null;
 };
 
-const getHeaders = (): HeadersInit => {
+const getHeaders = (): Record<string, string> => { // 1. Ubah HeadersInit
   const token = getToken();
-  
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = { // 2. Ubah HeadersInit
     'Accept': 'application/json', 
   };
-
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
-
   return headers;
 };
 
+export const addOrder = async (payload: any): Promise<ApiSuccessResponse> => {
+  const headers = getHeaders();
+  headers['Content-Type'] = 'application/json';
 
-export const addProduct = async (formData: FormData): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products`, {
+  const response = await fetch(`${API_URL}/orders`, {
     method: 'POST',
-    headers: getHeaders(), 
-    body: formData,
+    headers: headers,
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
@@ -48,14 +47,14 @@ export const addProduct = async (formData: FormData): Promise<ApiSuccessResponse
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal menambahkan produk. Status: ${response.status}`);
+    throw new Error(`Gagal menambahkan order. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
 
-export const getProducts = async (): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products`, {
+export const getOrders = async (): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/orders`, {
     method: 'GET',
     headers: getHeaders(), 
   });
@@ -65,19 +64,38 @@ export const getProducts = async (): Promise<ApiSuccessResponse> => {
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal mengambil data produk. Status: ${response.status}`);
+    throw new Error(`Failed to retrieve orders. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
-export const updateProduct = async (id: string | number, formData: FormData): Promise<ApiSuccessResponse> => {
-  formData.append('_method', 'PUT');
-  formData.append('last_edited', new Date().toISOString());
 
-  const response = await fetch(`${API_URL}/products/${id}`, {
-    method: 'POST',
+export const getOrderById = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/orders/${id}`, {
+    method: 'GET',
     headers: getHeaders(),
-    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json();
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
+    throw new Error(`Gagal mengambil order. Status: ${response.status}`);
+  }
+
+  return await response.json() as ApiSuccessResponse;
+};
+
+
+export const updateOrder = async (id: string | number, payload: any): Promise<ApiSuccessResponse> => {
+  const headers = getHeaders();
+  headers['Content-Type'] = 'application/json';
+
+  const response = await fetch(`${API_URL}/orders/${id}`, {
+    method: 'PUT', 
+    headers: headers, 
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
@@ -89,14 +107,14 @@ export const updateProduct = async (id: string | number, formData: FormData): Pr
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal mengupdate produk. Status: ${response.status}`);
+    throw new Error(`Gagal mengupdate order. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
-};
+}
 
-export const deleteProduct = async (id: string | number): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products/${id}`, {
+export const deleteOrder = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/orders/${id}`, {
     method: 'DELETE',
     headers: getHeaders(), 
   });
@@ -106,14 +124,14 @@ export const deleteProduct = async (id: string | number): Promise<ApiSuccessResp
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal menghapus produk. Status: ${response.status}`);
+    throw new Error(`Gagal menghapus order. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
 
-export const getLastEditedProducts = async (): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products/last-edited`, {
+export const getOrderSummary = async (): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/orders/summary`, {
     method: 'GET',
     headers: getHeaders(),
   });
@@ -123,14 +141,14 @@ export const getLastEditedProducts = async (): Promise<ApiSuccessResponse> => {
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal mengambil produk terakhir diedit. Status: ${response.status}`);
+    throw new Error(`Gagal mengambil summary. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
-};
+}
 
-export const getProductById = async (id: string | number): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products/${id}`, {
+export const getOrderDetailSummary = async (): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/orders/summary-detail`, {
     method: 'GET',
     headers: getHeaders(),
   });
@@ -140,8 +158,8 @@ export const getProductById = async (id: string | number): Promise<ApiSuccessRes
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal mengambil data produk (ID: ${id}).`);
+    throw new Error(`Gagal mengambil detail summary. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
-};
+}

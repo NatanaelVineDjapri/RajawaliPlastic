@@ -4,34 +4,32 @@ import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/SubmitButton";
-import { addProduct } from "@/services/productService";
+import { addGallery } from "@/services/galleryService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Image from "next/image";
 
 const MySwal = withReactContent(Swal);
 
-export default function CreateProductPage() {
-  const pageTitle = "Add Product";
+export default function CreateGalleryPage() {
+  const pageTitle = "Add Gallery Item";
 
-  const [productName, setProductName] = useState("");
+  const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const breadcrumbs = [
-    { label: "Product List", href: "/dashboard/products" },
-    { label: "Add Product" },
+    { label: "Gallery List", href: "/dashboard/gallery" },
+    { label: "Add Gallery" },
   ];
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setImage(file);
-      if (previewImage) {
-        URL.revokeObjectURL(previewImage);
-      }
+      if (previewImage) URL.revokeObjectURL(previewImage);
       setPreviewImage(URL.createObjectURL(file));
     }
   };
@@ -41,21 +39,21 @@ export default function CreateProductPage() {
     setIsLoading(true);
 
     const formData = new FormData();
-    formData.append("name", productName);
+    formData.append("title", title);
     formData.append("description", description);
     if (image) {
       formData.append("image", image);
     }
 
     try {
-      const result = await addProduct(formData);
+      const result = await addGallery(formData);
       MySwal.fire({
         title: "Success!",
         text: result.message,
         icon: "success",
         confirmButtonColor: "#0d6efd",
       });
-      setProductName("");
+      setTitle("");
       setDescription("");
       setImage(null);
       if (previewImage) {
@@ -84,23 +82,23 @@ export default function CreateProductPage() {
         <div className="row g-4">
           <div className="col-lg-8">
             <div className="bg-white rounded-3 shadow-sm p-4 h-100">
-              <h5 className="fw-bold mb-4">Product Details</h5>
+              <h5 className="fw-bold mb-4">Gallery Details</h5>
 
               <div className="d-flex flex-column gap-3">
                 <div className="d-flex flex-column">
                   <label
-                    htmlFor="productName"
+                    htmlFor="title"
                     className="form-label fw-semibold text-secondary small mb-1"
                   >
-                    Product Name <span className="text-danger">*</span>
+                    Title <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
-                    id="productName"
+                    id="title"
                     className="form-control p-3 border rounded-3"
-                    placeholder="Enter product name"
-                    value={productName}
-                    onChange={(e) => setProductName(e.target.value)}
+                    placeholder="Enter gallery title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                     required
                   />
                 </div>
@@ -115,7 +113,7 @@ export default function CreateProductPage() {
                   <textarea
                     id="description"
                     className="form-control p-3 border rounded-3"
-                    placeholder="Enter product description"
+                    placeholder="Enter gallery description (optional)"
                     rows={9}
                     style={{ minHeight: "150px", resize: "vertical" }}
                     value={description}
@@ -125,9 +123,10 @@ export default function CreateProductPage() {
               </div>
             </div>
           </div>
+
           <div className="col-lg-4">
-            <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-60 ">
-              <h5 className="fw-bold mb-4">Product Image</h5>
+            <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-60">
+              <h5 className="fw-bold mb-4">Gallery Image</h5>
 
               <label
                 className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 position-relative"
@@ -169,11 +168,12 @@ export default function CreateProductPage() {
                 />
               </label>
             </div>
+
             <div className="d-grid">
               <SubmitButton
                 isLoading={isLoading}
-                text="Add Product"
-                loadingText="Adding Product..."
+                text="Add Gallery Item"
+                loadingText="Uploading..."
               />
             </div>
           </div>
