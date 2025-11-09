@@ -2,12 +2,10 @@ import "../../globals.css";
 
 const BlogContentText = () => {
   return (
-    <section className="blog-section py-5">
+    <section className="content-blog-section py-5">
       <div className="container text-white" style={{ maxWidth: "720px" }}>
         <h1 className="text-center fw-bold mb-1">Mengenal Perbedaan PP, PE, dan PS!</h1>
-        <p className="text-center text-light opacity-75 mb-4">
-          Kamis, 30 Oktober 2025
-        </p>
+        <p className="text-center text-light opacity-75 mb-4">Kamis, 30 Oktober 2025</p>
 
         <p className="text-justify">
           Dalam dunia plastik, istilah PP, PE, dan PS sering kali muncul, terutama pada
