@@ -1,210 +1,155 @@
-'use client';
+"use client";
 
-import React from 'react';
-import Image from 'next/image';
-import { Camera } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import { getProducts, deleteProduct } from "@/services/productService";
+import { Edit, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
-const lastEditedProducts = [
-  {
-    img: '/images/avatarplaceholder.png',
-    name: 'PP - White (Tebal)',
-    price: '199.999',
-    desc: 'Produk plastik indah dan menarik untuk semua keperluan...',
-    qty: 1000,
-  },
-  {
-    img: '/images/avatarplaceholder.png',
-    name: 'PE - Clear (Tipis)',
-    price: '150.000',
-    desc: 'Plastik bening untuk pembungkus makanan ringan, kualitas terjamin.',
-    qty: 550,
-  },
-  {
-    img: '/images/avatarplaceholder.png',
-    name: 'HDPE - Hitam',
-    price: '220.500',
-    desc: 'Plastik jenis heavy-duty untuk kebutuhan industri dan berat.',
-    qty: 250,
-  },
-];
+const MySwal = withReactContent(Swal);
 
-export default function EditProductPage() {
-  const pageTitle = 'Edit Products';
+interface Product {
+  id: string;
+  name: string;
+  image_url: string;
+  description?: string;
+  quantity?: number;
+}
+
+export default function ProductsPage() {
+  const pageTitle = "Products";
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Products" },
+  ];
+
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  async function fetchProducts() {
+    setIsLoading(true);
+    try {
+      const result = await getProducts();
+      if (result.data && Array.isArray(result.data)) {
+        setProducts(result.data);
+      }
+    } catch (error) {
+      console.error(error);
+      MySwal.fire("Error", "Failed to fetch products.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleDelete = (id: string) => {
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#007bff",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteProduct(id)
+          .then(() => {
+            MySwal.fire("Deleted!", "Product has been deleted.", "success");
+            fetchProducts();
+          })
+          .catch((error) => {
+            MySwal.fire("Failed", error.message, "error");
+          });
+      }
+    });
+  };
 
   return (
-    <div className="w-100">
-      <h1 className="fs-3 fw-semibold text-dark mb-4">{pageTitle}</h1>
+    <div className="w-100 position-relative">
+      <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
 
-      <div className="bg-white rounded-3 shadow p-4 mb-4">
-        <div className="d-flex gap-4">
-          <div
-            className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light"
-            style={{
-              flex: '0 0 auto',
-              width: '300px',
-              height: '300px',
-              borderColor: '#d1d5db',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-            }}
-            role="button"
-            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#f3f4f6')}
-            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#f9fafb')}
-          >
-            <Camera size={48} style={{ color: '#9ca3af' }} />
-            <span className="small mt-2">Upload Product Image</span>
+      {isLoading && (
+        <div className="text-center p-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
           </div>
-
-          <form className="d-flex flex-column gap-3 flex-grow-1" style={{ flex: 2 }}>
-            <div className="d-flex flex-column">
-              <label
-                htmlFor="productName"
-                className="form-label small fw-medium text-secondary mb-1"
-              >
-                Product Name
-              </label>
-              <input
-                type="text"
-                id="productName"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="Enter product name"
-                style={{ fontSize: '0.875rem' }}
-              />
-            </div>
-
-            <div className="d-flex flex-column flex-grow-1">
-              <label
-                htmlFor="description"
-                className="form-label small fw-medium text-secondary mb-1"
-              >
-                Description
-              </label>
-              <textarea
-                id="description"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="Enter product description"
-                rows={5}
-                style={{ fontSize: '0.875rem', minHeight: '180px', resize: 'vertical' }}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="btn btn-secondary px-4 py-2 rounded-3 small fw-semibold mt-3 align-self-end disabled"
-              style={{ backgroundColor: '#e5e7eb', color: '#9ca3af' }}
-            >
-              Apply Changes
-            </button>
-          </form>
         </div>
-      </div>
+      )}
 
-      <div className="bg-white rounded-3 shadow table-responsive">
-        <h2
-          className="fs-5 fw-semibold p-4 mb-0 border-bottom text-dark"
-          style={{ borderColor: '#f3f4f6' }}
-        >
-          Last Edited products
-        </h2>
-        <table className="table table-hover mb-0">
-          <thead>
-            <tr>
-              <th
-                className="text-uppercase text-secondary small fw-bold bg-light"
-                style={{ padding: '1rem 1.5rem', borderBottomWidth: '1px' }}
+      {!isLoading && products.length === 0 && (
+        <div className="text-center p-5 bg-white rounded-3 shadow-sm">
+          <p className="text-muted mb-0">
+            No products found. Click the + button to add one.
+          </p>
+        </div>
+      )}
+
+      {!isLoading && products.length > 0 && (
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 pb-5">
+          {products.map((item) => (
+            <div key={item.id} className="col">
+              <div
+                className="card h-100 overflow-hidden rounded-3 shadow-sm border-0"
+                style={{ backgroundColor: "#ffffff", borderColor: "#dee2e6" }}
               >
-                Product picture
-              </th>
-              <th
-                className="text-uppercase text-secondary small fw-bold bg-light"
-                style={{ padding: '1rem 1.5rem', borderBottomWidth: '1px' }}
-              >
-                Product Name
-              </th>
-              <th
-                className="text-uppercase text-secondary small fw-bold bg-light"
-                style={{ padding: '1rem 1.5rem', borderBottomWidth: '1px' }}
-              >
-                Price
-              </th>
-              <th
-                className="text-uppercase text-secondary small fw-bold bg-light"
-                style={{ padding: '1rem 1.5rem', borderBottomWidth: '1px' }}
-              >
-                Description
-              </th>
-              <th
-                className="text-uppercase text-secondary small fw-bold bg-light"
-                style={{ padding: '1rem 1.5rem', borderBottomWidth: '1px' }}
-              >
-                Quantity
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {lastEditedProducts.map((product, index) => (
-              <tr key={index}>
-                <td
-                  className="align-middle text-secondary"
+                <div
                   style={{
-                    padding: '1rem 1.5rem',
-                    fontSize: '0.875rem',
-                    borderBottom: '1px solid #f3f4f6',
+                    height: "200px",
+                    overflow: "hidden",
+                    position: "relative",
                   }}
                 >
                   <Image
-                    src={product.img}
-                    alt={product.name}
-                    width={32}
-                    height={32}
-                    className="rounded-circle object-fit-cover"
+                    src={item.image_url}
+                    alt={item.name}
+                    fill
+                    className="card-img-top"
+                    style={{ objectFit: "cover" }}
+                    unoptimized
                   />
-                </td>
-                <td
-                  className="align-middle text-dark fw-medium"
-                  style={{
-                    padding: '1rem 1.5rem',
-                    fontSize: '0.875rem',
-                    borderBottom: '1px solid #f3f4f6',
-                  }}
-                >
-                  {product.name}
-                </td>
-                <td
-                  className="align-middle text-dark"
-                  style={{
-                    padding: '1rem 1.5rem',
-                    fontSize: '0.875rem',
-                    borderBottom: '1px solid #f3f4f6',
-                  }}
-                >
-                  {product.price}
-                </td>
-                <td
-                  className="align-middle text-dark"
-                  style={{
-                    padding: '1rem 1.5rem',
-                    fontSize: '0.875rem',
-                    borderBottom: '1px solid #f3f4f6',
-                  }}
-                >
-                  {product.desc}
-                </td>
-                <td
-                  className="align-middle text-dark"
-                  style={{
-                    padding: '1rem 1.5rem',
-                    fontSize: '0.875rem',
-                    borderBottom: '1px solid #f3f4f6',
-                  }}
-                >
-                  {product.qty}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </div>
+
+                <div className="card-body p-3 text-start d-flex flex-column">
+                  <h5 className="card-title fw-semibold small text-dark mb-2">
+                    {item.name}
+                  </h5>
+                  <h5 className="card-title small text-dark mb-3 fw-normal">
+                    {(item.description ?? "")
+                      .split(" ")
+                      .slice(0, 10)
+                      .join(" ") +
+                      ((item.description ?? "").split(" ").length > 10
+                        ? "..."
+                        : "")}
+                  </h5>
+
+                  <div className="mt-auto d-flex gap-2">
+                    <Link
+                      href={`/dashboard/products/edit/${item.id}`}
+                      className="btn btn-sm btn-outline-primary px-3 rounded-3 d-flex align-items-center gap-1"
+                    >
+                      <Edit size={14} /> Edit
+                    </Link>
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

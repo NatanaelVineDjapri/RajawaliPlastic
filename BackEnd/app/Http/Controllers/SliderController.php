@@ -24,12 +24,14 @@ class SliderController extends Controller
             return response()->json(['message' => $validator->errors()], 422);
         }
 
-        // Simpan file ke storage/app/public/sliders
-        $path = $request->file('image')->store('sliders', 'public');
+        $path = null;
 
-        // Simpan path relatif ke database (misal: storage/sliders/namafile.jpg)
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('sliders', 'public');
+        }
+
         $slider = Slider::create([
-            'image' => 'storage/' . $path,
+            'image' => $path ? asset('storage/' . $path) : null,
         ]);
 
         return response()->json([
@@ -45,7 +47,6 @@ class SliderController extends Controller
             return response()->json(['message' => 'Slider tidak ditemukan'], 404);
         }
 
-        // Hapus file fisik di storage/public/sliders
         if ($slider->image && str_contains($slider->image, 'storage/')) {
             $oldPath = str_replace('storage/', '', $slider->image);
             Storage::disk('public')->delete($oldPath);

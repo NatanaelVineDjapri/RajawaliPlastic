@@ -1,162 +1,309 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
-import QuantityInput from '@/app/components/admincomponents/QuantityInput'; 
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, FormEvent } from "react";
+import { addOrder } from "@/services/orderService";
+import { getProducts } from "@/services/productService";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import SubmitButton from "@/app/components/admincomponents/TempButton";
+import CustomSelect, { SelectOption } from "@/app/components/admincomponents/customSelect";
+import { Plus, Trash2 } from "lucide-react";
+const MySwal = withReactContent(Swal);
 
-const products = [
-  { id: 1, name: 'Product 1' },
-  { id: 2, name: 'Product 2' },
-  { id: 3, name: 'Product 3' },
-  { id: 4, name: 'Product 4' },
-  { id: 5, name: 'Product 5' },
-  { id: 6, name: 'Product 6' },
-  { id: 7, name: 'Product 7' },
+interface Product {
+  id: number;
+  name: string;
+  price?: number;
+}
+
+interface OrderProduct {
+  productId: string;
+  quantity: number;
+  totalPrice: number;
+}
+
+const statusOptions: SelectOption[] = [
+  { value: "pending", label: "Pending" },
+  { value: "proses", label: "Processing" },
+  { value: "kirim", label: "Shipped" },
+  { value: "selesai", label: "Completed" },
 ];
 
 export default function CreateOrderPage() {
-  const router = useRouter();
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [status, setStatus] = useState<string>("pending");
+  const [notes, setNotes] = useState<string>("");
+  
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productOptions, setProductOptions] = useState<SelectOption[]>([]);
+  
+  const [orderProducts, setOrderProducts] = useState<OrderProduct[]>([
+    { productId: "", quantity: 1, totalPrice: 0 } 
+  ]);
+  
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState<Record<number, boolean>>({});
-  
-  const productSelectorRef = useRef<HTMLDivElement>(null); 
-  const formGridRef = useRef<HTMLDivElement>(null);
-  
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (formGridRef.current && !formGridRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
+    async function fetchProducts() {
+      try {
+        const result = await getProducts();
+        if (result.data && Array.isArray(result.data)) {
+          setProducts(result.data);
+          const options = result.data.map((product: Product) => ({
+            value: String(product.id),
+            label: product.name,
+          }));
+          setProductOptions(options);
+          if (result.data.length > 0) {
+            handleProductChange(0, String(result.data[0].id));
+          }
+        } else {
+          setProducts([]);
+          setProductOptions([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+        MySwal.fire("Error", "Failed to load product data.", "error");
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []); 
+    fetchProducts();
+  }, []);
 
-  const handleProductSelect = (productId: number) => {
-    setSelectedProducts((prev) => ({
-      ...prev,
-      [productId]: !prev[productId],
-    }));
-  };
+  const updateOrderProduct = (index: number, field: keyof OrderProduct, value: string | number) => {
+    const updatedProducts = [...orderProducts];
+    const product = updatedProducts[index];
 
-  const getSelectedProductsText = () => {
-    const selected = Object.values(selectedProducts).filter(Boolean);
-    if (selected.length === 0) return '-';
-    if (selected.length === 1) {
-      const id = Object.keys(selectedProducts).find(key => selectedProducts[Number(key)]);
-      return products.find(p => p.id === Number(id))?.name || '1 product selected';
+    if (field === 'productId') {
+      const selectedProduct = products.find((p) => String(p.id) === value);
+      product.productId = String(value);
+      product.totalPrice = (selectedProduct?.price || 0) * product.quantity;
+    } else if (field === 'quantity') {
+      const selectedProduct = products.find((p) => String(p.id) === product.productId);
+      product.quantity = Number(value);
+      product.totalPrice = (selectedProduct?.price || 0) * product.quantity;
+    } else if (field === 'totalPrice') {
+      product.totalPrice = Number(value);
     }
-    return `${selected.length} products selected`;
-  };
-  const handleCreateOrder = () => {
-      router.push('/dashboard/orders'); 
+    
+    setOrderProducts(updatedProducts);
   };
 
+  const handleProductChange = (index: number, productId: string) => {
+    updateOrderProduct(index, 'productId', productId);
+  };
+  
+  const handleQuantityChange = (index: number, quantity: number) => {
+    updateOrderProduct(index, 'quantity', Math.max(1, quantity));
+  };
+
+  const handlePriceChange = (index: number, price: number) => {
+    updateOrderProduct(index, 'totalPrice', Math.max(0, price));
+  };
+  
+  const addProductForm = () => {
+    const defaultProductId = productOptions.length > 0 ? productOptions[0].value : "";
+    const defaultPrice = products.find(p => String(p.id) === defaultProductId)?.price || 0;
+    
+    setOrderProducts([
+      ...orderProducts,
+      { productId: defaultProductId, quantity: 1, totalPrice: defaultPrice }
+    ]);
+  };
+
+  const removeProductForm = (index: number) => {
+    if (orderProducts.length <= 1) return;
+    setOrderProducts(orderProducts.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const payload = {
+      user_email: userEmail,
+      status,
+      notes,
+      products: orderProducts.map(p => ({ 
+        product_id: p.productId,
+        quantity: p.quantity,
+        total_price: p.totalPrice
+      })),
+    };
+
+    try {
+      const result = await addOrder(payload); 
+      MySwal.fire({ title: "Success!", text: result.message, icon: "success", confirmButtonColor: "#0d6efd" });
+      setUserEmail("");
+      setStatus("pending");
+      setNotes("");
+      const defaultProductId = productOptions.length > 0 ? productOptions[0].value : "";
+      const defaultPrice = products.find(p => String(p.id) === defaultProductId)?.price || 0;
+      setOrderProducts([{ productId: defaultProductId, quantity: 1, totalPrice: defaultPrice }]);
+    } catch (error) {
+      let errorMessage = "An unknown error occurred.";
+      if (error instanceof Error) errorMessage = error.message;
+      MySwal.fire({ title: "Oops...", text: errorMessage, icon: "error", confirmButtonColor: "#dc3545" });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const breadcrumbs = [
+    { label: "Order List", href: "/dashboard/orders" },
+    { label: "Create Order" },
+  ];
 
   return (
     <div className="w-100">
-      <h1 className="fs-3 fw-bold text-dark mb-4">Order lists</h1> 
+      <PageHeader title="Create New Order" breadcrumbs={breadcrumbs} />
+      <form onSubmit={handleSubmit}>
+        <div className="row g-4">
+          <div className="col-lg-8">
+            <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-100">
+              <h5 className="fw-bold mb-4">Order Information</h5>
 
-      <div className="rounded-3 p-4 mb-4" style={{ backgroundColor: '#C0FBFF' }}>
-        <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
-          Create new order
-        </h2>
-      </div>
-
-      <div className="bg-white rounded-3 shadow p-4">
-        <div className="d-flex gap-4 position-relative" ref={formGridRef}>
-          <div className="d-flex flex-column gap-3" style={{ width: '350px', flexShrink: 0 }}>
-            <div className="d-flex flex-column position-relative">
-              <label htmlFor="productName" className="form-label small fw-semibold text-secondary mb-1">
-                Product Name
-              </label>
-              <div
-                ref={productSelectorRef}
-                className="d-flex justify-content-between align-items-center p-3 border rounded-3 bg-light text-dark fw-medium"
-                role="button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                style={{ cursor: 'pointer', borderColor: '#d1d5db' }}
-              >
-                <span>{getSelectedProductsText()}</span>
-                <ChevronRight size={20} className="text-primary" />
+              <div className="mb-3">
+                <label htmlFor="userEmail" className="form-label fw-semibold text-secondary small">
+                  User Email <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="email"
+                  id="userEmail"
+                  className="form-control p-3"
+                  placeholder="e.g., user@gmail.com"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                  required
+                />
               </div>
-            </div>
 
-            <div className="d-flex flex-column">
-              <label htmlFor="price" className="form-label small fw-semibold text-secondary mb-1">
-                Price
-              </label>
-              <input
-                type="text"
-                id="price"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="-"
-                style={{ fontSize: '0.875rem' }}
-              />
-            </div>
+              <hr className="my-4" />
+              
+              <h5 className="fw-bold mb-3">Products</h5>
+              
+              {orderProducts.map((product, index) => (
+                <div key={index} className="border rounded-3 p-3 mb-3 position-relative">
+                  {orderProducts.length > 1 && (
+                    <button 
+                      type="button" 
+                      className="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
+                      style={{ zIndex: 10 }}
+                      onClick={() => removeProductForm(index)}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
 
-            <div className="d-flex flex-column">
-              <label htmlFor="quantity" className="form-label small fw-semibold text-secondary mb-1">
-                Configure quantity
-              </label>
-              <QuantityInput defaultValue={1} />
-            </div>
-          </div>
-
-          {isDropdownOpen && (
-            <div 
-              className="position-absolute bg-white rounded-3 shadow-lg border p-3" 
-              style={{ 
-                top: '0', 
-                left: '370px',
-                width: '350px',
-                zIndex: 20,
-                marginTop: '0.75rem', 
-              }}
-            >
-              <div className="row row-cols-2 g-3 mb-3">
-                {products.map((product) => (
-                  <div key={product.id} className="col">
-                    <div className="form-check small text-dark">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        id={`product-${product.id}`}
-                        checked={!!selectedProducts[product.id]}
-                        onChange={() => handleProductSelect(product.id)}
-                      />
-                      <label 
-                        className="form-check-label" 
-                        htmlFor={`product-${product.id}`}
-                      >
-                        {product.name}
+                  <div className="row g-3">
+                    <div className="col-12">
+                      <label htmlFor={`productName-${index}`} className="form-label fw-semibold text-secondary small">
+                        Product Name <span className="text-danger">*</span>
                       </label>
+                      <CustomSelect
+                        id={`productName-${index}`}
+                        options={productOptions}
+                        value={productOptions.find((opt) => opt.value === product.productId) || null}
+                        placeholder={!products || products.length === 0 ? "Loading..." : "Select product"}
+                        required
+                      />
+                    </div>
+                    
+                    <div className="col-md-6">
+                      <label htmlFor={`quantity-${index}`} className="form-label fw-semibold text-secondary small">
+                        Quantity <span className="text-danger">*</span>
+                      </label>
+                      <div className="input-group">
+                        <button
+                          className="btn btn-light"
+                          type="button"
+                          onClick={() => handleQuantityChange(index, product.quantity - 1)}
+                        >
+                          -
+                        </button>
+                        <input
+                          type="number"
+                          id={`quantity-${index}`}
+                          className="form-control text-center p-3"
+                          value={product.quantity}
+                          onChange={(e) => handleQuantityChange(index, Number(e.target.value))}
+                          min={1}
+                          required
+                        />
+                        <button
+                          className="btn btn-light"
+                          type="button"
+                          onClick={() => handleQuantityChange(index, product.quantity + 1)}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <div className="col-md-6">
+                      <label htmlFor={`totalPrice-${index}`} className="form-label fw-semibold text-secondary small">
+                        Total Price
+                      </label>
+                      <input
+                        type="number"
+                        id={`totalPrice-${index}`}
+                        className="form-control p-3"
+                        placeholder="e.g., 50000"
+                        value={product.totalPrice}
+                        onChange={(e) => handlePriceChange(index, Number(e.target.value))}
+                      />
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
+              
+              <button 
+                type="button" 
+                className="btn btn-outline-primary d-flex align-items-center gap-2 mt-3" 
+                onClick={addProductForm}
+              >
+                <Plus size={18} /> Add Another Product
+              </button>
+            </div>
+          </div>
+          <div className="col-lg-4">
+            <div className="bg-white rounded-3 shadow-sm p-4 mb-4">
+              <h5 className="fw-bold mb-4">Order Settings</h5>
+
+              <div className="mb-3">
+                <label htmlFor="status" className="form-label fw-semibold text-secondary small">
+                  Delivery Status <span className="text-danger">*</span>
+                </label>
+                <CustomSelect
+                  id="status"
+                  options={statusOptions}
+                  value={statusOptions.find((opt) => opt.value === status)}
+                  required
+                />
               </div>
-              <div className="d-flex justify-content-end gap-2 pt-3 border-top">
-                <ChevronLeft size={20} className="text-muted" role="button" />
-                <ChevronRight size={20} className="text-muted" role="button" />
+              <div className="mb-3">
+                <label htmlFor="notes" className="form-label fw-semibold text-secondary small">Notes</label>
+                <textarea
+                  id="notes"
+                  className="form-control"
+                  rows={8}
+                  placeholder="Additional notes (optional)"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                ></textarea>
+              </div>
+
+              <div className="d-grid">
+                <SubmitButton
+                  isLoading={isLoading}
+                  text="Create Order"
+                  loadingText="Creating Order..."
+                />
               </div>
             </div>
-          )}
-          <div className="flex-grow-1"></div>
+          </div>
         </div>
-      </div>
-      <div className="d-flex justify-content-end mt-4">
-        <button 
-          type="button"
-          className="btn btn-primary px-4 py-2 rounded-3 small fw-semibold"
-          onClick={handleCreateOrder}
-        >
-          Create
-        </button>
-      </div>
+      </form>
     </div>
   );
 }

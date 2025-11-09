@@ -17,7 +17,7 @@ class GalleryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'title' => 'nullable|string|max:255',
-            'image' => 'required|string',
+            'image' => 'required|image|mimes:jpg,jpeg,png,webp|max:2048',
             'description' => 'nullable|string',
         ]);
 
@@ -25,9 +25,13 @@ class GalleryController extends Controller
             return response()->json(['messages' => $validator->errors()], 422);
         }
 
+        if ($request->hasFile('image')) {
+             $path = $request->file('image')->store('galleries', 'public');
+        }
+
         $gallery = Gallery::create([
             'title' => $request->title ?: 'Galeri Rajawali Plastic',
-            'image' => $request->image,
+            'image' => $path ? asset('storage/' . $path) : null,
             'description' => $request->description ?: 'Foto kegiatan atau produk kami.',
         ]);
 

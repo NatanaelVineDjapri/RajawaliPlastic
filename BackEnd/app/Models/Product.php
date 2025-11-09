@@ -13,5 +13,6 @@ class Product extends Model
         'name',
         'description',
         'image_url',
+        'total_update'
     ];
 }

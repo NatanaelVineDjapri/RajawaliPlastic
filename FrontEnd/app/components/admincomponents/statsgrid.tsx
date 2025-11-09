@@ -37,7 +37,7 @@ const stats: StatItem[] = [
 
 export default function StatsGrid() {
   return (
-    <div className="row row-cols-1 row-cols-md-3 g-4 mb-4">
+    <div className="stats-grid row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mb-4">
       {stats.map((stat) => (
         <div key={stat.title} className="col">
           <StatCard
@@ -49,6 +49,25 @@ export default function StatsGrid() {
           />
         </div>
       ))}
+
+      <style jsx>{`
+        @media (max-width: 576px) {
+          .stats-grid {
+            gap: 1rem !important;
+          }
+          .stats-grid .col {
+            flex: 0 0 100%;
+            max-width: 100%;
+          }
+        }
+
+        @media (min-width: 577px) and (max-width: 991px) {
+          .stats-grid .col {
+            flex: 0 0 50%;
+            max-width: 50%;
+          }
+        }
+      `}</style>
     </div>
   );
 }

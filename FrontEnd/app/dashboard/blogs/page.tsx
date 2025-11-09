@@ -41,23 +41,14 @@ const StatusDropdown = ({
       >
         {initialStatus}
       </button>
-      <ul
-        className={`dropdown-menu ${isOpen ? 'show' : ''}`}
-        style={{ minWidth: '6rem' }}
-      >
+      <ul className={`dropdown-menu ${isOpen ? 'show' : ''}`} style={{ minWidth: '6rem' }}>
         <li>
-          <button
-            className="dropdown-item small"
-            onClick={() => handleSelect('Published')}
-          >
+          <button className="dropdown-item small" onClick={() => handleSelect('Published')}>
             Published
           </button>
         </li>
         <li>
-          <button
-            className="dropdown-item small"
-            onClick={() => handleSelect('Draft')}
-          >
+          <button className="dropdown-item small" onClick={() => handleSelect('Draft')}>
             Draft
           </button>
         </li>
@@ -71,53 +62,39 @@ export default function BlogsPage() {
 
   const handleStatusChange = (id: number, newStatus: 'Published' | 'Draft') => {
     setBlogs((prevBlogs) =>
-      prevBlogs.map((blog) =>
-        blog.id === id ? { ...blog, status: newStatus } : blog
-      )
+      prevBlogs.map((blog) => (blog.id === id ? { ...blog, status: newStatus } : blog))
     );
   };
 
   return (
     <div className="container-fluid p-4">
       <h1 className="fs-3 fw-semibold text-dark mb-4">Blogs</h1>
-      <div
-        className="text-dark fw-semibold px-4 py-3 rounded-top-3"
-        style={{
-          backgroundColor: '#b3faffff',
-        }}
-      >
+      <div className="text-dark fw-semibold px-4 py-3 rounded-top-3" style={{ backgroundColor: '#b3faffff' }}>
         Blogs
       </div>
 
-      <div className="bg-white rounded-bottom-3 shadow-sm">
-        <table className="table align-middle mb-0">
+      <div className="bg-white rounded-bottom-3 shadow-sm overflow-auto">
+        <table className="table table-responsive table-striped align-middle mb-0">
           <thead className="text-secondary small">
             <tr>
-              <th className="px-4 py-3">Blog No</th>
-              <th className="px-4 py-3">Title</th>
-              <th className="px-4 py-3">Published At</th>
-              <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3 text-center">Action</th>
+              <th className="px-3 py-2">Blog No</th>
+              <th className="px-3 py-2">Title</th>
+              <th className="px-3 py-2">Published At</th>
+              <th className="px-3 py-2">Status</th>
+              <th className="px-3 py-2 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
             {blogs.map((blog) => (
               <tr key={blog.id}>
-                <td className="px-4 py-3 text-dark fw-medium">{blog.no}</td>
-                <td className="px-4 py-3 text-dark">{blog.title}</td>
-                <td className="px-4 py-3 text-secondary">{blog.date}</td>
-                <td className="px-4 py-3">
-                  <StatusDropdown
-                    initialStatus={blog.status}
-                    blogId={blog.id}
-                    onStatusChange={handleStatusChange}
-                  />
+                <td className="px-3 py-2 text-dark fw-medium">{blog.no}</td>
+                <td className="px-3 py-2 text-dark">{blog.title}</td>
+                <td className="px-3 py-2 text-secondary">{blog.date}</td>
+                <td className="px-3 py-2">
+                  <StatusDropdown initialStatus={blog.status} blogId={blog.id} onStatusChange={handleStatusChange} />
                 </td>
-                <td className="px-4 py-3 text-center">
-                  <a
-                    href={`/dashboard/blogs/edit/${blog.id}`}
-                    className="btn btn-link text-secondary p-0"
-                  >
+                <td className="px-3 py-2 text-center">
+                  <a href={`/dashboard/blogs/edit/${blog.id}`} className="btn btn-link text-secondary p-0">
                     <Edit2 size={18} />
                   </a>
                 </td>

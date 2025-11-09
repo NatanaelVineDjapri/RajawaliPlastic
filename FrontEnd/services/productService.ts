@@ -70,14 +70,13 @@ export const getProducts = async (): Promise<ApiSuccessResponse> => {
 
   return await response.json() as ApiSuccessResponse;
 }
-
 export const updateProduct = async (id: string | number, formData: FormData): Promise<ApiSuccessResponse> => {
-  
   formData.append('_method', 'PUT');
+  formData.append('last_edited', new Date().toISOString());
 
   const response = await fetch(`${API_URL}/products/${id}`, {
-    method: 'POST', 
-    headers: getHeaders(), 
+    method: 'POST',
+    headers: getHeaders(),
     body: formData,
   });
 
@@ -94,7 +93,7 @@ export const updateProduct = async (id: string | number, formData: FormData): Pr
   }
 
   return await response.json() as ApiSuccessResponse;
-}
+};
 
 export const deleteProduct = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/products/${id}`, {
@@ -112,3 +111,37 @@ export const deleteProduct = async (id: string | number): Promise<ApiSuccessResp
 
   return await response.json() as ApiSuccessResponse;
 }
+
+export const getLastEditedProducts = async (): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/products/last-edited`, {
+    method: 'GET',
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json();
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
+    throw new Error(`Gagal mengambil produk terakhir diedit. Status: ${response.status}`);
+  }
+
+  return await response.json() as ApiSuccessResponse;
+};
+
+export const getProductById = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/products/${id}`, {
+    method: 'GET',
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json();
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
+    throw new Error(`Gagal mengambil data produk (ID: ${id}).`);
+  }
+
+  return await response.json() as ApiSuccessResponse;
+};

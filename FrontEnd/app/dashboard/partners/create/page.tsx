@@ -1,84 +1,183 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { Camera } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import React, { useState, FormEvent, ChangeEvent } from "react";
+import { Camera } from "lucide-react";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import SubmitButton from "@/app/components/admincomponents/TempButton";
+import { addPartner } from "@/services/partnerService";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import Image from "next/image";
+
+const MySwal = withReactContent(Swal);
 
 export default function CreatePartnerPage() {
-  const router = useRouter();
-  const handleAddPartner = (e: React.FormEvent) => {
+  const pageTitle = "Add Partner";
+
+  const [name, setName] = useState("");
+  const [link, setLink] = useState("");
+  const [logo, setLogo] = useState<File | null>(null);
+  const [previewLogo, setPreviewLogo] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const breadcrumbs = [
+    { label: "Partner List", href: "/dashboard/partners" },
+    { label: "Add Partner" },
+  ];
+
+  const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setLogo(file);
+      if (previewLogo) URL.revokeObjectURL(previewLogo);
+      setPreviewLogo(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Adding new partner...");
-    router.push('./');
+    setIsLoading(true);
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("link", link);
+    if (logo) formData.append("logo", logo);
+
+    try {
+      const result = await addPartner(formData);
+      MySwal.fire({
+        title: "Success!",
+        text: result.message || "Partner added successfully!",
+        icon: "success",
+        confirmButtonColor: "#0d6efd",
+      });
+
+      setName("");
+      setLink("");
+      setLogo(null);
+      if (previewLogo) {
+        URL.revokeObjectURL(previewLogo);
+        setPreviewLogo(null);
+      }
+    } catch (error) {
+      let msg = "An unknown error occurred.";
+      if (error instanceof Error) msg = error.message;
+      MySwal.fire({
+        title: "Oops...",
+        text: msg,
+        icon: "error",
+        confirmButtonColor: "#dc3545",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="w-100">
-      <h1 className="fs-3 fw-bold text-dark mb-4">Partners</h1>
-      <div 
-        className="rounded-3 p-4" 
-        style={{ backgroundColor: '#C0FBFF' }} 
-      >
-        <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
-          Add Partner
-        </h2>
-      </div>
-
-      <form 
-        className="bg-white rounded-3 shadow p-4"
-        style={{ minHeight: '400px', position: 'relative' }} 
-        onSubmit={handleAddPartner}
-      >
-        <div className="d-flex gap-5 align-items-start">
-          <div 
-            className="d-flex flex-column align-items-center justify-content-center p-5 text-muted small rounded-3 border-0 bg-light" 
-            style={{ 
-              flex: 'auto', 
-              maxWidth: '300px',
-              minHeight: '350px',
-              backgroundColor: '#f9fafb',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-              gap: '0.5rem' 
-            }}
-            role="button"
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'} 
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
+      <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
+      <div className="row g-4">
+        <div className="col-lg-8">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-3 shadow-sm p-4 h-100 d-flex flex-column"
+            id="partnerUploadForm"
           >
-            <Camera size={64} style={{ color: '#9ca3af' }} />
-          </div>
-          
-          <div className="d-flex flex-column flex-grow-1">
-            <div className="d-flex flex-column" style={{ maxWidth: '500px' }}>
-              <label htmlFor="partnerName" className="form-label small fw-semibold text-secondary mb-1">
-                Partner Name
-              </label>
-              <input
-                type="text"
-                id="partnerName"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="Enter product name"
-                style={{ fontSize: '0.875rem' }}
-              />
+            <h5 className="fw-bold mb-3">Partner Details</h5>
+
+            <div className="flex-grow-1 d-flex flex-column gap-3">
+              <div>
+                <label
+                  htmlFor="partnerName"
+                  className="form-label fw-semibold text-secondary small mb-1"
+                >
+                  Partner Name <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="partnerName"
+                  className="form-control p-3 border rounded-3"
+                  placeholder="Enter partner name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="partnerLink"
+                  className="form-label fw-semibold text-secondary small mb-1"
+                >
+                  Website Link (Optional)
+                </label>
+                <input
+                  type="url"
+                  id="partnerLink"
+                  className="form-control p-3 border rounded-3"
+                  placeholder="https://partnerwebsite.com"
+                  value={link}
+                  onChange={(e) => setLink(e.target.value)}
+                />
+              </div>
             </div>
+          </form>
+        </div>
+        <div className="col-lg-4">
+          <div className="bg-white rounded-3 shadow-sm p-4 h-60 d-flex flex-column">
+            <h5 className="fw-bold mb-3">Partner Logo</h5>
+
+            <label
+              htmlFor="partnerLogo"
+              className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
+              style={{
+                minHeight: "320px",
+                borderColor: "#d1d5db",
+                cursor: "pointer",
+                transition: "background-color 0.2s",
+              }}
+              onMouseOver={(e) =>
+                (e.currentTarget.style.backgroundColor = "#f3f4f6")
+              }
+              onMouseOut={(e) =>
+                (e.currentTarget.style.backgroundColor = "#f9fafb")
+              }
+            >
+              {previewLogo ? (
+                <Image
+                  src={previewLogo}
+                  alt="Slider Preview"
+                  fill
+                  style={{ objectFit: "cover", borderRadius: "8px" }}
+                  unoptimized
+                />
+              ) : (
+                <div className="d-flex flex-column align-items-center">
+                  <Camera size={48} style={{ color: "#9ca3af" }} />
+                  <span className="small mt-2">
+                    Click to upload (Max 2MB, 16:9)
+                  </span>
+                </div>
+              )}
+              <input
+                type="file"
+                id="partnerLogo"
+                className="d-none"
+                onChange={handleLogoChange}
+                accept="image/png, image/jpeg, image/webp"
+                required
+              />
+            </label>
+          </div>
+          <div className="mt-3">
+            <SubmitButton
+              isLoading={isLoading}
+              text="Add Partner"
+              loadingText="Adding Partner..."
+              form="partnerUploadForm"
+            />
           </div>
         </div>
-    
-        <button 
-          type="submit"
-          className="btn btn-primary px-4 py-2 rounded-3 small fw-semibold"
-          style={{ 
-            position: 'absolute',
-            bottom: '1.5rem',
-            right: '1.5rem',
-            backgroundColor: '#2563eb',
-            color: '#ffffff',
-            border: 'none',
-          }}
-        >
-          Add
-        </button> 
-      </form>
+      </div>
     </div>
   );
 }

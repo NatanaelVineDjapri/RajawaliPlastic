@@ -33,7 +33,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'address' => $request->address,
-            'phone_number' =>  $request->phone_number,,
+            'phone_number' =>  $request->phone_number,
             'role' => 'customer',
             'image' => url(''), //belum disi wkwkkw
         ]);

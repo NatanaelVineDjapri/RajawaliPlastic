@@ -1,160 +1,140 @@
-'use client';
+"use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronRight, Edit3 } from "lucide-react";
-import StatusDropdown from "@/app/components/admincomponents/StatusDropdown";
+import Link from "next/link";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import { getOrders } from "@/services/orderService";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { Order, Product, StatusType } from "../../types";
 
-type StatusType = "Unpaid" | "Paid" | "Processing" | "Rejected" | "Completed";
+const MySwal = withReactContent(Swal);
 
-interface Product {
-  id: number;
-  name: string;
-  quantity: number;
-}
+const getDeliveryStatusBadge = (status: StatusType) => {
+  switch (status) {
+    case "pending":
+      return <span className="badge text-bg-warning fs-6">Pending</span>;
+    case "proses":
+      return <span className="badge text-bg-info fs-6">Processing</span>;
+    case "kirim":
+      return <span className="badge text-bg-primary fs-6">Shipped</span>;
+    case "selesai":
+      return <span className="badge text-bg-success fs-6">Completed</span>;
+    default:
+      return <span className="badge text-bg-secondary fs-6">{status}</span>;
+  }
+};
 
-interface Order {
-  orderNo: string;
-  customerEmail: string;
-  address: string;
-  dateOrdered: string;
-  itemType: string;
-  id: string;
-  totalPrice: string;
-  products: Product[];
-  transactionStatus: StatusType;
-  deliveryStatus: StatusType;
-}
-
-const initialOrders: Order[] = [
-  {
-    orderNo: "00001",
-    customerEmail: "christinebrooks@gmail.com",
-    address: "089 Kutch Green Apt. 448",
-    dateOrdered: "04 Sep 2019",
-    itemType: "6",
-    id: "1283I2788284187489",
-    totalPrice: "1.000.000",
-    products: [
-      { id: 1, name: "Plastik besar", quantity: 10 },
-      { id: 2, name: "Plastik kecil", quantity: 10 },
-      { id: 3, name: "Plastik mikro", quantity: 100 },
-      { id: 4, name: "Plastik mainan", quantity: 500 },
-    ],
-    transactionStatus: "Unpaid",
-    deliveryStatus: "Rejected",
-  },
-  {
-    orderNo: "00002",
-    customerEmail: "rosiepearson@gmail.com",
-    address: "Citra 5 blok E3 no 5",
-    dateOrdered: "28 May 2019",
-    itemType: "Microplastics",
-    id: "1283I2788284187490",
-    totalPrice: "500.000",
-    products: [{ id: 1, name: "Microplastics A", quantity: 500 }],
-    transactionStatus: "Paid",
-    deliveryStatus: "Completed",
-  },
-];
+const getPaymentStatusBadge = (status: StatusType) => {
+  switch (status) {
+    case "pending":
+      return <span className="badge text-bg-warning fs-6">Pending</span>;
+    case "paid":
+      return <span className="badge text-bg-success fs-6">Paid</span>;
+    case "failed":
+      return <span className="badge text-bg-danger fs-6">Failed</span>;
+    case "unpaid":
+      return <span className="badge text-bg-warning fs-6">Unpaid</span>;
+    default:
+      return <span className="badge text-bg-secondary fs-6">{status}</span>;
+  }
+};
 
 interface OrderRowProps {
   order: Order;
-  onStatusChange: (
-    orderNo: string,
-    type: "transaction" | "delivery",
-    newStatus: StatusType
-  ) => void;
 }
 
-const OrderRow: React.FC<OrderRowProps> = ({ order, onStatusChange }) => {
-  const [isExpanded, setIsExpanded] = useState(order.orderNo === "00001");
+const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const handleStatusChange = (
-    type: "transaction" | "delivery",
-    newStatus: StatusType
-  ) => {
-    onStatusChange(order.orderNo, type, newStatus);
-  };
-
-  const handleEditClick = () => {
-    const editUrl = `/dashboard/orders/edit/${parseInt(order.orderNo)}`;
-    window.location.href = `http://localhost:3000${editUrl}`;
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(price);
   };
 
   return (
-    <div className={`card mb-3 shadow-sm ${isExpanded ? 'bg-light border-primary' : 'border-0'}`}>
+    <div
+      className={`card mb-3 shadow-sm ${
+        isExpanded ? "bg-light border-primary" : "border-0"
+      }`}
+    >
       <div className="card-body p-3">
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             <button
-              className={`btn btn-sm ${isExpanded ? 'btn-primary' : 'btn-outline-primary'} me-3 p-1`}
+              className={`btn btn-sm ${
+                isExpanded ? "btn-primary" : "btn-outline-primary"
+              } me-3 p-1`}
               onClick={() => setIsExpanded(!isExpanded)}
-              style={{ width: '30px', height: '30px', flexShrink: 0 }}
+              style={{ width: "30px", height: "30px", flexShrink: 0 }}
             >
               <ChevronRight
                 size={18}
                 className={isExpanded ? "rotate-90 text-white" : "text-primary"}
-                style={{ transition: 'transform 0.3s' }}
+                style={{ transition: "transform 0.3s" }}
               />
             </button>
             <div>
-              <h6 className="mb-0 fw-bold">Order #{parseInt(order.orderNo)}</h6>
-              <small className="text-muted">{order.customerEmail} | {order.dateOrdered}</small>
+              <h6 className="mb-0 fw-bold">Order #{order.order_no}</h6>
+              <small className="text-muted">
+                {order.user_email} |{" "}
+                {new Date(order.created_at).toLocaleDateString("id-ID")}
+              </small>
             </div>
           </div>
 
           <div className="d-flex align-items-center text-end">
             <div className="me-3 d-none d-sm-block">
               <small className="d-block text-muted">ID: {order.id}</small>
-              <small className="d-block fw-bold text-primary">Total: Rp {order.totalPrice}</small>
+              <small className="d-block fw-bold text-primary">
+                Total: {formatPrice(order.total_price)}
+              </small>
             </div>
-            <button className="btn btn-outline-secondary" onClick={handleEditClick}>
+            <Link
+              href={`/dashboard/orders/edit/${order.id}`}
+              className="btn btn-outline-secondary"
+            >
               <Edit3 size={16} className="me-1" /> Edit
-            </button>
+            </Link>
           </div>
         </div>
 
         {isExpanded && (
-          <div className="mt-4 pt-3 border-top">
+          <div className="mt-4 pt-3 border-top mx-3 mb-3">
             <div className="row g-3">
               <div className="col-md-4">
                 <h6 className="fw-bold mb-2">Product Details</h6>
                 <p className="small text-muted mb-1">
-                  Address: {order.address} | Item Type: {order.itemType}
+                  Address: {order.address || "N/A"}
                 </p>
                 <div className="small mb-0 p-2 border rounded bg-white">
                   <ul className="list-unstyled mb-0">
-                    {order.products.map((product, index) => (
-                      <li key={product.id}>
-                        {index + 1}. {product.name} — {product.quantity} pcs
-                      </li>
-                    ))}
+                    {order.products && order.products.length > 0 ? (
+                      order.products.map((product: Product, index: number) => (
+                        <li key={product.product_id || product.id || index}>
+                          {index + 1}. {product.name || "Unknown Product"} —{" "}
+                          {product.quantity || 1} pcs
+                        </li>
+                      ))
+                    ) : (
+                      <li>Unknown Product — 1 pcs</li>
+                    )}
                   </ul>
                 </div>
               </div>
 
               <div className="col-md-4">
                 <h6 className="fw-bold mb-2">Transaction Status</h6>
-                <StatusDropdown
-                  statusType="transaction"
-                  currentStatus={order.transactionStatus}
-                  orderId={parseInt(order.orderNo)}
-                  onStatusChange={(id, type, newStatus) =>
-                    handleStatusChange(type, newStatus)
-                  }
-                />
+                {getPaymentStatusBadge(order.status_payment)}
               </div>
 
               <div className="col-md-4">
                 <h6 className="fw-bold mb-2">Delivery Status</h6>
-                <StatusDropdown
-                  statusType="delivery"
-                  currentStatus={order.deliveryStatus}
-                  orderId={parseInt(order.orderNo)}
-                  onStatusChange={(id, type, newStatus) =>
-                    handleStatusChange(type, newStatus)
-                  }
-                />
+                {getDeliveryStatusBadge(order.status_delivery)}
               </div>
             </div>
           </div>
@@ -164,32 +144,73 @@ const OrderRow: React.FC<OrderRowProps> = ({ order, onStatusChange }) => {
   );
 };
 
-export default function Page() {
-  const [orders, setOrders] = useState(initialOrders);
+export default function OrderListPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const handleGlobalStatusChange = (
-    orderNo: string,
-    type: "transaction" | "delivery",
-    newStatus: StatusType
-  ) => {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.orderNo === orderNo
-          ? {
-              ...order,
-              [type === "transaction" ? "transactionStatus" : "deliveryStatus"]: newStatus,
-            }
-          : order
-      )
-    );
-  };
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Order List" },
+  ];
+
+  async function fetchOrders() {
+    setIsLoading(true);
+    try {
+      const orderResult = await getOrders();
+
+      if (orderResult.data && Array.isArray(orderResult.data)) {
+        const transformedOrders = orderResult.data.map((order: Order) => {
+          const productsArray: Product[] =
+            Array.isArray(order.products) && order.products.length > 0
+              ? order.products.map((p: any) => ({
+                  product_id: p.product_id,
+                  id: p.product_id,
+                  name: p.product_name || p.name || "Unknown Product",
+                  quantity: p.quantity || 1,
+                }))
+              : [
+                  {
+                    product_id: order.id,
+                    id: order.id,
+                    name: "Unknown Product",
+                    quantity: 1,
+                  },
+                ];
+
+          return { ...order, products: productsArray };
+        });
+
+        setOrders(transformedOrders);
+      }
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+      MySwal.fire("Error", "Failed to load page data.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   return (
-    <div className="container py-4">
-      <h1 className="fw-bold mb-4">Order Lists</h1>
-      {orders.map((order) => (
-        <OrderRow key={order.orderNo} order={order} onStatusChange={handleGlobalStatusChange} />
-      ))}
+    <div className="w-100">
+      <PageHeader title="Order List" breadcrumbs={breadcrumbs} />
+
+      {isLoading ? (
+        <div className="text-center p-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="text-center p-5 bg-white rounded-3 shadow-sm">
+          <p className="text-muted mb-0">No orders found.</p>
+        </div>
+      ) : (
+        orders.map((order) => <OrderRow key={order.id} order={order} />)
+      )}
     </div>
   );
 }

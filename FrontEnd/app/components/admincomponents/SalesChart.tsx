@@ -71,17 +71,16 @@ const SalesChartCard: React.FC = () => {
     const peakValue = '40,689';
 
     return (
-        <div className="p-4 bg-white rounded-3 shadow-sm">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2 className="fs-4 fw-bold mb-0">Total Penjualan Harian</h2>
-                <select className="form-select form-select-sm w-auto">
+        <div className="p-3 p-md-4 bg-white rounded-3 shadow-sm">
+            <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+                <h2 className="fs-5 fs-md-4 fw-bold mb-2 mb-md-0 text-center text-md-start">Total Penjualan Harian</h2>
+                <select className="form-select form-select-sm w-100 w-md-auto">
                     <option value="oct">Oktober 2024</option>
                     <option value="sep">September 2024</option>
                     <option value="aug">Agustus 2024</option>
                 </select>
             </div>
-
-            <div className="position-relative" style={{ height: '300px' }}>
+            <div className="position-relative" style={{ height: '250px' }}>
                 <Line data={chartData} options={chartOptions} />
                 <div 
                     className="position-absolute top-0 start-50 translate-middle-x badge bg-primary py-1 px-3" 
@@ -90,6 +89,23 @@ const SalesChartCard: React.FC = () => {
                     {peakValue}
                 </div>
             </div>
+            <style jsx>{`
+                @media (max-width: 768px) {
+                    h2 {
+                        font-size: 1rem;
+                    }
+                    select {
+                        font-size: 0.875rem;
+                    }
+                    .badge {
+                        font-size: 0.75rem;
+                        padding: 0.25rem 0.5rem;
+                    }
+                    div[style*='height:'] {
+                        height: 200px !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

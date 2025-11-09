@@ -20,30 +20,21 @@ export default function HeroPage() {
 
   const handleRemove = (idToRemove: number) => {
     setHeroItems(prevItems => prevItems.filter(item => item.id !== idToRemove));
-    console.log(`Slider ID ${idToRemove} dihapus dari tampilan.`);
   };
 
   return (
-    <div className="w-100 position-relative">
+    <div className="w-100 px-2 px-md-4">
       <h1 className="fs-3 fw-bold text-dark mb-4">{pageTitle}</h1>
 
-      <div className="rounded-3 p-4 mb-4" style={{ backgroundColor: '#C0FBFF' }}>
-        <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
-          Gallery
-        </h2>
+      <div className="rounded-3 p-3 p-md-4 mb-4" style={{ backgroundColor: '#C0FBFF' }}>
+        <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>Gallery</h2>
       </div>
 
-      <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4 pb-5">
+      <div className="row row-cols-2 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4 pb-5">
         {heroItems.map((item) => (
           <div key={item.id} className="col">
-            <div
-              className="card h-100 overflow-hidden rounded-3 shadow-sm border"
-              style={{ backgroundColor: '#f9fafb', borderColor: '#dee2e6' }}
-            >
-              <div
-                className="bg-white p-3 d-flex align-items-center justify-content-center border-bottom"
-                style={{ minHeight: '180px' }}
-              >
+            <div className="card h-100 overflow-hidden rounded-3 shadow-sm border" style={{ backgroundColor: '#f9fafb', borderColor: '#dee2e6' }}>
+              <div className="bg-white p-2 p-md-3 d-flex align-items-center justify-content-center border-bottom" style={{ minHeight: '140px', height: '100%' }}>
                 <Image
                   src={item.img}
                   alt={item.label}
@@ -52,17 +43,12 @@ export default function HeroPage() {
                   style={{ objectFit: 'contain' }}
                 />
               </div>
-
-              <div className="card-body p-3">
-                <p className="card-text fw-semibold text-dark mb-2">{item.label}</p>
+              <div className="card-body p-2 p-md-3 d-flex flex-column gap-2">
+                <p className="card-text fw-semibold text-dark mb-1 text-center text-md-start">{item.label}</p>
                 <button
-                  className="btn btn-sm px-3 rounded-3 fw-medium"
+                  className="btn btn-sm px-3 rounded-3 fw-medium w-100"
                   onClick={() => handleRemove(item.id)}
-                  style={{
-                    backgroundColor: '#e0e0ff',
-                    color: '#6c63ff',
-                    borderColor: '#c0bfff',
-                  }}
+                  style={{ backgroundColor: '#e0e0ff', color: '#6c63ff', borderColor: '#c0bfff' }}
                 >
                   Remove
                 </button>

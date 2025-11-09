@@ -102,42 +102,38 @@ export default function AdminSettingsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form Submitted');
     router.push('/dashboard');
   };
 
   return (
-    <div className="container-fluid p-0">
+    <div className="container-fluid p-3 p-md-5">
       <h1 className="fs-3 fw-bold text-dark mb-4">Manage Your Account</h1>
-      <form onSubmit={handleSubmit} className="bg-white rounded-3 shadow p-5">
-        <div className="d-flex gap-5">
-          <div
-            className="d-flex flex-column align-items-center gap-2"
-            style={{ flex: '0 0 250px' }}
-          >
-            <div
-              className="d-flex align-items-center justify-content-center bg-light rounded-3"
-              style={{
-                width: '300px',
-                height: '300px',
-                cursor: 'pointer',
-                border: '1px solid #dee2e6',
-              }}
-            >
-              <Camera size={72} className="text-secondary" />
+      <form onSubmit={handleSubmit} className="bg-white rounded-3 shadow-sm shadow-md-lg p-3 p-sm-4 p-lg-5">
+        <div className="row g-4 g-md-5"> 
+          <div className="col-12 col-md-4 col-lg-3 d-flex justify-content-center">
+            <div className="d-flex flex-column align-items-center gap-2" style={{ width: '100%', maxWidth: '300px' }}>
+              <div
+                className="d-flex align-items-center justify-content-center bg-light rounded-3 w-100"
+                style={{
+                  paddingTop: '100%',
+                  position: 'relative',
+                  cursor: 'pointer',
+                  border: '1px solid #dee2e6',
+                }}
+              >
+                <Camera size={72} className="text-secondary" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
+              </div>
             </div>
           </div>
 
-          <div className="flex-grow-1 d-flex flex-column gap-4 pt-4">
+          <div className="col-12 col-md-8 col-lg-9 d-flex flex-column gap-4 pt-4">
             <div className="d-flex flex-column">
-              <label className="form-label fw-semibold small text-dark mb-1">
-                Username
-              </label>
+              <label className="form-label fw-semibold small text-dark mb-1">Username</label>
               <div className="input-group" style={{ maxWidth: '400px' }}>
                 <input
                   type="text"
-                  className={`form-control ${
-                    isUsernameEditing ? 'bg-white' : 'bg-light'
-                  } rounded-start-3 text-secondary`}
+                  className={`form-control ${isUsernameEditing ? 'bg-white' : 'bg-light'} rounded-start-3 text-secondary`}
                   value={isUsernameEditing ? tempUsername : username}
                   readOnly={!isUsernameEditing}
                   onChange={(e) => setTempUsername(e.target.value)}
@@ -154,15 +150,11 @@ export default function AdminSettingsPage() {
             </div>
 
             <div className="d-flex flex-column">
-              <label className="form-label fw-semibold small text-dark mb-1">
-                Email
-              </label>
+              <label className="form-label fw-semibold small text-dark mb-1">Email</label>
               <div className="input-group" style={{ maxWidth: '400px' }}>
                 <input
                   type="email"
-                  className={`form-control ${
-                    isEmailEditing ? 'bg-white' : 'bg-light'
-                  } rounded-start-3 text-secondary`}
+                  className={`form-control ${isEmailEditing ? 'bg-white' : 'bg-light'} rounded-start-3 text-secondary`}
                   value={isEmailEditing ? tempEmail : email}
                   readOnly={!isEmailEditing}
                   onChange={(e) => setTempEmail(e.target.value)}
@@ -179,15 +171,11 @@ export default function AdminSettingsPage() {
             </div>
 
             <div className="d-flex flex-column">
-              <label className="form-label fw-semibold small text-dark mb-1">
-                Password
-              </label>
+              <label className="form-label fw-semibold small text-dark mb-1">Password</label>
               <div className="input-group" style={{ maxWidth: '400px' }}>
                 <input
                   type={isPasswordEditing ? 'text' : 'password'}
-                  className={`form-control ${
-                    isPasswordEditing ? 'bg-white' : 'bg-light'
-                  } rounded-start-3 text-secondary`}
+                  className={`form-control ${isPasswordEditing ? 'bg-white' : 'bg-light'} rounded-start-3 text-secondary`}
                   value={isPasswordEditing ? tempPassword : password}
                   readOnly={!isPasswordEditing}
                   onChange={(e) => setTempPassword(e.target.value)}
@@ -205,22 +193,16 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
-        <div className="d-flex align-items-end gap-5 mt-4">
-          <div style={{ flex: '0 0 250px' }}>
-            <label className="form-label small text-muted mb-1">
-              Role (can only be configured by owner)
-            </label>
-            <div className="py-2 px-3 border rounded-3 bg-light text-secondary fw-medium">
+        <div className="d-flex flex-column flex-md-row align-items-md-end gap-4 gap-md-5 mt-4 pt-4 border-top">
+          <div style={{ width: '100%', maxWidth: '300px' }}>
+            <label className="form-label small text-muted mb-1">Role (can only be configured by owner)</label>
+            <div className="py-2 px-3 border rounded-3 bg-light text-secondary fw-medium" style={{ height: '45px' }}>
               Admin
             </div>
           </div>
-          <div className="flex-grow-1 d-flex justify-content-end">
-            <button
-              type="submit"
-              className="btn btn-primary px-4 py-2 rounded-3 fw-semibold"
-            >
-              Apply
-            </button>
+
+          <div className="flex-grow-1 d-flex justify-content-start justify-content-md-end">
+            <button type="submit" className="btn btn-primary px-4 py-2 rounded-3 fw-semibold">Apply</button>
           </div>
         </div>
       </form>

@@ -33,11 +33,10 @@ const UserListItem = ({
 
     return (
         <div
-            className="d-flex align-items-center p-3 rounded-3 mb-2 border-0"
+            className="d-flex flex-column flex-md-row align-items-center p-3 rounded-3 mb-3"
             style={{
                 backgroundColor: baseBgColor,
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
-                cursor: 'pointer',
                 transition: 'background-color 0.2s, box-shadow 0.2s',
             }}
             onMouseOver={(e) => {
@@ -52,15 +51,15 @@ const UserListItem = ({
             <Image
                 src={user.avatar}
                 alt={user.name}
-                width={32}
-                height={32}
-                className="rounded-circle object-fit-cover me-3"
+                width={40}
+                height={40}
+                className="rounded-circle object-fit-cover me-3 mb-2 mb-md-0"
             />
-            <span className={`fw-medium ${isAdmin ? 'text-dark' : 'text-primary'}`}>
+            <span className={`fw-medium ${isAdmin ? 'text-dark' : 'text-primary'} mb-2 mb-md-0`}>
                 {user.name}
             </span>
             {!isAdmin && (
-                <div className="ms-auto d-flex gap-2">
+                <div className="ms-md-auto d-flex gap-2 flex-wrap">
                     <button
                         className="btn btn-sm rounded-circle p-1"
                         style={{ backgroundColor: '#e0e9ff', borderColor: '#d1e7ff', width: '32px', height: '32px' }}
@@ -109,23 +108,27 @@ export default function UserRolePage() {
     };
 
     return (
-        <div className="w-100 position-relative p-4" style={backgroundStyle}>
+        <div className="w-100 position-relative p-3 p-md-4" style={backgroundStyle}>
             <h1 className="fs-3 fw-bold text-dark mb-4">User & Role</h1>
 
-            <div className="bg-white rounded-3 shadow p-4 mb-5" style={{ position: 'relative', zIndex: 10 }}>
+            <div className="bg-white rounded-3 shadow p-3 p-md-4 mb-5">
                 <h2 className="fs-5 fw-semibold text-dark mb-3">Admin List</h2>
-                <div className="mb-4">
+                <div className="d-flex flex-column flex-md-row flex-wrap gap-2">
                     {adminList.map((admin) => (
-                        <UserListItem key={admin.id} user={admin} isAdmin={true} />
+                        <div key={admin.id} className="flex-fill">
+                            <UserListItem user={admin} isAdmin={true} />
+                        </div>
                     ))}
                 </div>
             </div>
 
-            <div className="bg-white rounded-3 shadow p-4" style={{ position: 'relative', zIndex: 10 }}>
-                <h2 className="fs-5 fw-semibold text-dark mb-3">User settings</h2>
-                <div>
+            <div className="bg-white rounded-3 shadow p-3 p-md-4">
+                <h2 className="fs-5 fw-semibold text-dark mb-3">User Settings</h2>
+                <div className="d-flex flex-column flex-md-row flex-wrap gap-2">
                     {userList.map((user) => (
-                        <UserListItem key={user.id} user={user} isAdmin={false} onRemove={handleRemoveUser} />
+                        <div key={user.id} className="flex-fill">
+                            <UserListItem user={user} isAdmin={false} onRemove={handleRemoveUser} />
+                        </div>
                     ))}
                 </div>
             </div>

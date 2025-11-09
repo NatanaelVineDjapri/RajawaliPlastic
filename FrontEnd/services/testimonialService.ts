@@ -32,7 +32,6 @@ const getHeaders = (): HeadersInit => {
 };
 
 
-// GET: (Route::get('/testimonials', ...))
 export async function getTestimonials(): Promise<ApiSuccessResponse> {
   const response = await fetch(`${API_URL}/testimonials`, {
     method: 'GET',
