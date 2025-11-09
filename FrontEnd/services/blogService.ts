@@ -32,8 +32,8 @@ const getHeaders = (): HeadersInit => {
 };
 
 
-export const addProduct = async (formData: FormData): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products`, {
+export const addBlog = async (formData: FormData): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/blogs`, {
     method: 'POST',
     headers: getHeaders(), 
     body: formData,
@@ -48,14 +48,14 @@ export const addProduct = async (formData: FormData): Promise<ApiSuccessResponse
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal menambahkan produk. Status: ${response.status}`);
+    throw new Error(`Failed to add blog. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
 
-export const getProducts = async (): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products`, {
+export const getBlogs = async (): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/blogs`, {
     method: 'GET',
     headers: getHeaders(), 
   });
@@ -65,18 +65,19 @@ export const getProducts = async (): Promise<ApiSuccessResponse> => {
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal mengambil data produk. Status: ${response.status}`);
+    throw new Error(`Failed to retrieve blogs. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
-export const updateProduct = async (id: string | number, formData: FormData): Promise<ApiSuccessResponse> => {
-  formData.append('_method', 'PUT');
-  formData.append('last_edited', new Date().toISOString());
 
-  const response = await fetch(`${API_URL}/products/${id}`, {
-    method: 'POST',
-    headers: getHeaders(),
+export const updateBlog = async (id: string | number, formData: FormData): Promise<ApiSuccessResponse> => {
+  
+  formData.append('_method', 'PUT');
+
+  const response = await fetch(`${API_URL}/blogs/${id}`, {
+    method: 'POST', 
+    headers: getHeaders(), 
     body: formData,
   });
 
@@ -89,14 +90,14 @@ export const updateProduct = async (id: string | number, formData: FormData): Pr
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal mengupdate produk. Status: ${response.status}`);
+    throw new Error(`Failed to update blog. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
-};
+}
 
-export const deleteProduct = async (id: string | number): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products/${id}`, {
+export const deleteBlog = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/blogs/${id}`, {
     method: 'DELETE',
     headers: getHeaders(), 
   });
@@ -106,42 +107,8 @@ export const deleteProduct = async (id: string | number): Promise<ApiSuccessResp
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal menghapus produk. Status: ${response.status}`);
+    throw new Error(`Failed to delete blog. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
-
-export const getLastEditedProducts = async (): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products/last-edited`, {
-    method: 'GET',
-    headers: getHeaders(),
-  });
-
-  if (!response.ok) {
-    const errorData: ApiErrorResponse = await response.json();
-    if (errorData.message) {
-      throw new Error(errorData.message);
-    }
-    throw new Error(`Gagal mengambil produk terakhir diedit. Status: ${response.status}`);
-  }
-
-  return await response.json() as ApiSuccessResponse;
-};
-
-export const getProductById = async (id: string | number): Promise<ApiSuccessResponse> => {
-  const response = await fetch(`${API_URL}/products/${id}`, {
-    method: 'GET',
-    headers: getHeaders(),
-  });
-
-  if (!response.ok) {
-    const errorData: ApiErrorResponse = await response.json();
-    if (errorData.message) {
-      throw new Error(errorData.message);
-    }
-    throw new Error(`Gagal mengambil data produk (ID: ${id}).`);
-  }
-
-  return await response.json() as ApiSuccessResponse;
-};

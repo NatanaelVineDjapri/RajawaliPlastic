@@ -1,3 +1,5 @@
+// services/galleryService.ts
+
 const API_URL = 'http://localhost:8000/api/rs';
 
 interface ApiSuccessResponse {
@@ -32,27 +34,12 @@ const getHeaders = (): HeadersInit => {
 };
 
 
-export async function getTestimonials(): Promise<ApiSuccessResponse> {
-  const response = await fetch(`${API_URL}/testimonials`, {
-    method: 'GET',
-    headers: getHeaders(),
-  });
-
-  if (!response.ok) {
-    const errorData: ApiErrorResponse = await response.json();
-    if (errorData.message) {
-      throw new Error(errorData.message);
-    }
-    throw new Error(`Gagal mengambil testimonials. Status: ${response.status}`);
-  }
-
-  return await response.json() as ApiSuccessResponse;
-}
-
-export async function addTestimonial(formData: FormData): Promise<ApiSuccessResponse> {
-  const response = await fetch(`${API_URL}/testimonials`, {
+export const addGallery = async (formData: FormData): Promise<ApiSuccessResponse> => {
+  const headers = getHeaders();
+  
+  const response = await fetch(`${API_URL}/galleries`, {
     method: 'POST',
-    headers: getHeaders(), 
+    headers: headers,
     body: formData,
   });
 
@@ -65,17 +52,40 @@ export async function addTestimonial(formData: FormData): Promise<ApiSuccessResp
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal menambahkan testimonial. Status: ${response.status}`);
+    throw new Error(`Failed to add gallery item. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
 
-export async function updateTestimonial(id: string | number, formData: FormData): Promise<ApiSuccessResponse> {
-  
-  formData.append('_method', 'PUT'); 
+export const getGalleries = async (): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/galleries`, {
+    method: 'GET',
+    headers: getHeaders(), 
+  });
 
-  const response = await fetch(`${API_URL}/testimonials/${id}`, {
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json();
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
+    throw new Error(`Failed to retrieve gallery data. Status: ${response.status}`);
+  }
+
+  const rawData = await response.json();
+  
+  return {
+    message: "Galleries retrieved successfully",
+    // Mengasumsikan respons API Gallery telah diperbaiki atau kita menangani struktur array seperti ini:
+    data: Array.isArray(rawData) ? (rawData.length > 0 ? rawData[0] : []) : rawData 
+  } as ApiSuccessResponse;
+}
+
+export const updateGallery = async (id: string | number, formData: FormData): Promise<ApiSuccessResponse> => {
+  
+  formData.append('_method', 'PUT');
+
+  const response = await fetch(`${API_URL}/galleries/${id}`, {
     method: 'POST', 
     headers: getHeaders(), 
     body: formData,
@@ -90,14 +100,14 @@ export async function updateTestimonial(id: string | number, formData: FormData)
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal mengupdate testimonial. Status: ${response.status}`);
+    throw new Error(`Failed to update gallery item. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;
 }
 
-export async function deleteTestimonial(id: string | number): Promise<ApiSuccessResponse> {
-  const response = await fetch(`${API_URL}/testimonials/${id}`, {
+export const deleteGallery = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/galleries/${id}`, {
     method: 'DELETE',
     headers: getHeaders(), 
   });
@@ -107,8 +117,8 @@ export async function deleteTestimonial(id: string | number): Promise<ApiSuccess
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Gagal menghapus testimonial. Status: ${response.status}`);
+    throw new Error(`Failed to delete gallery item. Status: ${response.status}`);
   }
 
-  return await response.json() as ApiSuccessResponse;
+  return { message: 'Gallery item deleted successfully', data: null } as ApiSuccessResponse;
 }

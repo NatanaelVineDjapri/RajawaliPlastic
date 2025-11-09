@@ -11,7 +11,41 @@ class ProductController extends Controller
 {
     public function index()
     {
-        return response()->json(Product::orderBy('created_at', 'desc')->get());
+
+        return response()->json([
+            'message' => 'Products retrieved successfully',
+            'data' => Product::orderBy('created_at', 'desc')->get()
+        ], 200);
+    }
+
+    public function lastEdited()
+    {
+        $products = Product::where('total_update', '>', 0)
+            ->orderBy('updated_at', 'desc')
+            ->take(100) 
+            ->get()
+            ->filter(fn($p) => $p->updated_at != $p->created_at)
+            ->take(5); 
+
+        return response()->json([
+            'message' => 'Last edited products retrieved successfully',
+            'data' => $products->values()
+        ], 200);
+    }
+
+
+    public function show($id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Product retrieved successfully',
+            'data' => $product
+        ], 200);
     }
 
     public function store(Request $request)
@@ -36,6 +70,7 @@ class ProductController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'image_url' => $path ? asset('storage/' . $path) : null,
+            'total_update' => 0,
         ]);
 
         return response()->json([
@@ -70,9 +105,11 @@ class ProductController extends Controller
             $path = $request->file('image')->store('products', 'public');
             $product->image_url = asset('storage/' . $path);
         }
+        $totalUpdate = $product->total_update + 1;
 
         $product->name = $request->name ?? $product->name;
         $product->description = $request->description ?? $product->description;
+        $product->total_update = $totalUpdate;
         $product->save();
 
         return response()->json([

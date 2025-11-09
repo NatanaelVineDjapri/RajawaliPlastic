@@ -10,8 +10,8 @@ const formLinks: Record<string, string> = {
   '/dashboard/testimony': '/dashboard/testimony/create',
   '/dashboard/partners': '/dashboard/partners/create',
   '/dashboard/blogs': '/dashboard/blogs/create',
-  '/dashboard/gallery': '/dashboard/gallery/upload',
-  '/dashboard/hero': '/dashboard/hero/upload',
+  '/dashboard/gallery': '/dashboard/gallery/create',
+  '/dashboard/hero': '/dashboard/hero/edit',
 };
 
 export default function CreateButton() {
