@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
 html {
   scroll-behavior: smooth;
 }
@@ -576,4 +577,63 @@ button.custom-btn:hover {
     flex-direction: column;
     gap: 15px;
   }
+}
+
+.blog-section {
+  background: linear-gradient(180deg, #144574 0%, #10365a 100%);
+}
+.text-justify {
+  text-align: justify;
+}
+
+
+.blogs-section {
+  position: relative;
+  background: linear-gradient(180deg, #3F719D, #162737);
+  border-radius: 40px;
+  color: white;
+  padding-top: 80px;
+  padding-bottom: 80px;
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.blogs-title {
+  font-size: 3.4rem;
+  color: white;
+}
+
+.blogs-card {
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.blogs-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+}
+
+.blogs-image-wrapper {
+  position: relative;
+  height: 200px;
+}
+
+.blogs-image {
+  object-fit: cover;
+}
+
+.blogs-more-btn {
+  color: #162737 !important;
+  background-color: white !important;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.blogs-more-btn:hover {
+  background-color: #e9ecef !important;
+  transform: translateY(-2px);
 }
