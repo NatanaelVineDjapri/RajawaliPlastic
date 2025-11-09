@@ -1,131 +1,165 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { PersonCircle } from 'react-bootstrap-icons';
 
 const Navbar: React.FC = () => {
-  return (
-    <nav
-      className="navbar navbar-expand-lg rounded-pill px-5 py-0 position-absolute top-0 start-50 translate-middle-x mt-3"
-      style={{
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const isScrolled = window.scrollY > 50;
+            if (isScrolled !== scrolled) {
+                setScrolled(isScrolled);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, [scrolled]);
+    
+    const navbarStyle = {
         maxWidth: '1400px',
-        backgroundColor: 'transparent',
-        backdropFilter: 'none',
-      }}
-    >
-      <div className="container-fluid d-flex justify-content-between align-items-center">
-        <Link
-          href="/"
-          className="navbar-brand d-flex align-items-center"
-          style={{
-            marginLeft: '-20px',
-            position: 'relative',
-            zIndex: 10,
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: '#ffff',
-              borderRadius: '50%',
-              border: '3px solid rgba(0, 123, 255, 0.7)',
-              padding: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-            }}
-          >
-            <Image
-              src="/images/logoRS.png"
-              alt="Rajawali Plastik Logo"
-              width={60}
-              height={60}
-              style={{ objectFit: 'contain' }}
-            />
-          </div>
-        </Link>
+        zIndex: 9999,
+        backgroundColor: 'transparent', 
+        backdropFilter: 'none', 
+        transition: 'background-color 0.3s ease, backdrop-filter 0.3s ease', 
+    };
 
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-          style={{ zIndex: 10 }}
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+    const linkColor = scrolled ? 'text-white' : 'text-dark';
+    const iconColor = scrolled ? 'white' : 'black';
+    const buttonVariant = scrolled ? 'btn-light' : 'btn-primary';
+    const buttonTextColor = scrolled ? 'black' : 'white';
+    
+    const logoBorderColor = scrolled ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 123, 255, 0.7)';
+    
+    const navUlStyle = {
+        backgroundColor: scrolled ? 'rgba(22, 39, 55, 0.95)' : 'rgba(255, 255, 255, 0.77)', 
+        backdropFilter: scrolled ? 'blur(10px)' : 'none',
+        borderRadius: '30px',
+        marginLeft: '-80px',
+        padding: '10px 20px 10px 100px',
+        transition: 'background-color 0.3s ease, backdrop-filter 0.3s ease, border 0.3s ease',
+        border: scrolled ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+    };
+    
+    const navLinks = [
+        { href: '/#home', label: 'Beranda' },
+        { href: '/#about', label: 'Tentang Kami' },
+        { href: '/#products', label: 'Produk' },
+        { href: '/#testimonies', label: 'Testimoni' },
+        { href: '/#blogs', label: 'Blogs' },
+        { href: '/#gallery', label: 'Gallery' },
+    ];
 
-        <div
-          className="collapse navbar-collapse justify-content-end"
-          id="navbarNav"
-          style={{
-            position: 'relative',
-            zIndex: 1,
-          }}
+    return (
+        <nav
+            className="navbar navbar-expand-lg rounded-pill px-5 py-0 position-fixed top-0 start-50 translate-middle-x mt-3 d-none d-lg-flex"
+            style={navbarStyle}
         >
-          <ul
-            className="navbar-nav align-items-center gap-3"
-            style={{
-              backgroundColor: 'rgba(255, 255, 255, 0.77)',
-              borderRadius: '30px',
-              marginLeft: '-80px',
-              padding: '10px 20px 10px 100px',
-            }}
-          >
-            <li className="nav-item">
-              <Link href="/" className="nav-link text-dark">
-                Home
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                href="/about"
-                className="nav-link text-dark"
-                style={{ whiteSpace: 'nowrap' }}
-              >
-                About Us
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="/products" className="nav-link text-dark">
-                Products
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="/testimonials" className="nav-link text-dark">
-                Testimonies
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link href="/gallery" className="nav-link text-dark">
-                Gallery
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link
-                href="/chat"
-                className="btn btn-primary rounded-pill px-4 d-inline-flex align-items-center justify-content-center"
-                style={{
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Contact Us!
-              </Link>
-            </li>
-            <li className="nav-item ms-2">
-              <Link href="/profile" className="nav-link text-dark fs-4 d-flex align-items-center">
-                <PersonCircle />
-              </Link>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-  );
+            <div className="container-fluid d-flex justify-content-between align-items-center">
+                
+                <Link
+                    href="/"
+                    className="navbar-brand d-flex align-items-center"
+                    style={{
+                        marginLeft: '-20px',
+                        position: 'relative',
+                        zIndex: 10,
+                    }}
+                >
+                    <div
+                        style={{
+                            backgroundColor: '#ffff',
+                            borderRadius: '50%',
+                            border: `3px solid ${logoBorderColor}`,
+                            padding: '14px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+                            transition: 'border-color 0.3s ease',
+                        }}
+                    >
+                        <Image
+                            src="/images/logoRS.png"
+                            alt="Rajawali Plastik Logo"
+                            width={60}
+                            height={60}
+                            style={{ objectFit: 'contain' }}
+                        />
+                    </div>
+                </Link>
+
+                <button
+                    className="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-controls="navbarNav"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    style={{ zIndex: 10 }}
+                >
+                    <span className="navbar-toggler-icon" style={{ filter: scrolled ? 'invert(1)' : 'none', transition: 'filter 0.3s ease' }}></span>
+                </button>
+
+                <div
+                    className="collapse navbar-collapse justify-content-end"
+                    id="navbarNav"
+                    style={{
+                        position: 'relative',
+                        zIndex: 1,
+                    }}
+                >
+                    <ul
+                        className="navbar-nav align-items-center gap-3"
+                        style={navUlStyle}
+                    >
+                        {navLinks.map((item) => (
+                            <li key={item.href} className="nav-item">
+                                <a 
+                                    href={item.href} 
+                                    className={`nav-link ${linkColor}`}
+                                    style={{ whiteSpace: item.label === 'Tentang Kami' ? 'nowrap' : 'normal', transition: 'color 0.3s ease' }}
+                                >
+                                    {item.label}
+                                </a>
+                            </li>
+                        ))}
+                        
+                        <li className="nav-item">
+                            <Link
+                                href="/chat"
+                                className={`btn ${buttonVariant} rounded-pill px-4 d-inline-flex align-items-center justify-content-center fw-bold`}
+                                style={{
+                                    whiteSpace: 'nowrap',
+                                    transition: 'background-color 0.3s ease, color 0.3s ease',
+                                    color: buttonTextColor,
+                                }}
+                                >
+                                Hubungi Kami!
+                            </Link>
+                        </li>
+                        
+                        <li className="nav-item ms-2">
+                            <Link 
+                                href="/auth/login" 
+                                className={`nav-link fs-4 d-flex align-items-center`}
+                                style={{ color: iconColor, transition: 'color 0.3s ease' }}
+                            >
+                                <PersonCircle />
+                            </Link>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    );
 };
 
 export default Navbar;

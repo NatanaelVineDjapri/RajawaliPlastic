@@ -1,13 +1,15 @@
-import pageStyles from '../DashboardPage.module.css';
+'use client';
 
+import React from 'react';
 export default function OrdersPage() {
   return (
-    <div>
-      <h1 className={pageStyles.adminTitle}>Order Lists</h1>
+    <div className="container-fluid py-4"> 
+      <h1 className="fs-3 fw-semibold text-dark mb-4">Order List</h1>
       
-      <div className={pageStyles.placeholder}>
-        <p>Konten untuk halaman Order Lists akan ada di sini.</p>
+      <div className="bg-light p-5 border rounded-3 text-center text-muted">
+        <p className="lead mb-0">Konten untuk halaman orderlist akan ada di sini.</p>
       </div>
+      
     </div>
   );
 }
