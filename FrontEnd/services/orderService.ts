@@ -17,9 +17,9 @@ const getToken = (): string | null => {
   return null;
 };
 
-const getHeaders = (): HeadersInit => {
+const getHeaders = (): Record<string, string> => { // 1. Ubah HeadersInit
   const token = getToken();
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = { // 2. Ubah HeadersInit
     'Accept': 'application/json', 
   };
   if (token) {
@@ -28,12 +28,14 @@ const getHeaders = (): HeadersInit => {
   return headers;
 };
 
-// POST: (Route::post('/orders', ...))
-export async function addOrder(formData: FormData): Promise<ApiSuccessResponse> {
+export const addOrder = async (payload: any): Promise<ApiSuccessResponse> => {
+  const headers = getHeaders();
+  headers['Content-Type'] = 'application/json';
+
   const response = await fetch(`${API_URL}/orders`, {
     method: 'POST',
-    headers: getHeaders(), 
-    body: formData,
+    headers: headers,
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
@@ -51,15 +53,49 @@ export async function addOrder(formData: FormData): Promise<ApiSuccessResponse> 
   return await response.json() as ApiSuccessResponse;
 }
 
-// UPDATE: (Route::put('/orders/{id}', ...))
-export async function updateOrder(id: string | number, formData: FormData): Promise<ApiSuccessResponse> {
-  
-  formData.append('_method', 'PUT'); 
+export const getOrders = async (): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/orders`, {
+    method: 'GET',
+    headers: getHeaders(), 
+  });
+
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json();
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
+    throw new Error(`Failed to retrieve orders. Status: ${response.status}`);
+  }
+
+  return await response.json() as ApiSuccessResponse;
+}
+
+export const getOrderById = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/orders/${id}`, {
+    method: 'GET',
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json();
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
+    throw new Error(`Gagal mengambil order. Status: ${response.status}`);
+  }
+
+  return await response.json() as ApiSuccessResponse;
+};
+
+
+export const updateOrder = async (id: string | number, payload: any): Promise<ApiSuccessResponse> => {
+  const headers = getHeaders();
+  headers['Content-Type'] = 'application/json';
 
   const response = await fetch(`${API_URL}/orders/${id}`, {
-    method: 'POST', 
-    headers: getHeaders(), 
-    body: formData,
+    method: 'PUT', 
+    headers: headers, 
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
@@ -77,8 +113,7 @@ export async function updateOrder(id: string | number, formData: FormData): Prom
   return await response.json() as ApiSuccessResponse;
 }
 
-// DELETE: (Route::delete('/orders/{id}', ...))
-export async function deleteOrder(id: string | number): Promise<ApiSuccessResponse> {
+export const deleteOrder = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/orders/${id}`, {
     method: 'DELETE',
     headers: getHeaders(), 
@@ -95,8 +130,7 @@ export async function deleteOrder(id: string | number): Promise<ApiSuccessRespon
   return await response.json() as ApiSuccessResponse;
 }
 
-// GET: (Route::get('/orders/summary', ...))
-export async function getOrderSummary(): Promise<ApiSuccessResponse> {
+export const getOrderSummary = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/orders/summary`, {
     method: 'GET',
     headers: getHeaders(),
@@ -113,8 +147,7 @@ export async function getOrderSummary(): Promise<ApiSuccessResponse> {
   return await response.json() as ApiSuccessResponse;
 }
 
-// GET: (Route::get('/orders/summary-detail', ...))
-export async function getOrderDetailSummary(): Promise<ApiSuccessResponse> {
+export const getOrderDetailSummary = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/orders/summary-detail`, {
     method: 'GET',
     headers: getHeaders(),

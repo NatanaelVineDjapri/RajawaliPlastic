@@ -137,7 +137,9 @@ export const getProductById = async (id: string | number): Promise<ApiSuccessRes
 
   if (!response.ok) {
     const errorData: ApiErrorResponse = await response.json();
-    if (errorData.message) throw new Error(errorData.message);
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
     throw new Error(`Gagal mengambil data produk (ID: ${id}).`);
   }
 

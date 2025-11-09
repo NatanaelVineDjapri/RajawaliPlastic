@@ -14,7 +14,7 @@ class OrderController extends Controller
     {
         return response()->json([
             'message' => 'Orders retrieved successfully',
-            'data'    => Order::with('user')->latest('_id')->get()
+            'data' => Order::with('user')->latest('_id')->get()
         ], 200);
     }
 
@@ -22,9 +22,10 @@ class OrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'user_email' => 'required|email',
-            'product_id' => 'required|string|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'total_price' => 'nullable|numeric|min:0',
+            'products' => 'required|array|min:1',
+            'products.*.product_id' => 'required|string|exists:products,id',
+            'products.*.quantity' => 'required|integer|min:1',
+            'products.*.total_price' => 'nullable|numeric|min:0',
             'status' => 'required|in:pending,proses,kirim,selesai',
             'notes' => 'nullable|string',
         ]);
@@ -38,11 +39,6 @@ class OrderController extends Controller
             return response()->json(['message' => 'User email not found'], 404);
         }
 
-        $product = Product::find($request->product_id);
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
-
         $today = now()->format('Ymd');
         $lastOrder = Order::where('order_no', 'like', "RS-$today-%")
             ->orderBy('order_no', 'desc')
@@ -51,13 +47,31 @@ class OrderController extends Controller
         $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
         $orderNo = "RS-$today-$newNumber";
 
+        $productsData = [];
+        $totalOrderPrice = 0;
+        foreach ($request->products as $item) {
+            $product = Product::find($item['product_id']);
+            if (!$product) {
+                return response()->json(['message' => "Product {$item['product_id']} not found"], 404);
+            }
+
+            $price = $item['total_price'] ?? 0;
+            $totalOrderPrice += $price;
+
+            $productsData[] = [
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'quantity' => $item['quantity'],
+                'total_price' => $price,
+            ];
+        }
+
         $order = Order::create([
             'order_no' => $orderNo,
             'user_id' => $user->id,
             'user_email' => $user->email,
-            'product_name' => $product->name,
-            'quantity' => $request->quantity,
-            'total_price' => $request->total_price ?? 0,
+            'products' => $productsData,
+            'total_price' => $totalOrderPrice,
             'status_delivery' => $request->status,
             'status_payment' => 'pending',
             'notes' => $request->notes ?? 'Sesuai kebutuhan pelanggan',
@@ -69,6 +83,20 @@ class OrderController extends Controller
         ], 201);
     }
 
+    public function show($id)
+{
+    $order = Order::find($id);
+
+    if (!$order) {
+        return response()->json(['message' => 'Order not found'], 404);
+    }
+
+    return response()->json([
+        'message' => 'Order retrieved successfully',
+        'data' => $order
+    ], 200);
+}
+
     public function update(Request $request, $id)
     {
         $order = Order::find($id);
@@ -78,9 +106,10 @@ class OrderController extends Controller
 
         $validator = Validator::make($request->all(), [
             'user_email' => 'sometimes|required|email',
-            'product_id' => 'sometimes|required|integer|exists:products,id',
-            'quantity' => 'sometimes|required|integer|min:1',
-            'total_price' => 'sometimes|nullable|numeric|min:0',
+            'products' => 'sometimes|required|array|min:1',
+            'products.*.product_id' => 'required|string|exists:products,id',
+            'products.*.quantity' => 'required|integer|min:1',
+            'products.*.total_price' => 'nullable|numeric|min:0',
             'status_delivery' => 'sometimes|required|in:pending,proses,kirim,selesai',
             'status_payment' => 'sometimes|required|in:pending,paid,failed,refunded',
             'notes' => 'sometimes|nullable|string',
@@ -101,21 +130,35 @@ class OrderController extends Controller
             ]);
         }
 
-        if ($request->has('product_id')) {
-            $product = Product::find($request->product_id);
-            if (!$product) {
-                return response()->json(['message' => 'Product not found'], 404);
+        // Update products if ada
+        if ($request->has('products')) {
+            $productsData = [];
+            $totalOrderPrice = 0;
+            foreach ($request->products as $item) {
+                $product = Product::find($item['product_id']);
+                if (!$product) {
+                    return response()->json(['message' => "Product {$item['product_id']} not found"], 404);
+                }
+                $price = $item['total_price'] ?? 0;
+                $totalOrderPrice += $price;
+
+                $productsData[] = [
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'quantity' => $item['quantity'],
+                    'total_price' => $price,
+                ];
             }
             $request->merge([
-                'product_name' => $product->name,
+                'products' => $productsData,
+                'total_price' => $totalOrderPrice,
             ]);
         }
 
         $order->update($request->only([
             'user_id',
             'user_email',
-            'product_name',
-            'quantity',
+            'products',
             'total_price',
             'status_delivery',
             'status_payment',
@@ -146,11 +189,14 @@ class OrderController extends Controller
         $summary = Order::raw(function ($collection) {
             return $collection->aggregate([
                 [
+                    '$unwind' => '$products'
+                ],
+                [
                     '$group' => [
                         '_id' => '$user_id',
                         'total_orders' => ['$sum' => 1],
-                        'total_quantity' => ['$sum' => '$quantity'],
-                        'total_price' => ['$sum' => '$total_price'],
+                        'total_quantity' => ['$sum' => '$products.quantity'],
+                        'total_price' => ['$sum' => '$products.total_price'],
                     ]
                 ]
             ]);
@@ -164,14 +210,17 @@ class OrderController extends Controller
         $summary = Order::raw(function ($collection) {
             return $collection->aggregate([
                 [
+                    '$unwind' => '$products'
+                ],
+                [
                     '$group' => [
                         '_id' => [
                             'user_id' => '$user_id',
                             'user_email' => '$user_email'
                         ],
                         'total_orders' => ['$sum' => 1],
-                        'total_quantity' => ['$sum' => '$quantity'],
-                        'total_price' => ['$sum' => '$total_price'],
+                        'total_quantity' => ['$sum' => '$products.quantity'],
+                        'total_price' => ['$sum' => '$products.total_price'],
                     ]
                 ],
                 [

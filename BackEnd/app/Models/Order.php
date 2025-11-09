@@ -12,16 +12,19 @@ class Order extends Model
     protected $connection = 'mongodb';
     protected $collection = 'orders';
 
-    protected $fillable = [
-        'user_id',     
-        'user_email',    
-        'product_name',
+     protected $fillable = [
         'order_no',
-        'quantity',
-        'total_price',
+        'user_id',
+        'user_email',
+        'products',      
+        'total_price',   
         'status_delivery',
         'status_payment',
         'notes',
+    ];
+    protected $casts = [
+        'products' => 'array',
+        'total_price' => 'float',
     ];
 
     public function user()
