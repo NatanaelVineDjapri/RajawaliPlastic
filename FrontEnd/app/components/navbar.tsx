@@ -124,7 +124,7 @@ const Navbar: React.FC = () => {
                             <li key={item.href} className="nav-item">
                                 <a 
                                     href={item.href} 
-                                    className={`nav-link ${linkColor}`}
+                                    className={`nav-link ${linkColor} nav-link-hover`}
                                     style={{ whiteSpace: item.label === 'Tentang Kami' ? 'nowrap' : 'normal', transition: 'color 0.3s ease' }}
                                 >
                                     {item.label}
@@ -148,7 +148,7 @@ const Navbar: React.FC = () => {
                         
                         <li className="nav-item ms-2">
                             <Link 
-                                href="/auth/login" 
+                                href="/profile" 
                                 className={`nav-link fs-4 d-flex align-items-center`}
                                 style={{ color: iconColor, transition: 'color 0.3s ease' }}
                             >
