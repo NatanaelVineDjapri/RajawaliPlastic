@@ -5,7 +5,6 @@ import { PersonCircle, List, X } from 'react-bootstrap-icons';
 
 const MobileNavbar: React.FC = () => {
   const [open, setOpen] = useState(false);
-
   const toggleMenu = () => setOpen(!open);
 
   const navLinks = [
@@ -48,7 +47,7 @@ const MobileNavbar: React.FC = () => {
                 <li key={item.href} className="mb-3">
                   <Link
                     href={item.href}
-                    className="fw-semibold text-dark text-decoration-none"
+                    className="fw-semibold text-dark text-decoration-none mobile-nav-hover"
                     onClick={() => setOpen(false)}
                   >
                     {item.label}
@@ -59,7 +58,7 @@ const MobileNavbar: React.FC = () => {
 
             <Link
               href="/chat"
-              className="btn btn-primary w-100 rounded-pill mb-3"
+              className="mobile-gradient-btn w-100 mb-3"
               onClick={() => setOpen(false)}
             >
               Hubungi Kami!
@@ -67,7 +66,7 @@ const MobileNavbar: React.FC = () => {
 
             <Link
               href="/profile"
-              className="btn btn-outline-dark w-100 rounded-pill d-flex align-items-center justify-content-center gap-2"
+              className="mobile-gradient-btn w-100 d-flex align-items-center justify-content-center gap-2"
               onClick={() => setOpen(false)}
             >
               <PersonCircle />
