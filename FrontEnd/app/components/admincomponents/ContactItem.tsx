@@ -4,9 +4,9 @@ import { Dot } from 'lucide-react';
 interface ContactItemProps {
   username: string;
   lastMessage: string;
-  isActive: boolean;
   isOnline: boolean;
   isSelected: boolean;
+  hasUnread: boolean;
   onClick: () => void;
 }
 
@@ -15,9 +15,9 @@ const AVATAR_SRC = "/images/avatarplaceholder.png";
 export default function ContactItem({
   username,
   lastMessage,
-  isActive,
   isOnline,
   isSelected,
+  hasUnread,
   onClick,
 }: ContactItemProps) {
   const selectedClass = isSelected 
@@ -49,12 +49,12 @@ export default function ContactItem({
 
       <div className="d-flex flex-column flex-grow-1">
         <span className="fw-semibold text-dark">{username}</span>
-        <span className={`small text-muted text-truncate ${isActive ? 'fw-bold text-dark' : ''}`}>
+        <span className={`small text-muted text-truncate ${hasUnread ? 'fw-bold text-dark' : ''}`}>
           {lastMessage}
         </span>
       </div>
       
-      {isActive && (
+      {hasUnread && (
         <div className="ms-auto">
           <div className="rounded-circle" style={{ width: '8px', height: '8px', backgroundColor: '#9c27b0' }}></div>
         </div>
