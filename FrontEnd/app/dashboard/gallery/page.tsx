@@ -1,71 +1,139 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import { getGalleries, deleteGallery } from "@/services/galleryService";
+import { Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
-const initialGalleryItems = [
-  { id: 1, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 2, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 3, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 4, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 5, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 6, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 7, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 8, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-];
+const MySwal = withReactContent(Swal);
+
+interface GalleryItem {
+  id: string;
+  image: string;
+  label?: string;
+}
 
 export default function GalleryPage() {
-  const pageTitle = 'Web gallery';
-  const [galleryItems, setGalleryItems] = useState(initialGalleryItems);
+  const pageTitle = "Web Gallery";
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Gallery" },
+  ];
 
-  const handleRemove = (idToRemove: number) => {
-    setGalleryItems(prevItems => prevItems.filter(item => item.id !== idToRemove));
-    console.log(`Item ID ${idToRemove} dihapus.`);
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchGallery = async () => {
+    setIsLoading(true);
+    try {
+      const result = await getGalleries();
+      if (result.data && Array.isArray(result.data)) {
+        setGalleryItems(result.data);
+      }
+    } catch (error: any) {
+      console.error(error);
+      MySwal.fire(
+        "Error",
+        error.message || "Failed to fetch gallery items.",
+        "error"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGallery();
+  }, []);
+
+  const handleRemove = (id: string) => {
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#007bff",
+      confirmButtonText: "Yes, remove it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteGallery(id)
+          .then(() => {
+            MySwal.fire(
+              "Removed!",
+              "Gallery item has been removed.",
+              "success"
+            );
+            fetchGallery();
+          })
+          .catch((error: any) => {
+            MySwal.fire(
+              "Failed",
+              error.message || "Failed to remove gallery item.",
+              "error"
+            );
+          });
+      }
+    });
   };
 
   return (
     <div className="w-100 position-relative">
-      <h1 className="fs-3 fw-bold text-dark mb-4">{pageTitle}</h1>
+      <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
 
-      <div className="rounded-3 p-4 mb-4" style={{ backgroundColor: '#C0FBFF' }}>
-        <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
-          Gallery
-        </h2>
-      </div>
+      {isLoading && (
+        <div className="text-center p-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      )}
 
-      <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4 pb-5">
-        {galleryItems.map((item) => (
-          <div key={item.id} className="col">
-            <div
-              className="card h-100 overflow-hidden rounded-3 shadow-sm text-center border"
-              style={{ backgroundColor: '#f9fafb', borderColor: '#dee2e6' }}
-            >
-              <div className="bg-white p-3 d-flex align-items-center justify-content-center" style={{ minHeight: '180px' }}>
-                <Image
-                  src={item.img}
-                  alt={`Gallery item ${item.id}`}
-                  width={120}
-                  height={120}
-                  style={{ objectFit: 'contain' }}
-                />
-              </div>
-              <div className="card-body p-3">
-                <button
-                  className="btn btn-sm w-100 rounded-3 fw-medium btn-outline-primary"
-                  onClick={() => handleRemove(item.id)}
-                  style={{
-                    backgroundColor: '#e0e0ff',
-                    color: '#6c63ff',
-                    borderColor: '#c0bfff',
-                  }}
+      {!isLoading && galleryItems.length === 0 && (
+        <div className="text-center p-5 bg-white rounded-3 shadow-sm">
+          <p className="text-muted mb-0">No gallery items found.</p>
+        </div>
+      )}
+
+      {!isLoading && galleryItems.length > 0 && (
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 pb-5 mt-2">
+          {galleryItems.map((item) => (
+            <div key={item.id} className="col">
+              <div
+                className="card h-100 overflow-hidden rounded-3 shadow-sm border-0"
+                style={{ backgroundColor: "#ffffff", borderColor: "#dee2e6" }}
+              >
+                <div
+                  className="bg-light d-flex align-items-center justify-content-center"
+                  style={{ minHeight: "180px", position: "relative" }}
                 >
-                  Remove
-                </button>
+                  <Image
+                    src={item.image}
+                    alt={`Gallery item ${item.id}`}
+                    fill
+                    style={{ objectFit: "cover", padding: "20px" }}
+                    unoptimized
+                  />
+                </div>
+
+                <div className="card-body p-3 d-flex flex-column">
+                  <div className="mt-auto d-flex gap-2">
+                    <button
+                      onClick={() => handleRemove(item.id)}
+                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
