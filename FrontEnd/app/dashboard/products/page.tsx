@@ -1,71 +1,70 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import PageHeader from "@/app/components/admincomponents/PageHeader";
-import { getProducts, deleteProduct } from "@/services/productService";
-import { Edit, Trash2 } from "lucide-react";
-import Swal from "sweetalert2";
-import withReactContent from "sweetalert2-react-content";
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import PageHeader from '@/app/components/admincomponents/PageHeader';
+import { getTestimonials, deleteTestimonial } from '@/services/testimonialService';
+import { Edit, Trash2 } from 'lucide-react';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
 const MySwal = withReactContent(Swal);
 
-interface Product {
+interface Testimonial {
   id: string;
   name: string;
-  image_url: string;
+  logo: string;
   description?: string;
-  quantity?: number;
 }
 
-export default function ProductsPage() {
-  const pageTitle = "Products";
+export default function TestimonyPage() {
+  const pageTitle = 'Testimony';
   const breadcrumbs = [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Products" },
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Testimony' },
   ];
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  async function fetchProducts() {
+  async function fetchTestimonials() {
     setIsLoading(true);
     try {
-      const result = await getProducts();
+      const result = await getTestimonials();
       if (result.data && Array.isArray(result.data)) {
-        setProducts(result.data);
+        setTestimonials(result.data);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      MySwal.fire("Error", "Failed to fetch products.", "error");
+      MySwal.fire('Error', error.message || 'Failed to fetch testimonials.', 'error');
     } finally {
       setIsLoading(false);
     }
   }
 
   useEffect(() => {
-    fetchProducts();
+    fetchTestimonials();
   }, []);
 
   const handleDelete = (id: string) => {
     MySwal.fire({
-      title: "Are you sure?",
+      title: 'Are you sure?',
       text: "You won't be able to revert this!",
-      icon: "warning",
+      icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#007bff",
-      confirmButtonText: "Yes, delete it!",
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#007bff',
+      confirmButtonText: 'Yes, delete it!',
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteProduct(id)
+        deleteTestimonial(id)
           .then(() => {
-            MySwal.fire("Deleted!", "Product has been deleted.", "success");
-            fetchProducts();
+            MySwal.fire('Deleted!', 'Testimonial has been deleted.', 'success');
+            fetchTestimonials();
           })
-          .catch((error) => {
-            MySwal.fire("Failed", error.message, "error");
+          .catch((error: any) => {
+            MySwal.fire('Failed', error.message || 'Failed to delete testimonial.', 'error');
           });
       }
     });
@@ -83,35 +82,35 @@ export default function ProductsPage() {
         </div>
       )}
 
-      {!isLoading && products.length === 0 && (
+      {!isLoading && testimonials.length === 0 && (
         <div className="text-center p-5 bg-white rounded-3 shadow-sm">
           <p className="text-muted mb-0">
-            No products found. Click the + button to add one.
+            No testimonials found. Click the '+' button to add one.
           </p>
         </div>
       )}
 
-      {!isLoading && products.length > 0 && (
+      {!isLoading && testimonials.length > 0 && (
         <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 pb-5">
-          {products.map((item) => (
+          {testimonials.map((item) => (
             <div key={item.id} className="col">
               <div
                 className="card h-100 overflow-hidden rounded-3 shadow-sm border-0"
-                style={{ backgroundColor: "#ffffff", borderColor: "#dee2e6" }}
+                style={{ backgroundColor: '#ffffff', borderColor: '#dee2e6' }}
               >
                 <div
                   style={{
-                    height: "200px",
-                    overflow: "hidden",
-                    position: "relative",
+                    height: '200px',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    backgroundColor: '#f8f9fa',
                   }}
                 >
                   <Image
-                    src={item.image_url}
+                    src={item.logo}
                     alt={item.name}
                     fill
-                    className="card-img-top"
-                    style={{ objectFit: "cover" }}
+                    style={{ objectFit: 'contain', padding: '20px' }}
                     unoptimized
                   />
                 </div>
@@ -120,19 +119,14 @@ export default function ProductsPage() {
                   <h5 className="card-title fw-semibold small text-dark mb-2">
                     {item.name}
                   </h5>
-                  <h5 className="card-title small text-dark mb-3 fw-normal">
-                    {(item.description ?? "")
-                      .split(" ")
-                      .slice(0, 10)
-                      .join(" ") +
-                      ((item.description ?? "").split(" ").length > 10
-                        ? "..."
-                        : "")}
-                  </h5>
+                  <p className="card-text small text-muted mb-3 fw-normal">
+                    "{(item.description ?? '').split(' ').slice(0, 15).join(' ') +
+                      ((item.description ?? '').split(' ').length > 15 ? '...' : '')}"
+                  </p>
 
                   <div className="mt-auto d-flex gap-2">
                     <Link
-                      href={`/dashboard/products/edit/${item.id}`}
+                      href={`/dashboard/testimony/edit/${item.id}`}
                       className="btn btn-sm btn-outline-primary px-3 rounded-3 d-flex align-items-center gap-1"
                     >
                       <Edit size={14} /> Edit

@@ -1,22 +1,53 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import { getGalleries, deleteGallery } from "@/services/galleryService";
+import { Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
-const initialGalleryItems = [
-  { id: 1, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 2, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 3, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 4, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 5, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 6, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 7, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-  { id: 8, type: 'remove', label: 'Remove', img: '/images/logoRS.png' },
-];
+const MySwal = withReactContent(Swal);
+
+interface GalleryItem {
+  id: string;
+  image: string;
+  label?: string;
+}
 
 export default function GalleryPage() {
-  const pageTitle = 'Web gallery';
-  const [galleryItems, setGalleryItems] = useState(initialGalleryItems);
+  const pageTitle = "Web Gallery";
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Gallery" },
+  ];
+
+  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchGallery = async () => {
+    setIsLoading(true);
+    try {
+      const result = await getGalleries();
+      if (result.data && Array.isArray(result.data)) {
+        setGalleryItems(result.data);
+      }
+    } catch (error: any) {
+      console.error(error);
+      MySwal.fire(
+        "Error",
+        error.message || "Failed to fetch gallery items.",
+        "error"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGallery();
+  }, []);
 
   const handleRemove = (idToRemove: number) => {
     setGalleryItems(prevItems => prevItems.filter(item => item.id !== idToRemove));
@@ -58,13 +89,30 @@ export default function GalleryPage() {
                     borderColor: '#c0bfff',
                   }}
                 >
-                  Remove
-                </button>
+                  <Image
+                    src={item.image}
+                    alt={`Gallery item ${item.id}`}
+                    fill
+                    style={{ objectFit: "cover", padding: "20px" }}
+                    unoptimized
+                  />
+                </div>
+
+                <div className="card-body p-3 d-flex flex-column">
+                  <div className="mt-auto d-flex gap-2">
+                    <button
+                      onClick={() => handleRemove(item.id)}
+                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

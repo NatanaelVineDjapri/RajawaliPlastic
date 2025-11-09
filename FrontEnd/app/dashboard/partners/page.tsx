@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
 import Image from 'next/image';
@@ -23,13 +23,23 @@ export default function PartnersPage() {
 
   return (
     <div className="w-100 position-relative">
-      <h1 className="fs-3 fw-bold text-dark mb-4">{pageTitle}</h1>
+      <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
 
-      <div className="rounded-3 p-4 mb-4" style={{ backgroundColor: '#C0FBFF' }}>
-        <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
-          Partners
-        </h2>
-      </div>
+      {isLoading && (
+        <div className="text-center p-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      )}
+
+      {!isLoading && partners.length === 0 && (
+        <div className="text-center p-5 bg-white rounded-3 shadow-sm">
+          <p className="text-muted mb-0">
+            No partners found. Click the '+' button to add one.
+          </p>
+        </div>
+      )}
 
       <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4 pb-5">
         {partners.map((partner) => (
@@ -43,8 +53,22 @@ export default function PartnersPage() {
                 onClick={() => handleDelete(partner.id)}
                 style={{ width: '28px', height: '28px', padding: '0', zIndex: 10 }}
               >
-                <X size={14} />
-              </button>
+                <div
+                  style={{
+                    height: "200px",
+                    overflow: "hidden",
+                    position: "relative",
+                    backgroundColor: "#f8f9fa",
+                  }}
+                >
+                  <Image
+                    src={partner.logo}
+                    alt={partner.name}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    unoptimized
+                  />
+                </div>
 
               <div
                 className="bg-white p-4 d-flex align-items-center justify-content-center"
@@ -59,13 +83,20 @@ export default function PartnersPage() {
                 />
               </div>
 
-              <div className="card-body py-2 px-1">
-                <p className="card-text fw-medium small text-dark mb-0">{partner.name}</p>
+                  <div className="mt-auto d-flex gap-2">
+                    <button
+                      onClick={() => handleDelete(partner.id)}
+                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

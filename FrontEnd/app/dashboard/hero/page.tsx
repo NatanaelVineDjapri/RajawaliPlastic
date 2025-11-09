@@ -1,22 +1,49 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import PageHeader from '@/app/components/admincomponents/PageHeader';
+import { getSliders, deleteSlider } from '@/services/heroService'; // pastikan service ini ada
+import { Trash2 } from 'lucide-react';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
 
-const initialHeroItems = [
-  { id: 1, label: 'Slider 1', img: '/images/logoRS.png' },
-  { id: 2, label: 'Slider 2', img: '/images/logoRS.png' },
-  { id: 3, label: 'Slider 3', img: '/images/logoRS.png' },
-  { id: 4, label: 'Slider 4', img: '/images/logoRS.png' },
-  { id: 5, label: 'Slider 5', img: '/images/logoRS.png' },
-  { id: 6, label: 'Slider 6', img: '/images/logoRS.png' },
-  { id: 7, label: 'Slider 7', img: '/images/logoRS.png' },
-  { id: 8, label: 'Slider 8', img: '/images/logoRS.png' },
-];
+const MySwal = withReactContent(Swal);
+
+interface HeroItem {
+  id: string;
+  image: string;
+  label?: string;
+}
 
 export default function HeroPage() {
   const pageTitle = 'Hero';
-  const [heroItems, setHeroItems] = useState(initialHeroItems);
+  const breadcrumbs = [
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Hero' },
+  ];
+
+  const [heroItems, setHeroItems] = useState<HeroItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchHero = async () => {
+    setIsLoading(true);
+    try {
+      const result = await getSliders();
+      if (result.data && Array.isArray(result.data)) {
+        setHeroItems(result.data);
+      }
+    } catch (error: any) {
+      console.error(error);
+      MySwal.fire('Error', error.message || 'Failed to fetch hero items.', 'error');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchHero();
+  }, []);
 
   const handleRemove = (idToRemove: number) => {
     setHeroItems(prevItems => prevItems.filter(item => item.id !== idToRemove));
@@ -50,13 +77,33 @@ export default function HeroPage() {
                   onClick={() => handleRemove(item.id)}
                   style={{ backgroundColor: '#e0e0ff', color: '#6c63ff', borderColor: '#c0bfff' }}
                 >
-                  Remove
-                </button>
+                  <Image
+                    src={item.image}
+                    alt={item.label || `Hero item ${item.id}`}
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    unoptimized
+                  />
+                </div>
+
+                <div className="card-body p-3 d-flex flex-column">
+                  {item.label && (
+                    <p className="card-text fw-semibold text-dark mb-2">{item.label}</p>
+                  )}
+                  <div className="mt-auto">
+                    <button
+                      className="btn btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-1"
+                      onClick={() => handleRemove(item.id)}
+                    >
+                      <Trash2 size={14} /> Remove
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
