@@ -1,8 +1,6 @@
 "use client";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "./components/navbar";
-import MobileNavbar from "./components/mobileNavbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { usePathname } from "next/navigation";
 
@@ -30,8 +28,6 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {!isAuthPage && (
           <>
-            {/* <Navbar /> */}
-            <MobileNavbar />
           </>
         )}
 

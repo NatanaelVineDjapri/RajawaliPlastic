@@ -3,7 +3,7 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
-import SubmitButton from "@/app/components/admincomponents/SubmitButton";
+import SubmitButton from "@/app/components/admincomponents/TempButton";
 import { addProduct } from "@/services/productService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";

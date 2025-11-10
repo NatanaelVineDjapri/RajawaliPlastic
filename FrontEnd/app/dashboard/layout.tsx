@@ -1,10 +1,10 @@
 'use client';
 
-import Sidenavbar from '../components/admincomponents/SideNavbar';
+import Sidenavbar from '../components/admincomponents/Sidenavbar';
 import TopNavbar from '../components/admincomponents/TopNavbar';
 import CreateButton from '@/app/components/admincomponents/CreateButton';
 import React from 'react';
-import { AuthProvider } from '@/app/contexts/AuthContext'; // 1. IMPORT
+import { AuthProvider } from '@/app/contexts/AuthContext';
 
 export default function DashboardLayout({
   children,
@@ -12,20 +12,23 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    // 2. BUNGKUS SEMUANYA DENGAN AUTHPROVIDER
     <AuthProvider>
       <div className="d-flex flex-column vh-100 bg-light">
-        <TopNavbar /> {/* <-- Sekarang TopNavbar ada DI DALAM AuthProvider */}
-        <div className="d-flex flex-grow-1 overflow-hidden position-relative">
-          <Sidenavbar />
+        <TopNavbar />
+        <div className="d-flex flex-column flex-lg-row flex-grow-1 overflow-hidden position-relative">
+          <div className="flex-shrink-0">
+            <Sidenavbar />
+          </div>
 
-          <main className="flex-grow-1 overflow-y-auto p-4">
+          <main className="flex-grow-1 overflow-y-auto p-3 p-lg-4">
             <div className="container-fluid mx-auto" style={{ maxWidth: '1400px' }}>
-              {children} {/* <-- children juga di DALAM AuthProvider */}
+              {children}
             </div>
           </main>
 
-          <CreateButton />
+          <div className="d-lg-block position-static mt-3 mt-lg-0">
+            <CreateButton />
+          </div>
         </div>
       </div>
     </AuthProvider>

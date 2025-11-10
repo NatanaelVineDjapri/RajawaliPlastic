@@ -6,12 +6,9 @@ import { getProducts } from "@/services/productService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
-import SubmitButton from "@/app/components/admincomponents/SubmitButton";
-import CustomSelect, {
-  SelectOption,
-} from "@/app/components/admincomponents/CustomSelect";
-import { Plus, Trash2 } from "lucide-react"; // Import ikon
-
+import SubmitButton from "@/app/components/admincomponents/TempButton";
+import CustomSelect, { SelectOption } from "@/app/components/admincomponents/customSelect";
+import { Plus, Trash2 } from "lucide-react";
 const MySwal = withReactContent(Swal);
 
 interface Product {
@@ -47,7 +44,6 @@ export default function CreateOrderPage() {
   
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Fetch produk (hanya sekali)
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -74,7 +70,6 @@ export default function CreateOrderPage() {
     fetchProducts();
   }, []);
 
- 
   const updateOrderProduct = (index: number, field: keyof OrderProduct, value: string | number) => {
     const updatedProducts = [...orderProducts];
     const product = updatedProducts[index];
@@ -117,7 +112,7 @@ export default function CreateOrderPage() {
   };
 
   const removeProductForm = (index: number) => {
-    if (orderProducts.length <= 1) return; // Sisain minimal 1
+    if (orderProducts.length <= 1) return;
     setOrderProducts(orderProducts.filter((_, i) => i !== index));
   };
 
@@ -145,7 +140,6 @@ export default function CreateOrderPage() {
       const defaultProductId = productOptions.length > 0 ? productOptions[0].value : "";
       const defaultPrice = products.find(p => String(p.id) === defaultProductId)?.price || 0;
       setOrderProducts([{ productId: defaultProductId, quantity: 1, totalPrice: defaultPrice }]);
-
     } catch (error) {
       let errorMessage = "An unknown error occurred.";
       if (error instanceof Error) errorMessage = error.message;
@@ -210,7 +204,6 @@ export default function CreateOrderPage() {
                         id={`productName-${index}`}
                         options={productOptions}
                         value={productOptions.find((opt) => opt.value === product.productId) || null}
-                        // onChange={(selectedOption) => handleProductChange(index, selectedOption ? selectedOption.value : "")}
                         placeholder={!products || products.length === 0 ? "Loading..." : "Select product"}
                         required
                       />
@@ -285,7 +278,6 @@ export default function CreateOrderPage() {
                   id="status"
                   options={statusOptions}
                   value={statusOptions.find((opt) => opt.value === status)}
-                  // onChange={(selectedOption) => setStatus(selectedOption ? selectedOption.value : "pending")}
                   required
                 />
               </div>

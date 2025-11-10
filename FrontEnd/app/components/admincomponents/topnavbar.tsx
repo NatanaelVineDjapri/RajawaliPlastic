@@ -28,32 +28,37 @@ export default function TopNavbar() {
   }, [dropdownRef]);
 
   const handleLogoutConfirm = () => {
-    console.log("Top Nav: User confirmed logout. Redirecting...");
+    console.log('Top Nav: User confirmed logout. Redirecting...');
     setIsModalOpen(false);
   };
 
   const openModal = () => {
-    setIsDropdownOpen(false); 
+    setIsDropdownOpen(false);
     setIsModalOpen(true);
   };
 
   return (
     <>
-      <header className="d-flex justify-content-between align-items-center w-100 py-3 px-4 bg-white border-bottom shadow-sm">
-        <div className="d-flex align-items-center gap-2 flex-grow-1 justify-content-start">
+      <header className="d-flex justify-content-between align-items-center w-100 py-3 px-3 px-md-4 bg-white border-bottom shadow-sm flex-wrap">
+        
+        <div className="d-none d-lg-flex align-items-center gap-2 flex-grow-0 me-2">
           <Image
             src="/images/logoRS.png"
             alt="Rajawali Plastik Logo"
             width={40}
             height={40}
           />
-          <span className="fs-5 fw-bold text-dark">Rajawali Plastik</span>
+          <span className="fs-5 fw-bold text-dark d-none d-lg-inline">Rajawali Plastik</span>
         </div>
-        <h1 className="flex-grow-1 fs-3 fw-semibold text-dark text-center">
+        
+        <h1 className="flex-grow-1 fs-6 fs-md-5 fs-lg-4 fw-semibold text-dark text-center m-0">
+          <span className="d-lg-none">
+          </span>
           Administrator Dashboard
         </h1>
+        
         <div
-          className="position-relative d-flex justify-content-end flex-grow-1"
+          className="position-relative d-flex justify-content-end flex-grow-0 ms-2"
           ref={dropdownRef}
         >
           <div
@@ -69,7 +74,7 @@ export default function TopNavbar() {
               height={40}
               className="rounded-circle object-fit-cover"
             />
-            <div className="d-flex flex-column text-end">
+            <div className="d-none d-sm-flex flex-column text-end">
               <span className="fw-semibold small">Moni Roy</span>
               <span className="text-muted" style={{ fontSize: '0.75rem' }}>
                 Admin
@@ -84,13 +89,14 @@ export default function TopNavbar() {
               }}
             />
           </div>
-          
+
           <nav
-            className={`dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2 mt-5 ${isDropdownOpen ? 'show' : ''}`}
-            style={{ 
+            className={`dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2 mt-2 mt-md-5 ${
+              isDropdownOpen ? 'show' : ''
+            }`}
+            style={{
               width: '200px',
-              right: '0px', 
-              transform: 'translateX(20px)',
+              right: '0', 
             }}
           >
             <Link
@@ -114,10 +120,21 @@ export default function TopNavbar() {
         </div>
       </header>
       
-      <LogoutModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onConfirm={handleLogoutConfirm} 
+      <style jsx>{`
+        @media (max-width: 576px) {
+          .dropdown-menu {
+            min-width: 150px;
+            right: 0px !important; 
+            left: auto !important; 
+            margin-right: 1rem; 
+          }
+        }
+      `}</style>
+
+      <LogoutModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleLogoutConfirm}
       />
     </>
   );
