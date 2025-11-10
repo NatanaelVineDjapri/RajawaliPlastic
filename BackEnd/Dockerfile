@@ -17,27 +17,63 @@ COPY . .
 # Build asset untuk production
 RUN npm run build
 
+# -----------------------------------------------
 # --- Tahap 2: Build Backend (PHP) ---
-# Gunakan image PHP 8.2 dengan Apache
-FROM heroku/php-apache2:latest AS backend
+# -----------------------------------------------
 
-WORKDIR /app
+# Gunakan image PHP 8.2 resmi dengan Apache
+# (Menggantikan heroku/php-apache2 yang sudah tidak ada)
+FROM php:8.2-apache AS backend
+
+# Set working directory ke default Apache
+WORKDIR /var/www/html
+
+# --- Instalasi PHP Extensions yang Umum Dibutuhkan Laravel ---
+# Image heroku sudah punya ini, image resmi (php:8.2) tidak, jadi kita install manual.
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libpng-dev \
+    libjpeg-dev \
+    libonig-dev \
+    libzip-dev \
+    && docker-php-ext-install \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip
+
+# Install Composer (karena image ini tidak punya composer)
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Enable Apache mod_rewrite (PENTING untuk routing Laravel)
+RUN a2enmod rewrite
+
+# Ganti DocumentRoot Apache ke /var/www/html/public
+# Ini adalah pengganti dari perintah `heroku-php-apache2 public/` yang lama
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # Copy file composer
+# (Kita copy dulu composer.json agar Docker bisa cache layer ini)
 COPY composer.json composer.lock ./
-# Install dependensi PHP (abaikan platform reqs untuk Heroku buildpack)
-RUN composer install --no-interaction --no-plugins --no-scripts --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
+
+# Install dependensi PHP
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
 
 # Copy semua kode aplikasi
+# (Kita ada di /var/www/html)
 COPY . .
 
 # Copy asset yang sudah di-build dari tahap 1
+# Pastikan path ini benar
 COPY --from=frontend_builder /app/public/build ./public/build
 
 # Set permission yang benar untuk Laravel
+# User apache di image ini adalah www-data
 RUN chown -R www-data:www-data storage bootstrap/cache
-
-# --- Perintah Start ---
-# Perintah ini akan otomatis dijalankan oleh Render
-# (Ini sudah ada di dalam image heroku/php-apache2)
-# CMD ["heroku-php-apache2", "public/"]
+RUN chmod -R 775 storage bootstrap/cache
