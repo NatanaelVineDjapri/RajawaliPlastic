@@ -1,24 +1,80 @@
 "use client";
 
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import { getPartners, deletePartner } from "@/services/partnerService";
+import { Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
-const initialPartners = [
-  { id: 1, name: 'OT Group', logoSrc: '/images/logoRS.png' },
-  { id: 2, name: 'Wings', logoSrc: '/images/logoRS.png' },
-  { id: 3, name: 'Prima Pack', logoSrc: '/images/logoRS.png' },
-  { id: 4, name: 'Lux', logoSrc: '/images/logoRS.png' },
-  { id: 5, name: 'Lock n Lock', logoSrc: '/images/logoRS.png' },
-  { id: 6, name: 'Lion Star', logoSrc: '/images/logoRS.png' },
-];
+const MySwal = withReactContent(Swal);
+
+interface Partner {
+  id: string;
+  name: string;
+  logo: string;
+  link: string;
+}
 
 export default function PartnersPage() {
-  const [partners, setPartners] = useState(initialPartners);
-  const pageTitle = 'Partners';
+  const pageTitle = "Partners";
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Partners" },
+  ];
 
-  const handleDelete = (id: number) => {
-    setPartners((prev) => prev.filter((partner) => partner.id !== id));
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchPartners = async () => {
+    setIsLoading(true);
+    try {
+      const result = await getPartners();
+      if (result.data && Array.isArray(result.data)) {
+        setPartners(result.data);
+      }
+    } catch (error: any) {
+      console.error(error);
+      MySwal.fire(
+        "Error",
+        error.message || "Failed to fetch partners.",
+        "error"
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPartners();
+  }, []);
+
+  const handleDelete = (id: string) => {
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#007bff",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deletePartner(id)
+          .then(() => {
+            MySwal.fire("Deleted!", "Partner has been deleted.", "success");
+            fetchPartners();
+          })
+          .catch((error: any) => {
+            MySwal.fire(
+              "Failed",
+              error.message || "Failed to delete partner.",
+              "error"
+            );
+          });
+      }
+    });
   };
 
   return (
@@ -41,17 +97,13 @@ export default function PartnersPage() {
         </div>
       )}
 
-      <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4 pb-5">
-        {partners.map((partner) => (
-          <div key={partner.id} className="col">
-            <div
-              className="card h-100 overflow-hidden position-relative rounded-3 shadow-sm text-center border-0"
-              style={{ backgroundColor: '#e0e9ff' }}
-            >
-              <button
-                className="btn btn-sm btn-danger position-absolute top-0 end-0 m-2 rounded-circle"
-                onClick={() => handleDelete(partner.id)}
-                style={{ width: '28px', height: '28px', padding: '0', zIndex: 10 }}
+      {!isLoading && partners.length > 0 && (
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 pb-5">
+          {partners.map((partner) => (
+            <div key={partner.id} className="col">
+              <div
+                className="card h-100 overflow-hidden rounded-3 shadow-sm border-0"
+                style={{ backgroundColor: "#ffffff", borderColor: "#dee2e6" }}
               >
                 <div
                   style={{
@@ -70,18 +122,20 @@ export default function PartnersPage() {
                   />
                 </div>
 
-              <div
-                className="bg-white p-4 d-flex align-items-center justify-content-center"
-                style={{ minHeight: '150px' }}
-              >
-                <Image
-                  src={partner.logoSrc}
-                  alt={partner.name}
-                  width={120}
-                  height={120}
-                  style={{ objectFit: 'contain' }}
-                />
-              </div>
+                <div className="card-body p-3 text-start d-flex flex-column">
+                  <h5 className="card-title fw-semibold small text-dark mb-2">
+                    {partner.name}
+                  </h5>
+                  <h5 className="card-title fw-semibold small text-dark mb-3">
+                    <a
+                      href={partner.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary text-decoration-none"
+                    >
+                      {partner.link}
+                    </a>
+                  </h5>
 
                   <div className="mt-auto d-flex">
                     <button
