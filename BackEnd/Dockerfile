@@ -30,6 +30,7 @@ WORKDIR /var/www/html
 
 # --- Instalasi PHP Extensions yang Umum Dibutuhkan Laravel ---
 # Image heroku sudah punya ini, image resmi (php:8.2) tidak, jadi kita install manual.
+# --- Instalasi PHP Extensions yang Umum Dibutuhkan Laravel & MongoDB ---
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -37,6 +38,9 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libonig-dev \
     libzip-dev \
+    libssl-dev \
+    && pecl install mongodb \
+    && docker-php-ext-enable mongodb \
     && docker-php-ext-install \
     pdo_mysql \
     mbstring \
