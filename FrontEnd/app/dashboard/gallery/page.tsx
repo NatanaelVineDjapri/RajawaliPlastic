@@ -114,16 +114,16 @@ export default function GalleryPage() {
                     src={item.image}
                     alt={`Gallery item ${item.id}`}
                     fill
-                    style={{ objectFit: "cover", padding: "20px" }}
+                    style={{ objectFit: "cover"}}
                     unoptimized
                   />
                 </div>
 
                 <div className="card-body p-3 d-flex flex-column">
-                  <div className="mt-auto d-flex gap-2">
+                  <div className="mt-auto">
                     <button
                       onClick={() => handleRemove(item.id)}
-                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
+                      className="btn btn-sm btn-outline-danger w-100 rounded-3 d-flex align-items-center justify-content-center gap-1"
                     >
                       <Trash2 size={14} /> Delete
                     </button>

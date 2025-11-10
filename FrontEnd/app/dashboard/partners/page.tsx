@@ -137,10 +137,10 @@ export default function PartnersPage() {
                     </a>
                   </h5>
 
-                  <div className="mt-auto d-flex gap-2">
+                  <div className="mt-auto d-flex">
                     <button
                       onClick={() => handleDelete(partner.id)}
-                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
+                      className="btn btn-sm btn-outline-danger flex-fill rounded-3 d-flex align-items-center justify-content-center gap-1"
                     >
                       <Trash2 size={14} /> Delete
                     </button>

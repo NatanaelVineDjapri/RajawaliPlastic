@@ -24,20 +24,19 @@ export default function RootLayout({
 }) {
   const pathname = usePathname();
   const isAuthPage = pathname.startsWith("/auth");
+  const isAdminPage = pathname.startsWith("/dashboard");
 
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {!isAuthPage && (
+        {!isAuthPage && !isAdminPage && (
           <>
-            {/* <Navbar /> */}
+            <Navbar />
             <MobileNavbar />
           </>
         )}
 
         {children}
-
-        {!isAuthPage}
       </body>
     </html>
   );

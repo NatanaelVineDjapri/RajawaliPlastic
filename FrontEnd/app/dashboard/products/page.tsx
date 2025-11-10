@@ -1,13 +1,16 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import PageHeader from '@/app/components/admincomponents/PageHeader';
-import { getTestimonials, deleteTestimonial } from '@/services/testimonialService';
-import { Edit, Trash2 } from 'lucide-react';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import {
+  getTestimonials,
+  deleteTestimonial,
+} from "@/services/testimonialService";
+import { Edit, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 
@@ -19,10 +22,10 @@ interface Testimonial {
 }
 
 export default function TestimonyPage() {
-  const pageTitle = 'Testimony';
+  const pageTitle = "Testimony";
   const breadcrumbs = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: 'Testimony' },
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Testimony" },
   ];
 
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -37,7 +40,11 @@ export default function TestimonyPage() {
       }
     } catch (error: any) {
       console.error(error);
-      MySwal.fire('Error', error.message || 'Failed to fetch testimonials.', 'error');
+      MySwal.fire(
+        "Error",
+        error.message || "Failed to fetch testimonials.",
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -49,22 +56,26 @@ export default function TestimonyPage() {
 
   const handleDelete = (id: string) => {
     MySwal.fire({
-      title: 'Are you sure?',
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#007bff',
-      confirmButtonText: 'Yes, delete it!',
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#007bff",
+      confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
         deleteTestimonial(id)
           .then(() => {
-            MySwal.fire('Deleted!', 'Testimonial has been deleted.', 'success');
+            MySwal.fire("Deleted!", "Testimonial has been deleted.", "success");
             fetchTestimonials();
           })
           .catch((error: any) => {
-            MySwal.fire('Failed', error.message || 'Failed to delete testimonial.', 'error');
+            MySwal.fire(
+              "Failed",
+              error.message || "Failed to delete testimonial.",
+              "error"
+            );
           });
       }
     });
@@ -96,21 +107,21 @@ export default function TestimonyPage() {
             <div key={item.id} className="col">
               <div
                 className="card h-100 overflow-hidden rounded-3 shadow-sm border-0"
-                style={{ backgroundColor: '#ffffff', borderColor: '#dee2e6' }}
+                style={{ backgroundColor: "#ffffff", borderColor: "#dee2e6" }}
               >
                 <div
                   style={{
-                    height: '200px',
-                    overflow: 'hidden',
-                    position: 'relative',
-                    backgroundColor: '#f8f9fa',
+                    height: "200px",
+                    overflow: "hidden",
+                    position: "relative",
+                    backgroundColor: "#f8f9fa",
                   }}
                 >
                   <Image
                     src={item.logo}
                     alt={item.name}
                     fill
-                    style={{ objectFit: 'contain', padding: '20px' }}
+                    style={{ objectFit: "cover"}}
                     unoptimized
                   />
                 </div>
@@ -120,23 +131,34 @@ export default function TestimonyPage() {
                     {item.name}
                   </h5>
                   <p className="card-text small text-muted mb-3 fw-normal">
-                    "{(item.description ?? '').split(' ').slice(0, 15).join(' ') +
-                      ((item.description ?? '').split(' ').length > 15 ? '...' : '')}"
+                    "
+                    {(item.description ?? "")
+                      .split(" ")
+                      .slice(0, 15)
+                      .join(" ") +
+                      ((item.description ?? "").split(" ").length > 15
+                        ? "..."
+                        : "")}
+                    "
                   </p>
 
-                  <div className="mt-auto d-flex gap-2">
-                    <Link
-                      href={`/dashboard/testimony/edit/${item.id}`}
-                      className="btn btn-sm btn-outline-primary px-3 rounded-3 d-flex align-items-center gap-1"
-                    >
-                      <Edit size={14} /> Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
-                    >
-                      <Trash2 size={14} /> Delete
-                    </button>
+                  <div className="mt-auto row g-2">
+                    <div className="col-6">
+                      <Link
+                        href={`/dashboard/testimony/edit/${item.id}`}
+                        className="btn btn-sm btn-outline-primary w-100 rounded-3 d-flex align-items-center justify-content-center gap-1"
+                      >
+                        <Edit size={14} /> Edit
+                      </Link>
+                    </div>
+                    <div className="col-6">
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="btn btn-sm btn-outline-danger w-100 rounded-3 d-flex align-items-center justify-content-center gap-1"
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

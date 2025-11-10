@@ -12,10 +12,12 @@ class BlogController extends Controller
 {
     public function index()
     {
-        return response()->json(Blog::all());
+        return response()->json([
+            'message' => 'Blog retrieved successfully',
+            'data' => Blog::orderBy('created_at', 'desc')->get()
+        ], 200);
     }
 
-    //show detail blog
     public function show($id)
     {
         $blog = Blog::find($id);

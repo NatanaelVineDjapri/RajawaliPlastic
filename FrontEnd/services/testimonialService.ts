@@ -113,7 +113,7 @@ export async function deleteTestimonial(id: string | number): Promise<ApiSuccess
   return await response.json() as ApiSuccessResponse;
 }
 
-export const getTestimonialsById = async (id: string | number): Promise<ApiSuccessResponse> => {
+export const getTestimonialById = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/testimonials/${id}`, {
     method: 'GET',
     headers: getHeaders(),

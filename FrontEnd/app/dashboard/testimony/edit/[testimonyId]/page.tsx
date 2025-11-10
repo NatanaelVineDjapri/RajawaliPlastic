@@ -1,92 +1,153 @@
-'use client';
+// "use client";
 
-import React, { useState, useEffect } from 'react';
-import { Camera } from 'lucide-react';
+// import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+// import { useParams, useRouter } from "next/navigation";
+// import { getTestimonialById, updateTestimonial } from "@/services/testimonialService";
+// import { ArrowLeft, Save, Edit3 } from "lucide-react";
+// import Link from "next/link";
 
-export default function EditTestimonyPage({ params }: { params: { testimonyId: string } }) {
-  const [description, setDescription] = useState('');
+// interface Testimonial {
+//   _id: string;
+//   name: string;
+//   logo: string;
+//   description: string;
+//   created_at: string;
+//   updated_at: string;
+// }
 
-  useEffect(() => {
-    console.log("Loading data for testimony:", params.testimonyId);
-    setDescription("Ini adalah deskripsi testimoni lama yang diambil dari database untuk diedit.");
-  }, [params.testimonyId]);
+// const EditTestimonialPage = () => {
+//   const { id } = useParams();
+//   const router = useRouter();
 
-  return (
-    <div className="w-100">
-      <h1 className="fs-3 fw-bold text-dark mb-4">Testimony</h1>
+//   const [testimonial, setTestimonial] = useState<Testimonial | null>(null);
+//   const [name, setName] = useState("");
+//   const [description, setDescription] = useState("");
+//   const [logo, setLogo] = useState<File | null>(null);
+//   const [preview, setPreview] = useState<string | null>(null);
+//   const [loading, setLoading] = useState(true);
+//   const [saving, setSaving] = useState(false);
 
-      <div 
-        className="rounded-3 p-4"
-        style={{ backgroundColor: '#C0FBFF' }}
-      >
-        <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
-          Edit Testimony #{params.testimonyId}
-        </h2>
-      </div>
+//   useEffect(() => {
+//     const fetchData = async () => {
+//       try {
+//         const data = await getTestimonialById(id as string);
+//         setTestimonial(data);
+//         setName(data.name);
+//         setDescription(data.description);
+//         setPreview(data.logo);
+//       } catch (err) {
+//         console.error("Error fetching testimonial:", err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
+//     fetchData();
+//   }, [id]);
 
-      <form className="bg-white rounded-3 shadow p-4"> 
-        <div className="d-flex gap-4"> 
-          <div 
-            className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light"
-            style={{ 
-              flex: '1', 
-              borderColor: '#d1d5db',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-              minHeight: '250px',
-              maxWidth: '350px',
-              color: '#9ca3af',
-              fontSize: '0.875rem',
-              gap: '0.5rem'
-            }}
-            role="button"
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f3f4f6'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f9fafb'}
-          >
-            <Camera size={48} style={{ color: '#9ca3af' }} />
-            <span>Upload Image</span>
-          </div>
+//   const handleSubmit = async (e: FormEvent) => {
+//     e.preventDefault();
+//     setSaving(true);
 
-          <div className="d-flex flex-column flex-grow-1" style={{ flex: 2 }}>
-            <div className="d-flex flex-column h-100">
-              <label htmlFor="description" className="form-label small fw-medium text-secondary mb-1">
-                Description
-              </label>
-              <textarea
-                id="description"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="--"
-                rows={8}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                style={{ 
-                  fontSize: '0.875rem',
-                  resize: 'vertical',
-                  flex: 1,
-                  minHeight: '250px' 
-                }}
-              />
-            </div>
-          </div>
-        </div>
+//     const formData = new FormData();
+//     formData.append("name", name);
+//     formData.append("description", description);
+//     if (logo) formData.append("logo", logo);
 
-        <div className="d-flex justify-content-end mt-4">
-          <button 
-            type="submit" 
-            className="btn px-5 py-2 rounded-3 fw-semibold small"
-            style={{
-              backgroundColor: '#C0FBFF',
-              color: '#005F6B',
-              border: 'none',
-              transition: 'background-color 0.2s ease',
-            }}
-            onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#a6f5fa'}
-            onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#C0FBFF'}
-          >
-            Save Changes
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}
+//     try {
+//       await updateTestimonial(id as string, formData);
+//       router.push("/dashboard/testimonials");
+//     } catch (error) {
+//       console.error("Error updating testimonial:", error);
+//     } finally {
+//       setSaving(false);
+//     }
+//   };
+
+//   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+//     const file = e.target.files?.[0];
+//     if (file) {
+//       setLogo(file);
+//       setPreview(URL.createObjectURL(file));
+//     }
+//   };
+
+//   if (loading) return <div className="text-center py-5 text-muted">Loading testimonial...</div>;
+
+//   if (!testimonial) return <div className="text-center py-5 text-danger">Testimonial not found.</div>;
+
+//   return (
+//     <div className="container py-5" style={{ maxWidth: "700px" }}>
+//       <div className="d-flex align-items-center justify-content-between mb-4">
+//         <h3 className="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+//           <Edit3 size={22} /> Edit Testimonial
+//         </h3>
+//         <Link href="/dashboard/testimonials" className="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+//           <ArrowLeft size={14} /> Back
+//         </Link>
+//       </div>
+
+//       <form onSubmit={handleSubmit} className="bg-white rounded-4 shadow-sm p-4">
+//         <div className="mb-3">
+//           <label className="form-label fw-semibold">Name</label>
+//           <input
+//             type="text"
+//             className="form-control rounded-3"
+//             value={name}
+//             onChange={(e) => setName(e.target.value)}
+//             placeholder="Enter name"
+//             required
+//           />
+//         </div>
+
+//         <div className="mb-3">
+//           <label className="form-label fw-semibold">Description</label>
+//           <textarea
+//             className="form-control rounded-3"
+//             rows={4}
+//             value={description}
+//             onChange={(e) => setDescription(e.target.value)}
+//             placeholder="Enter testimonial text"
+//             required
+//           ></textarea>
+//         </div>
+
+//         <div className="mb-4">
+//           <label className="form-label fw-semibold">Logo / Image</label>
+//           <input type="file" className="form-control rounded-3 mb-2" accept="image/*" onChange={handleImageChange} />
+//           {preview && (
+//             <img
+//               src={preview}
+//               alt="Preview"
+//               className="rounded-4 mt-2 shadow-sm"
+//               style={{ width: "100%", maxHeight: "250px", objectFit: "cover" }}
+//             />
+//           )}
+//         </div>
+
+//         <div className="text-end small text-muted mb-3">
+//           <p className="mb-0">
+//             <strong>Created:</strong>{" "}
+//             {new Date(testimonial.created_at).toLocaleString("id-ID")}
+//           </p>
+//           <p className="mb-0">
+//             <strong>Last Edited:</strong>{" "}
+//             {new Date(testimonial.updated_at).toLocaleString("id-ID")}
+//           </p>
+//         </div>
+
+//         <div className="d-flex justify-content-end">
+//           <button
+//             type="submit"
+//             className="btn btn-primary rounded-3 px-4 d-flex align-items-center gap-1"
+//             disabled={saving}
+//           >
+//             <Save size={16} />
+//             {saving ? "Saving..." : "Save Changes"}
+//           </button>
+//         </div>
+//       </form>
+//     </div>
+//   );
+// };
+
+// export default EditTestimonialPage;

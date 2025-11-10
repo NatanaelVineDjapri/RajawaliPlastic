@@ -137,13 +137,14 @@ export default function TestimonyPage() {
                   <div className="mt-auto d-flex gap-2">
                     <Link
                       href={`/dashboard/testimony/edit/${item.id}`}
-                      className="btn btn-sm btn-outline-primary px-3 rounded-3 d-flex align-items-center gap-1"
+                      className="btn btn-sm btn-outline-primary flex-fill rounded-3 d-flex align-items-center justify-content-center gap-1"
                     >
                       <Edit size={14} /> Edit
                     </Link>
+
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
+                      className="btn btn-sm btn-outline-danger flex-fill rounded-3 d-flex align-items-center justify-content-center gap-1"
                     >
                       <Trash2 size={14} /> Delete
                     </button>
