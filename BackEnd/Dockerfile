@@ -67,8 +67,7 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 COPY composer.json composer.lock ./
 
 # Install dependensi PHP
-RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
-
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
 # Copy semua kode aplikasi
 # (Kita ada di /var/www/html)
 COPY . .
