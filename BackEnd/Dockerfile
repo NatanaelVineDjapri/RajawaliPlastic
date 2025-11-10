@@ -22,14 +22,11 @@ RUN npm run build
 # -----------------------------------------------
 
 # Gunakan image PHP 8.2 resmi dengan Apache
-# (Menggantikan heroku/php-apache2 yang sudah tidak ada)
 FROM php:8.2-apache AS backend
 
 # Set working directory ke default Apache
 WORKDIR /var/www/html
 
-# --- Instalasi PHP Extensions yang Umum Dibutuhkan Laravel ---
-# Image heroku sudah punya ini, image resmi (php:8.2) tidak, jadi kita install manual.
 # --- Instalasi PHP Extensions yang Umum Dibutuhkan Laravel & MongoDB ---
 RUN apt-get update && apt-get install -y \
     git \
@@ -57,20 +54,24 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN a2enmod rewrite
 
 # Ganti DocumentRoot Apache ke /var/www/html/public
-# Ini adalah pengganti dari perintah `heroku-php-apache2 public/` yang lama
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Copy file composer
-# (Kita copy dulu composer.json agar Docker bisa cache layer ini)
-COPY composer.json composer.lock ./
+# -----------------------------------------------------------------
+# VVV INI BAGIAN YANG DIPERBAIKI VVV
+# -----------------------------------------------------------------
 
-# Install dependensi PHP
-RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
-# Copy semua kode aplikasi
+# Copy semua kode aplikasi DULU (termasuk artisan, composer.json, dll)
 # (Kita ada di /var/www/html)
 COPY . .
+
+# BARU jalankan composer install (sekarang file artisan sudah ada)
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
+
+# -----------------------------------------------------------------
+# ^^^ INI BAGIAN YANG DIPERBAIKI ^^^
+# -----------------------------------------------------------------
 
 # Copy asset yang sudah di-build dari tahap 1
 # Pastikan path ini benar
