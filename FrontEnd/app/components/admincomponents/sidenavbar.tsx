@@ -16,6 +16,8 @@ import {
   GalleryVertical,
   Layers,
   LogOut,
+  Menu,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -44,9 +46,9 @@ interface NavLinkProps {
 export default function Sidenavbar() {
   const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogoutConfirm = () => {
-    console.log("Sidenav: User confirmed logout. Redirecting...");
     setIsModalOpen(false);
   };
 
@@ -58,7 +60,7 @@ export default function Sidenavbar() {
     }`;
 
     return (
-      <Link key={href} href={href} className={linkClassName}>
+      <Link key={href} href={href} className={linkClassName} onClick={() => setIsOpen(false)}>
         <Icon size={16} />
         {label}
       </Link>
@@ -66,56 +68,95 @@ export default function Sidenavbar() {
   };
 
   return (
-    <aside
-      className="d-flex flex-column vh-100 bg-white border-end"
-      style={{ width: '14rem' }}
-    >
-      <div className="flex-grow-1"> 
-        <nav className="nav nav-pills flex-column p-3 pt-1 mt-1 gap-1"> 
-          {mainNavLinks.map(renderLink)}
-        </nav>
+    <>
+      <button
+        className="btn btn-light d-md-none position-fixed top-0 start-0 m-3 z-3"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ zIndex: 1060 }}
+      >
+        {isOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
 
-        <div className="px-3 pt-3 pb-1">
-          <span className="small fw-semibold text-muted text-uppercase">
-            Pages
-          </span>
-        </div>
-
-        <nav className="nav nav-pills flex-column px-3 pt-1 pb-3 gap-1">
-          {pageNavLinks.map(renderLink)}
-        </nav>
-        
-        <div className="border-top mt-2 p-3">
-          <nav className="nav nav-pills flex-column gap-1">
-            <Link
-              href="/dashboard/adminsettings"
-              className={`nav-link d-flex align-items-center gap-2 rounded-3 py-2 px-3 ${
-                pathname === '/dashboard/adminsettings'
-                  ? 'active fw-semibold'
-                  : 'text-dark'
-              }`}
-            >
-              <UserCog size={16} />
-              Admin Settings
-            </Link>
-
-            <div
-              role="button"
-              className="nav-link text-danger d-flex align-items-center gap-2 rounded-3 py-2 px-3"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <LogOut size={16} />
-              Logout
-            </div>
+      <aside
+        className={`d-flex flex-column bg-white border-end position-fixed top-0 h-100 transition-all ${
+          isOpen ? 'start-0' : 'start-n100'
+        } d-md-flex`}
+        style={{
+          width: '14rem',
+          zIndex: 1050,
+          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s ease',
+        }}
+      >
+        <div className="flex-grow-1 overflow-auto">
+          <nav className="nav nav-pills flex-column p-3 pt-1 mt-1 gap-1">
+            {mainNavLinks.map(renderLink)}
           </nav>
+
+          <div className="px-3 pt-3 pb-1">
+            <span className="small fw-semibold text-muted text-uppercase">Pages</span>
+          </div>
+
+          <nav className="nav nav-pills flex-column px-3 pt-1 pb-3 gap-1">
+            {pageNavLinks.map(renderLink)}
+          </nav>
+
+          <div className="border-top mt-2 p-3">
+            <nav className="nav nav-pills flex-column gap-1">
+              <Link
+                href="/dashboard/adminsettings"
+                className={`nav-link d-flex align-items-center gap-2 rounded-3 py-2 px-3 ${
+                  pathname === '/dashboard/adminsettings'
+                    ? 'active fw-semibold'
+                    : 'text-dark'
+                }`}
+                onClick={() => setIsOpen(false)}
+              >
+                <UserCog size={16} />
+                Admin Settings
+              </Link>
+
+              <div
+                role="button"
+                className="nav-link text-danger d-flex align-items-center gap-2 rounded-3 py-2 px-3"
+                onClick={() => {
+                  setIsModalOpen(true);
+                  setIsOpen(false);
+                }}
+              >
+                <LogOut size={16} />
+                Logout
+              </div>
+            </nav>
+          </div>
         </div>
-      </div>
-      
-      <LogoutModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onConfirm={handleLogoutConfirm} 
-      />
-    </aside>
+
+        <LogoutModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onConfirm={handleLogoutConfirm}
+        />
+      </aside>
+
+      <style jsx>{`
+        @media (min-width: 768px) {
+          aside {
+            position: static !important;
+            transform: none !important;
+            width: 14rem !important;
+          }
+          button {
+            display: none !important;
+          }
+        }
+        @media (max-width: 767px) {
+          aside {
+            width: 75% !important;
+            max-width: 260px;
+            background: white;
+          }
+        }
+      `}</style>
+    </>
   );
 }

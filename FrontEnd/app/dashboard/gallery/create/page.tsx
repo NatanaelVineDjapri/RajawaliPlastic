@@ -3,7 +3,7 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
-import SubmitButton from "@/app/components/admincomponents/SubmitButton";
+import SubmitButton from "@/app/components/admincomponents/TempButton";
 import { addGallery } from "@/services/galleryService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -80,7 +80,7 @@ export default function CreateGalleryPage() {
 
       <form onSubmit={handleSubmit}>
         <div className="row g-4">
-          <div className="col-lg-8">
+          <div className="col-12 col-lg-8">
             <div className="bg-white rounded-3 shadow-sm p-4 h-100">
               <h5 className="fw-bold mb-4">Gallery Details</h5>
 
@@ -124,7 +124,7 @@ export default function CreateGalleryPage() {
             </div>
           </div>
 
-          <div className="col-lg-4">
+          <div className="col-12 col-lg-4">
             <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-60">
               <h5 className="fw-bold mb-4">Gallery Image</h5>
 
@@ -154,7 +154,7 @@ export default function CreateGalleryPage() {
                 ) : (
                   <div className="d-flex flex-column align-items-center">
                     <Camera size={48} style={{ color: "#9ca3af" }} />
-                    <span className="small mt-2">
+                    <span className="small mt-2 text-center">
                       Click to upload (Max 2MB, 16:9)
                     </span>
                   </div>

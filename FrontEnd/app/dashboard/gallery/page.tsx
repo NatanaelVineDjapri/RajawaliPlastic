@@ -49,66 +49,45 @@ export default function GalleryPage() {
     fetchGallery();
   }, []);
 
-  const handleRemove = (id: string) => {
-    MySwal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#007bff",
-      confirmButtonText: "Yes, remove it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        deleteGallery(id)
-          .then(() => {
-            MySwal.fire(
-              "Removed!",
-              "Gallery item has been removed.",
-              "success"
-            );
-            fetchGallery();
-          })
-          .catch((error: any) => {
-            MySwal.fire(
-              "Failed",
-              error.message || "Failed to remove gallery item.",
-              "error"
-            );
-          });
-      }
-    });
+  const handleRemove = (idToRemove: number) => {
+    setGalleryItems(prevItems => prevItems.filter(item => item.id !== idToRemove));
   };
 
   return (
-    <div className="w-100 position-relative">
-      <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
+    <div className="w-100 px-2 px-md-4">
+      <h1 className="fs-3 fw-bold text-dark mb-4 text-center text-md-start">{pageTitle}</h1>
 
-      {isLoading && (
-        <div className="text-center p-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      )}
+      <div className="rounded-3 p-3 p-md-4 mb-4" style={{ backgroundColor: '#C0FBFF' }}>
+        <h2 className="fs-5 fw-bold text-center text-md-start" style={{ color: '#005F6B' }}>
+          Gallery
+        </h2>
+      </div>
 
-      {!isLoading && galleryItems.length === 0 && (
-        <div className="text-center p-5 bg-white rounded-3 shadow-sm">
-          <p className="text-muted mb-0">No gallery items found.</p>
-        </div>
-      )}
-
-      {!isLoading && galleryItems.length > 0 && (
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 pb-5 mt-2">
-          {galleryItems.map((item) => (
-            <div key={item.id} className="col">
-              <div
-                className="card h-100 overflow-hidden rounded-3 shadow-sm border-0"
-                style={{ backgroundColor: "#ffffff", borderColor: "#dee2e6" }}
-              >
-                <div
-                  className="bg-light d-flex align-items-center justify-content-center"
-                  style={{ minHeight: "180px", position: "relative" }}
+      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3 g-md-4 pb-5">
+        {galleryItems.map((item) => (
+          <div key={item.id} className="col d-flex">
+            <div
+              className="card flex-fill h-100 overflow-hidden rounded-3 shadow-sm text-center border"
+              style={{ backgroundColor: '#f9fafb', borderColor: '#dee2e6' }}
+            >
+              <div className="bg-white p-3 d-flex align-items-center justify-content-center" style={{ minHeight: '150px' }}>
+                <Image
+                  src={item.img}
+                  alt={`Gallery item ${item.id}`}
+                  width={120}
+                  height={120}
+                  style={{ objectFit: 'contain' }}
+                />
+              </div>
+              <div className="card-body p-3">
+                <button
+                  className="btn btn-sm w-100 rounded-3 fw-medium"
+                  onClick={() => handleRemove(item.id)}
+                  style={{
+                    backgroundColor: '#e0e0ff',
+                    color: '#6c63ff',
+                    borderColor: '#c0bfff',
+                  }}
                 >
                   <Image
                     src={item.image}

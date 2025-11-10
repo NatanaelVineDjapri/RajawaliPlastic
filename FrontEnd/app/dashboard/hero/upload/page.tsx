@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Camera, Trash2 } from "lucide-react";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
-import SubmitButton from "@/app/components/admincomponents/SubmitButton";
+import SubmitButton from "@/app/components/admincomponents/TempButton";
 import { addSlider, deleteSlider, getSliders } from "@/services/heroService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -35,12 +35,7 @@ export default function SliderManagementPage() {
     setIsListLoading(true);
     try {
       const result = await getSliders();
-      if (Array.isArray(result.data)) {
-        setSliders(result.data);
-      }
-    } catch (error) {
-      console.error("Failed to fetch sliders:", error);
-      MySwal.fire("Error", "Failed to load slider data.", "error");
+      if (Array.isArray(result.data)) setSliders(result.data);
     } finally {
       setIsListLoading(false);
     }
@@ -54,9 +49,7 @@ export default function SliderManagementPage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setSliderImage(file);
-      if (previewImage) {
-        URL.revokeObjectURL(previewImage);
-      }
+      if (previewImage) URL.revokeObjectURL(previewImage);
       setPreviewImage(URL.createObjectURL(file));
     }
   };
@@ -65,39 +58,25 @@ export default function SliderManagementPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    const formData = new FormData();
-    if (sliderImage) {
-      formData.append("image", sliderImage);
-    } else {
+    if (!sliderImage) {
       MySwal.fire("Error", "Please select a slider image.", "warning");
       setIsLoading(false);
       return;
     }
 
+    const formData = new FormData();
+    formData.append("image", sliderImage);
+
     try {
       const result = await addSlider(formData);
-      MySwal.fire({
-        title: "Success!",
-        text: result.message,
-        icon: "success",
-        confirmButtonColor: "#0d6efd",
-      });
-
+      MySwal.fire({ title: "Success!", text: result.message, icon: "success", confirmButtonColor: "#0d6efd" });
       setSliderImage(null);
-      if (previewImage) {
-        URL.revokeObjectURL(previewImage);
-        setPreviewImage(null);
-      }
+      if (previewImage) { URL.revokeObjectURL(previewImage); setPreviewImage(null); }
       fetchSliders();
     } catch (error) {
       let msg = "An unknown error occurred.";
       if (error instanceof Error) msg = error.message;
-      MySwal.fire({
-        title: "Oops...",
-        text: msg,
-        icon: "error",
-        confirmButtonColor: "#dc3545",
-      });
+      MySwal.fire({ title: "Oops...", text: msg, icon: "error", confirmButtonColor: "#dc3545" });
     } finally {
       setIsLoading(false);
     }
@@ -114,50 +93,35 @@ export default function SliderManagementPage() {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        deleteSlider(id)
-          .then(() => {
-            MySwal.fire(
-              "Deleted!",
-              "The slider image has been deleted.",
-              "success"
-            );
-            fetchSliders();
-          })
-          .catch((error) => {
-            MySwal.fire("Failed", error.message, "error");
-          });
+        deleteSlider(id).then(() => {
+          MySwal.fire("Deleted!", "The slider image has been deleted.", "success");
+          fetchSliders();
+        }).catch((error) => {
+          MySwal.fire("Failed", error.message, "error");
+        });
       }
     });
   };
 
   return (
-    <div className="w-100">
+    <div className="w-100 px-2 px-md-4">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
       <div className="row g-4">
-        <div className="col-lg-5">
+        <div className="col-12 col-lg-5">
           <form
             onSubmit={handleSubmit}
             id="sliderUploadForm"
-            className="bg-white rounded-3 shadow-sm p-4 d-flex flex-column"
-            style={{ height: "60vh" }}
+            className="bg-white rounded-3 shadow-sm p-3 p-md-4 d-flex flex-column"
+            style={{ minHeight: "50vh" }}
           >
-            <h5 className="fw-bold mb-3">Upload New Slider Image</h5>
+            <h5 className="fw-bold mb-3 text-center text-md-start">Upload New Slider Image</h5>
 
             <label
               htmlFor="sliderImage"
-              className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
-              style={{
-                minHeight: "320px",
-                borderColor: "#d1d5db",
-                cursor: "pointer",
-                transition: "background-color 0.2s",
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = "#f3f4f6")
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = "#f9fafb")
-              }
+              className="d-flex flex-column align-items-center justify-content-center p-3 p-md-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
+              style={{ minHeight: "200px", cursor: "pointer", transition: "background-color 0.2s" }}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#f9fafb")}
             >
               {previewImage ? (
                 <Image
@@ -170,9 +134,7 @@ export default function SliderManagementPage() {
               ) : (
                 <div className="d-flex flex-column align-items-center">
                   <Camera size={48} style={{ color: "#9ca3af" }} />
-                  <span className="small mt-2">
-                    Click to upload (Max 2MB, 16:9)
-                  </span>
+                  <span className="small mt-2">Click to upload (Max 2MB, 16:9)</span>
                 </div>
               )}
               <input
@@ -185,7 +147,7 @@ export default function SliderManagementPage() {
               />
             </label>
           </form>
-          <div className="mt-3">
+          <div className="mt-3 d-grid">
             <SubmitButton
               isLoading={isLoading}
               text="Add Slider"
@@ -194,34 +156,30 @@ export default function SliderManagementPage() {
             />
           </div>
         </div>
-        <div className="col-lg-7">
-          <div className="bg-white rounded-3 shadow-sm p-4 h-100">
-            <h5 className="fw-bold mb-4">
+
+        <div className="col-12 col-lg-7">
+          <div className="bg-white rounded-3 shadow-sm p-3 p-md-4 h-100">
+            <h5 className="fw-bold mb-4 text-center text-md-start">
               Current Active Sliders ({sliders.length})
             </h5>
 
             {isListLoading ? (
               <div className="text-center p-5">
-                <div
-                  className="spinner-border text-primary"
-                  role="status"
-                ></div>
+                <div className="spinner-border text-primary" role="status"></div>
                 <p className="mt-2 text-muted">Loading...</p>
               </div>
             ) : (
               <div className="list-group">
                 {sliders.length === 0 ? (
-                  <p className="text-muted text-center p-3">
-                    No slider images uploaded yet.
-                  </p>
+                  <p className="text-muted text-center p-3">No slider images uploaded yet.</p>
                 ) : (
                   <div style={{ maxHeight: "50vh", overflowY: "auto" }}>
                     {sliders.map((slider) => (
                       <div
                         key={slider.id}
-                        className="list-group-item d-flex justify-content-between align-items-center p-3"
+                        className="list-group-item d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 gap-md-3 p-2 p-md-3"
                       >
-                        <div className="d-flex align-items-center gap-3">
+                        <div className="d-flex align-items-center gap-2 gap-md-3">
                           <Image
                             src={slider.image}
                             alt={`Slider ${slider.id}`}
@@ -231,12 +189,11 @@ export default function SliderManagementPage() {
                             unoptimized
                           />
                           <small className="text-muted">
-                            Uploaded:{" "}
-                            {new Date(slider.created_at).toLocaleDateString()}
+                            Uploaded: {new Date(slider.created_at).toLocaleDateString()}
                           </small>
                         </div>
                         <button
-                          className="btn btn-sm btn-outline-danger"
+                          className="btn btn-sm btn-outline-danger mt-2 mt-md-0"
                           onClick={() => handleDelete(slider.id)}
                         >
                           <Trash2 size={16} /> Delete
