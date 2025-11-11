@@ -5,46 +5,52 @@ import { useParams, useRouter } from "next/navigation";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
-import SubmitButton from "@/app/components/admincomponents/TempButton";
+import SubmitButton from "@/app/components/admincomponents/SubmitButton";
 import { getOrderById, updateOrder } from "@/services/orderService";
 import { getProducts } from "@/services/productService";
 
+// Import tipe dasar dari file kamu
+import type { 
+  Order as BaseOrder, 
+  StatusType 
+} from "@/app/types"; // <-- GANTI PATH INI
+
 const MySwal = withReactContent(Swal);
 
-interface Product {
-  id: number;
+// --- PERBAIKAN BESAR: Ubah ID jadi string ---
+interface ProductMaster {
+  id: string; // ID produk adalah string
   name: string;
-  price: number;
 }
 
-interface OrderProduct {
-  product_id: number;
+interface OrderLineItem {
+  product_id: string | number; // Bisa string (dari API) atau number 0 (utk "Pilih")
   quantity: number;
   total_price: number;
 }
 
-interface Order {
-  id: number;
-  user_email: string;
-  status_delivery: string;
-  status_payment: string;
-  notes: string;
-  products: OrderProduct[];
+interface OrderForPage extends Omit<BaseOrder, 'products' | 'id' | 'total_price'> {
+  id: string; // ID order juga string
+  total_price: number;
+  products: OrderLineItem[];
 }
 
+// Tipe untuk data mentah dari API
 interface ApiOrderProduct {
-  product_id: string | number;
+  product_id: string | number; // Biarkan apa adanya
   quantity: string | number;
   total_price: string | number;
 }
+// ---------------------------------------------
 
 export default function EditOrderPage() {
   const { orderId } = useParams();
   const router = useRouter();
 
-  const [order, setOrder] = useState<Order | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
+  const [order, setOrder] = useState<OrderForPage | null>(null);
+  const [products, setProducts] = useState<ProductMaster[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [pageIsLoading, setPageIsLoading] = useState(true);
 
   const pageTitle = "Edit Order";
   const breadcrumbs = [
@@ -53,80 +59,93 @@ export default function EditOrderPage() {
   ];
 
   useEffect(() => {
+    const currentOrderId = Array.isArray(orderId) ? orderId[0] : orderId;
+    if (!currentOrderId) {
+      MySwal.fire("Error", "Order ID tidak valid", "error");
+      router.push("/dashboard/orders");
+      return;
+    }
+
     const fetchData = async () => {
       try {
         const [orderRes, productRes] = await Promise.all([
-          getOrderById(orderId as string),
+          getOrderById(currentOrderId as string),
           getProducts(),
         ]);
 
-        const orderData: Order = {
+        if (!orderRes.data) {
+          throw new Error("Data order tidak ditemukan");
+        }
+        
+        console.log("Data Order Mentah dari API:", orderRes.data);
+        console.log("Data Master Produk:", productRes.data);
+
+        // --- PERBAIKAN BESAR: JANGAN KONVERSI ID ---
+        const orderData: OrderForPage = {
           ...orderRes.data,
+          id: orderRes.data.id, // Biarkan string
+          total_price: Number(orderRes.data.total_price),
           products: orderRes.data.products.map((p: ApiOrderProduct) => ({
-            product_id: Number(p.product_id),
+            product_id: p.product_id, // Biarkan string/number apa adanya
             quantity: Number(p.quantity),
             total_price: Number(p.total_price),
           })),
         };
 
         setOrder(orderData);
-        setProducts(productRes.data);
-      } catch (err: unknown) {
-        let errorMessage = "Gagal memuat data";
-        if (err instanceof Error) {
-            errorMessage = err.message;
-        } else if (typeof err === 'object' && err !== null && 'message' in err) {
-            errorMessage = (err as { message: string }).message; 
-        }
-        MySwal.fire("Error", errorMessage, "error");
+        
+        // --- PERBAIKAN BESAR: JANGAN KONVERSI ID ---
+        const masterProducts = productRes.data
+          .map((p: any) => ({
+            id: p.id, // Biarkan string
+            name: p.name,
+          }))
+          .filter((p: ProductMaster) => p.id); // Filter yg id-nya null/undefined
+
+        setProducts(masterProducts);
+
+      } catch (err: any) {
+        MySwal.fire("Error", err.message || "Gagal memuat data", "error");
         router.push("/dashboard/orders");
+      } finally {
+        setPageIsLoading(false);
       }
     };
     fetchData();
   }, [orderId, router]);
 
-  const handleChange = <K extends keyof Order>(field: K, value: Order[K]) => {
+
+  const handleChange = (field: keyof OrderForPage, value: any) => {
     if (!order) return;
-    setOrder({ ...order, [field]: value });
+    setOrder((prev) => ({ ...prev!, [field]: value }));
   };
 
   const handleProductChange = (
     index: number,
-    field: keyof OrderProduct,
+    field: keyof OrderLineItem,
     value: string | number
   ) => {
     if (!order) return;
+
     const updated = [...order.products];
-    const numericValue = Number(value) || 0;
+    const item = updated[index];
 
     if (field === "product_id") {
-      updated[index][field] = numericValue;
+      item.product_id = value; 
     } else if (field === "quantity") {
-      updated[index][field] = Math.max(1, numericValue); 
+      item.quantity = Math.max(1, Number(value) || 1);
     } else if (field === "total_price") {
-        updated[index][field] = numericValue;
+      item.total_price = Number(value) || 0;
     }
-
-    const selectedProduct = products.find(
-      (p) => p.id === updated[index].product_id
-    );
-    const pricePerUnit = selectedProduct ? selectedProduct.price : 0;
-    updated[index].total_price = pricePerUnit * updated[index].quantity;
 
     setOrder({ ...order, products: updated });
   };
 
   const handleQuantity = (index: number, delta: number) => {
     if (!order) return;
-    const updated = [...order.products];
-    const newQty = Math.max(1, (updated[index].quantity || 0) + delta);
-    const selectedProduct = products.find(
-      (p) => p.id === updated[index].product_id
-    );
-    const pricePerUnit = selectedProduct ? selectedProduct.price : 0;
-    updated[index].quantity = newQty;
-    updated[index].total_price = pricePerUnit * newQty;
-    setOrder({ ...order, products: updated });
+    const item = order.products[index];
+    const newQty = Math.max(1, (item.quantity || 0) + delta);
+    handleProductChange(index, "quantity", newQty);
   };
 
   const handleAddProduct = () => {
@@ -135,22 +154,21 @@ export default function EditOrderPage() {
       ...order,
       products: [
         ...order.products,
-        { product_id: 0, quantity: 1, total_price: 0 },
+        { product_id: 0, quantity: 1, total_price: 0 }, 
       ],
     });
   };
 
   const handleRemoveProduct = (index: number) => {
     if (!order) return;
-    const updated = [...order.products];
-    updated.splice(index, 1);
+    const updated = order.products.filter((_, i) => i !== index);
     setOrder({ ...order, products: updated });
   };
 
   const getGrandTotal = () => {
     if (!order) return 0;
     return order.products.reduce(
-      (sum, item) => sum + (item.total_price || 0),
+      (sum: number, item: OrderLineItem) => sum + (item.total_price || 0),
       0
     );
   };
@@ -158,6 +176,13 @@ export default function EditOrderPage() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!order) return;
+    
+    // Cek jika product_id masih 0
+    const hasInvalidProduct = order.products.some(p => p.product_id === 0);
+    if (hasInvalidProduct) {
+      MySwal.fire("Warning", "Pastikan semua produk sudah dipilih", "warning");
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -171,39 +196,36 @@ export default function EditOrderPage() {
       const res = await updateOrder(order.id, payload);
       MySwal.fire("Success!", res.message || "Order updated!", "success");
       router.push("/dashboard/orders");
-    } catch (err: unknown) {
-      let errorMessage = "Update failed";
-      if (err instanceof Error) {
-          errorMessage = err.message;
-      } else if (typeof err === 'object' && err !== null && 'message' in err) {
-        errorMessage = (err as { message: string }).message; 
-      }
-      MySwal.fire("Error", errorMessage, "error");
+    } catch (err: any) {
+      MySwal.fire("Error", err.message || "Update failed", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const getProductPrice = (productId: number) => {
-    const product = products.find(p => p.id === productId);
-    return product ? product.price : 0;
-  };
-
-  if (!order) return <div className="p-5 text-center">Loading order...</div>;
+  if (pageIsLoading)
+    return <div className="p-5 text-center">Loading order...</div>;
+  if (!order)
+    return (
+      <div className="p-5 text-center text-danger">Gagal memuat data order.</div>
+    );
 
   return (
     <div className="w-100">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
       <form onSubmit={handleSubmit} className="row g-4">
-        <div className="col-lg-4 col-12">
+        {/* Kolom Kiri (Order Details) */}
+        <div className="col-lg-4">
           <div className="bg-white rounded-3 shadow p-4 h-100">
+            {/* ... (Input email, status, notes - INI SUDAH BENAR) ... */}
             <h5 className="fw-bold mb-4">Order Details</h5>
+
             <div className="mb-3">
               <label className="form-label fw-semibold small">User Email</label>
               <input
                 type="email"
                 className="form-control p-3"
-                value={order.user_email}
+                value={order.user_email || ""}
                 onChange={(e) => handleChange("user_email", e.target.value)}
               />
             </div>
@@ -214,9 +236,7 @@ export default function EditOrderPage() {
               <select
                 className="form-select"
                 value={order.status_delivery}
-                onChange={(e) =>
-                  handleChange("status_delivery", e.target.value)
-                }
+                onChange={(e) => handleChange("status_delivery", e.target.value as StatusType)}
               >
                 <option value="pending">Pending</option>
                 <option value="proses">Proses</option>
@@ -224,6 +244,7 @@ export default function EditOrderPage() {
                 <option value="selesai">Selesai</option>
               </select>
             </div>
+
             <div className="mb-3">
               <label className="form-label fw-semibold small">
                 Status Payment
@@ -231,129 +252,124 @@ export default function EditOrderPage() {
               <select
                 className="form-select"
                 value={order.status_payment}
-                onChange={(e) =>
-                  handleChange("status_payment", e.target.value)
-                }
+                onChange={(e) => handleChange("status_payment", e.target.value as StatusType)}
               >
                 <option value="pending">Pending</option>
+                <option value="unpaid">Unpaid</option>
                 <option value="paid">Paid</option>
                 <option value="failed">Failed</option>
-                <option value="refunded">Refunded</option>
               </select>
             </div>
+
             <div className="mb-3">
               <label className="form-label fw-semibold small">Note</label>
               <textarea
                 className="form-control p-3"
-                rows={2}
+                rows={1}
                 placeholder="Add Note to Order..."
-                value={order.notes}
+                value={order.notes || ""}
                 onChange={(e) => handleChange("notes", e.target.value)}
               />
             </div>
           </div>
         </div>
-
-        <div className="col-lg-8 col-12">
-          <div className="bg-white rounded-3 shadow p-4 overflow-auto">
+        <div className="col-lg-8">
+          <div className="bg-white rounded-3 shadow p-4">
             <h5 className="fw-bold mb-3">Daftar Produk</h5>
-            <div className="d-flex flex-column gap-3">
-              {order.products.map((item, index) => (
-                <div
-                  key={index}
-                  className="border rounded-3 p-3 shadow-sm bg-white flex-shrink-0"
-                >
-                  <div className="row g-3 align-items-center">
-                    <div className="col-md-5 col-12">
-                      <label className="form-label small fw-semibold mb-1">
-                        Product
-                      </label>
-                      <select
-                        className="form-select"
-                        value={item.product_id}
-                        onChange={(e) =>
-                          handleProductChange(index, "product_id", Number(e.target.value))
-                        }
-                      >
-                        <option value={0}>-- Pilih Produk --</option>
-                        {products.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} (Rp {getProductPrice(p.id).toLocaleString("id-ID")})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="col-md-3 col-6">
-                      <label className="form-label small fw-semibold mb-1">
-                        Quantity
-                      </label>
-                      <div className="input-group">
-                        <button
-                          type="button"
-                          className="btn btn-light"
-                          onClick={() => handleQuantity(index, -1)}
-                        >
-                          -
-                        </button>
-                        <input
-                          type="number"
-                          className="form-control text-center"
-                          value={item.quantity}
-                          min={1}
-                          onChange={(e) =>
-                            handleProductChange(
-                              index,
-                              "quantity",
-                              Number(e.target.value) || 1
-                            )
-                          }
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-light"
-                          onClick={() => handleQuantity(index, 1)}
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                    <div className="col-md-3 col-6">
-                      <label className="form-label small fw-semibold mb-1">
-                        Price (Rp)
-                      </label>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={item.total_price}
-                        min={0}
-                        readOnly
-                      />
-                      <small className="text-muted d-block mt-1">
-                        @ Rp {getProductPrice(item.product_id).toLocaleString("id-ID")}
-                      </small>
-                    </div>
-                    <div className="col-md-1 col-12 d-flex align-items-end mt-2 mt-md-0">
+
+            {order.products.map((item, index) => (
+              <div
+                key={index} 
+                className="border rounded-3 p-3 mb-3 shadow-sm bg-white"
+              >
+                <div className="row g-3 align-items-center">
+                  <div className="col-md-5">
+                    <label className="form-label small fw-semibold mb-1">
+                      Product
+                    </label>
+                    <select
+                      className="form-select"
+                      value={item.product_id}
+                      onChange={(e) =>
+                        handleProductChange(index, "product_id", e.target.value)
+                      }
+                    >
+                      <option value={0}>-- Pilih Produk --</option>
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="col-md-3">
+                    <label className="form-label small fw-semibold mb-1">
+                      Quantity
+                    </label>
+                    <div className="input-group">
                       <button
                         type="button"
-                        className="btn btn-outline-danger w-100"
-                        onClick={() => handleRemoveProduct(index)}
+                        className="btn btn-light"
+                        onClick={() => handleQuantity(index, -1)}
                       >
-                        ✕
+                        -
+                      </button>
+                      <input
+                        type="number"
+                        className="form-control text-center"
+                        value={item.quantity}
+                        min={1}
+                        onChange={(e) =>
+                          handleProductChange(index, "quantity", e.target.value)
+                        }
+                      />
+                      <button
+                        type="button"
+                        className="btn btn-light"
+                        onClick={() => handleQuantity(index, 1)}
+                      >
+                        +
                       </button>
                     </div>
                   </div>
+
+                  <div className="col-md-3">
+                    <label className="form-label small fw-semibold mb-1">
+                      Price (Rp)
+                    </label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={item.total_price || 0}
+                      min={0}
+                      onChange={(e) =>
+                        handleProductChange(index, "total_price", e.target.value)
+                      }
+                    />
+                  </div>
+
+                  <div className="col-md-1 d-flex align-items-end">
+                    <button
+                      type="button"
+                      className="btn btn-outline-danger w-100"
+                      onClick={() => handleRemoveProduct(index)}
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
 
             <button
               type="button"
-              className="btn btn-outline-primary mt-3 w-100"
+              className="btn btn-outline-primary mb-3 w-100"
               onClick={handleAddProduct}
             >
               Add Product
             </button>
 
+            {/* Grand Total */}
             <div className="border-top pt-3 mt-2 text-end">
               <h6 className="fw-bold">
                 Total Order : Rp {getGrandTotal().toLocaleString("id-ID")}

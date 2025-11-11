@@ -28,6 +28,7 @@ FROM php:8.2-apache AS backend
 WORKDIR /var/www/html
 
 # --- Instalasi PHP Extensions yang Umum Dibutuhkan Laravel & MongoDB ---
+# (Ini sudah benar, menginstal ekstensi SEBELUM composer install)
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -45,9 +46,10 @@ RUN apt-get update && apt-get install -y \
     pcntl \
     bcmath \
     gd \
-    zip
+    zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Composer (karena image ini tidak punya composer)
+# Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Enable Apache mod_rewrite (PENTING untuk routing Laravel)
@@ -58,26 +60,36 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# -----------------------------------------------------------------
-# VVV INI BAGIAN YANG DIPERBAIKI VVV
-# -----------------------------------------------------------------
+# --- Mulai Proses Build Laravel ---
 
-# Copy semua kode aplikasi DULU (termasuk artisan, composer.json, dll)
-# (Kita ada di /var/www/html)
+# Copy semua file aplikasi.
+# File .dockerignore (di file berikutnya) akan mencegah .env, node_modules, dll. tercopy
 COPY . .
 
-# BARU jalankan composer install (sekarang file artisan sudah ada)
-RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
+# Install dependensi Composer
+# Kita bisa hapus --ignore-platform-reqs karena kita sudah install semua ekstensi di atas
+RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader
 
-# -----------------------------------------------------------------
-# ^^^ INI BAGIAN YANG DIPERBAIKI ^^^
-# -----------------------------------------------------------------
+# --- INI JAWABANNYA ---
+# Jalankan perintah artisan untuk optimasi produksi
+# Ini akan membuat cache config, route, dan view.
+# PENTING: Ini aman dijalankan KARENA .env tidak ter-copy (lihat .dockerignore)
+# Render akan memasukkan environment variables saat runtime.
+RUN php artisan config:cache
+RUN php artisan route:cache
+RUN php artisan view:cache
+
+# Dan ini perintah yang kamu tanyakan:
+RUN php artisan storage:link
+# ----------------------
 
 # Copy asset yang sudah di-build dari tahap 1
-# Pastikan path ini benar
 COPY --from=frontend_builder /app/public/build ./public/build
 
 # Set permission yang benar untuk Laravel
-# User apache di image ini adalah www-data
-RUN chown -R www-data:www-data storage bootstrap/cache
-RUN chmod -R 775 storage bootstrap/cache
+# Ini harus dijalankan SETELAH semua file di-copy dan dibuat (termasuk storage:link)
+RUN chown -R www-data:www-data storage bootstrap/cache public/storage
+RUN chmod -R 775 storage bootstrap/cache public/storage
+
+# Base image (php:8.2-apache) sudah otomatis menjalankan "apache2-foreground"
+# jadi kita tidak perlu CMD atau EXPOSE

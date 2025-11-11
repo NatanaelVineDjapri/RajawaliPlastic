@@ -48,12 +48,16 @@ interface OrderRowProps {
 const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const formatPrice = (price: number) => {
+  const formatPrice = (price: any) => {
+    if (price === null || price === undefined || price === "") return "Rp 0";
+    const parsed = Number(price);
+    if (isNaN(parsed)) return "Rp 0";
+
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
       minimumFractionDigits: 0,
-    }).format(price);
+    }).format(parsed);
   };
 
   return (
@@ -81,8 +85,10 @@ const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
             <div>
               <h6 className="mb-0 fw-bold">Order #{order.order_no}</h6>
               <small className="text-muted">
-                {order.user_email} |{" "}
-                {new Date(order.created_at).toLocaleDateString("id-ID")}
+                {order.user_email || "Unknown Email"} |{" "}
+                {order.created_at
+                  ? new Date(order.created_at).toLocaleDateString("id-ID")
+                  : "Unknown Date"}
               </small>
             </div>
           </div>
@@ -177,7 +183,11 @@ export default function OrderListPage() {
                   },
                 ];
 
-          return { ...order, products: productsArray };
+          return {
+            ...order,
+            products: productsArray,
+            total_price: Number(order.total_price) || 0,
+          };
         });
 
         setOrders(transformedOrders);
