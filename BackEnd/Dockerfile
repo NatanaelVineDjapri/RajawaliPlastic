@@ -69,11 +69,15 @@ COPY . .
 # BARU jalankan composer install (sekarang file artisan sudah ada)
 RUN composer install --no-interaction --no-dev --prefer-dist --optimize-autoloader --ignore-platform-reqs
 
-RUN php artisan config:cache
-RUN php artisan route:cache
-RUN php artisan view:cache
+RUN php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan route:clear && \
+    php artisan view:clear && \
+    php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache
 
-# Dan ini perintah yang kamu tanyakan:
+
 RUN php artisan storage:link
 # ----------------------
 # -----------------------------------------------------------------
