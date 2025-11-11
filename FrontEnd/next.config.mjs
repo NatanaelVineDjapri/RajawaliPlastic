@@ -14,6 +14,18 @@ const nextConfig = {
         port: "8000",
         pathname: "/storage/**",
       },
+      {
+        protocol: "http",
+        hostname: "rajawaliplastic.onrender.com",
+        port: "",
+        pathname: "/storage/**",
+      },
+      {
+        protocol: "https",
+        hostname: "rajawaliplastic.onrender.com",
+        port: "",
+        pathname: "/storage/**",
+      },
     ],
   },
 };

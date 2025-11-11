@@ -1,6 +1,4 @@
-// services/galleryService.ts
-
-const API_URL = 'http://localhost:8000/api/rs';
+const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
 
 interface ApiSuccessResponse {
   message: string;

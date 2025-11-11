@@ -1,6 +1,8 @@
 "use client";
 import localFont from "next/font/local";
 import "./globals.css";
+import Navbar from "./components/navbar";
+import MobileNavbar from "./components/mobileNavbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { usePathname } from "next/navigation";
 
@@ -22,18 +24,19 @@ export default function RootLayout({
 }) {
   const pathname = usePathname();
   const isAuthPage = pathname.startsWith("/auth");
+  const isAdminPage = pathname.startsWith("/dashboard");
 
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {!isAuthPage && (
+        {!isAuthPage && !isAdminPage && (
           <>
+            <Navbar />
+            <MobileNavbar />
           </>
         )}
 
         {children}
-
-        {!isAuthPage}
       </body>
     </html>
   );

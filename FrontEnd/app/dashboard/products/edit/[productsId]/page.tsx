@@ -1,155 +1,282 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
-import PageHeader from "@/app/components/admincomponents/PageHeader";
-import { getProducts, deleteProduct } from "@/services/productService";
-import { Edit, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { Camera } from "lucide-react";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import SubmitButton from "@/app/components/admincomponents/SubmitButton";
+import {
+  getProductById,
+  getLastEditedProducts,
+  updateProduct,
+} from "@/services/productService";
 
 const MySwal = withReactContent(Swal);
 
 interface Product {
-  id: string;
+  _id?: string;
+  id?: string | number;
   name: string;
-  image_url: string;
-  description?: string;
+  description: string;
+  image_url?: string;
+  updated_at?: string;
+  total_update?: number;
+  price?: number;
   quantity?: number;
 }
 
-export default function ProductsPage() {
-  const pageTitle = "Products";
+export default function EditProductPage() {
+  const { productsId } = useParams(); 
+  const router = useRouter();
+
+  const [product, setProduct] = useState<Product | null>(null);
+  const [productName, setProductName] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [recentProducts, setRecentProducts] = useState<Product[]>([]);
+
+  const pageTitle = "Edit Product";
   const breadcrumbs = [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Products" },
+    { label: "Product List", href: "/dashboard/products" },
+    { label: "Edit Product" },
   ];
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  useEffect(() => {
+    const fetchProductData = async () => {
+      try {
+        const productRes = await getProductById(productsId as string);
+        const target = productRes.data;
 
-  async function fetchProducts() {
-    setIsLoading(true);
-    try {
-      const result = await getProducts();
-      if (result.data && Array.isArray(result.data)) {
-        setProducts(result.data);
+        if (!target) {
+          MySwal.fire("Oops...", "Product not found", "error");
+          router.push("/dashboard/products");
+          return;
+        }
+
+        setProduct(target);
+        setProductName(target.name);
+        setDescription(target.description || "");
+        setPreviewImage(target.image_url || null);
+
+        const lastEditedRes = await getLastEditedProducts();
+        setRecentProducts(lastEditedRes.data || []);
+      } catch (err: any) {
+        MySwal.fire(
+          "Error",
+          err.message || "Failed to load product data",
+          "error"
+        );
+        router.push("/dashboard/products");
       }
-    } catch (error) {
-      console.error(error);
-      MySwal.fire("Error", "Failed to fetch products.", "error");
+    };
+    if (productsId) fetchProductData();
+  }, [productsId, router]); 
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImage(file);
+      if (previewImage) URL.revokeObjectURL(previewImage);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!product) return;
+
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("name", productName);
+    formData.append("description", description);
+    if (image) formData.append("image", image);
+
+    try {
+      const res = await updateProduct(product._id || product.id!, formData);
+      MySwal.fire({
+        title: "Success!",
+        text: res.message || "Product updated successfully!",
+        icon: "success",
+        confirmButtonColor: "#0d6efd",
+      });
+      router.push("/dashboard/products");
+    } catch (err: any) {
+      MySwal.fire("Error", err.message || "Update failed", "error");
     } finally {
       setIsLoading(false);
     }
-  }
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const handleDelete = (id: string) => {
-    MySwal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#007bff",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        deleteProduct(id)
-          .then(() => {
-            MySwal.fire("Deleted!", "Product has been deleted.", "success");
-            fetchProducts();
-          })
-          .catch((error) => {
-            MySwal.fire("Failed", error.message, "error");
-          });
-      }
-    });
   };
 
+  if (!product)
+    return <div className="p-5 text-center">Loading product...</div>;
+
   return (
-    <div className="w-100 position-relative">
+    <div className="w-100">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
+      <form onSubmit={handleSubmit} className="row g-4">
+        <div className="col-lg-8">
+          <div className="bg-white rounded-3 shadow p-4 h-100">
+            <h5 className="fw-bold mb-4">Product Details</h5>
+            <div className="d-flex flex-column gap-3">
+              <div className="d-flex flex-column">
+                <label className="form-label fw-semibold small text-secondary">
+                  Product Name <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-control p-3 border rounded-3"
+                  placeholder="Enter product name"
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
+                />
+              </div>
 
-      {isLoading && (
-        <div className="text-center p-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      )}
-
-      {!isLoading && products.length === 0 && (
-        <div className="text-center p-5 bg-white rounded-3 shadow-sm">
-          <p className="text-muted mb-0">
-            No products found. Click the + button to add one.
-          </p>
-        </div>
-      )}
-
-      {!isLoading && products.length > 0 && (
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 pb-5">
-          {products.map((item) => (
-            <div key={item.id} className="col">
-              <div
-                className="card h-100 overflow-hidden rounded-3 shadow-sm border-0"
-                style={{ backgroundColor: "#ffffff", borderColor: "#dee2e6" }}
-              >
-                <div
-                  style={{
-                    height: "200px",
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                >
-                  <Image
-                    src={item.image_url}
-                    alt={item.name}
-                    fill
-                    className="card-img-top"
-                    style={{ objectFit: "cover" }}
-                    unoptimized
-                  />
-                </div>
-
-                <div className="card-body p-3 text-start d-flex flex-column">
-                  <h5 className="card-title fw-semibold small text-dark mb-2">
-                    {item.name}
-                  </h5>
-                  <h5 className="card-title small text-dark mb-3 fw-normal">
-                    {(item.description ?? "")
-                      .split(" ")
-                      .slice(0, 10)
-                      .join(" ") +
-                      ((item.description ?? "").split(" ").length > 10
-                        ? "..."
-                        : "")}
-                  </h5>
-
-                  <div className="mt-auto d-flex gap-2">
-                    <Link
-                      href={`/dashboard/products/edit/${item.id}`}
-                      className="btn btn-sm btn-outline-primary px-3 rounded-3 d-flex align-items-center gap-1"
-                    >
-                      <Edit size={14} /> Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
-                    >
-                      <Trash2 size={14} /> Delete
-                    </button>
-                  </div>
-                </div>
+              <div className="d-flex flex-column">
+                <label className="form-label fw-semibold small text-secondary">
+                  Description
+                </label>
+                <textarea
+                  className="form-control p-3 border rounded-3"
+                  placeholder="Write description..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={10}
+                  style={{ minHeight: "200px" }}
+                />
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      )}
+
+        <div className="col-lg-4">
+          <div
+            className="bg-white rounded-3 shadow p-4 d-flex flex-column justify-content-between"
+            style={{ height: "60vh" }}
+          >
+            <div>
+              <h5 className="fw-bold mb-3">Product Image</h5>
+
+              <label
+                htmlFor="sliderImage"
+                className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
+                style={{
+                  minHeight: "320px",
+                  borderColor: "#d1d5db",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f3f4f6")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f9fafb")
+                }
+              >
+                {previewImage ? (
+                  <Image
+                    src={previewImage}
+                    alt="Slider Preview"
+                    fill
+                    style={{ objectFit: "cover", borderRadius: "8px" }}
+                    unoptimized
+                  />
+                ) : (
+                  <div className="d-flex flex-column align-items-center">
+                    <Camera size={48} style={{ color: "#9ca3af" }} />
+                    <span className="small mt-2">
+                      Click to upload (Max 2MB, 16:9)
+                    </span>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  id="sliderImage"
+                  className="d-none"
+                  onChange={handleImageChange}
+                  accept="image/png, image/jpeg, image/webp"
+                   required={!previewImage} 
+                />
+              </label>
+            </div>
+          </div>
+          <div className="mt-4">
+            <SubmitButton
+              isLoading={isLoading}
+              text="Update Product"
+              loadingText="Updating..."
+
+            />
+          </div>
+        </div>
+      </form>
+
+      <div className="mt-5 bg-white rounded-3 shadow-sm p-4">
+        <h5 className="fw-bold mb-3">Recently Edited Products</h5>
+        <div className="table-responsive">
+          <table className="table align-middle table-hover">
+            <thead className="table-light">
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Total Updates</th>
+                <th>Last Updated</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentProducts.length > 0 ? (
+                recentProducts.map((p) => (
+                  <tr key={p._id || p.id}>
+                    <td style={{ width: "80px" }}>
+                      {p.image_url ? (
+                        <Image
+                          src={p.image_url}
+                          alt={p.name}
+                          width={60}
+                          height={60}
+                          className="rounded-2"
+                          style={{ objectFit: "cover" }}
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="bg-light text-center text-muted rounded-2 p-2 small">
+                          No Image
+                        </div>
+                      )}
+                    </td>
+                    <td>{p.name}</td>
+                    <td>
+                      {p.description
+                        ? p.description.split(" ").slice(0, 8).join(" ") + "..."
+                        : "-"}
+                    </td>
+                    <td>{p.total_update ?? 0}</td>
+                    <td>
+                      {p.updated_at
+                        ? new Date(p.updated_at).toLocaleString("id-ID", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })
+                        : "-"}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="text-center text-muted py-3">
+                    No recent updates found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

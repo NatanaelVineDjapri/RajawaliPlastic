@@ -1,108 +1,174 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Edit2 } from 'lucide-react';
+import React, { useEffect, useState, useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import { getBlogs, deleteBlog } from "@/services/blogService";
+import { Edit, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
-const initialBlogs = [
-  { id: 1, no: '00001', title: 'Cara membedakan antara biji plastik PS, PE, dan PP!', date: '02/11/25', status: 'Published' as 'Published' | 'Draft' },
-  { id: 2, no: '00002', title: 'Tren mendaur ulang plastik 2025', date: '29/10/25', status: 'Draft' as 'Published' | 'Draft' },
-  { id: 3, no: '00003', title: 'Mengapa biji plastik berkualitas bagus penting dalam produksi?', date: '24/10/25', status: 'Published' as 'Published' | 'Draft' },
-  { id: 4, no: '00004', title: 'Ketahuilah Hal Berikut sebelum Membeli Biji Plastik!', date: '20/10/25', status: 'Published' as 'Published' | 'Draft' },
-];
+const MySwal = withReactContent(Swal);
 
-const StatusDropdown = ({
-  initialStatus,
-  blogId,
-  onStatusChange,
-}: {
-  initialStatus: 'Published' | 'Draft';
-  blogId: number;
-  onStatusChange: (id: number, newStatus: 'Published' | 'Draft') => void;
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleSelect = (newStatus: 'Published' | 'Draft') => {
-    onStatusChange(blogId, newStatus);
-    setIsOpen(false);
-  };
-
-  const getStatusClass = (status: 'Published' | 'Draft') => {
-    return status === 'Published'
-      ? 'bg-success-subtle text-success border border-success-subtle'
-      : 'bg-warning-subtle text-warning border border-warning-subtle';
-  };
-
-  return (
-    <div className="dropdown">
-      <button
-        className={`btn btn-sm dropdown-toggle ${getStatusClass(initialStatus)}`}
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {initialStatus}
-      </button>
-      <ul className={`dropdown-menu ${isOpen ? 'show' : ''}`} style={{ minWidth: '6rem' }}>
-        <li>
-          <button className="dropdown-item small" onClick={() => handleSelect('Published')}>
-            Published
-          </button>
-        </li>
-        <li>
-          <button className="dropdown-item small" onClick={() => handleSelect('Draft')}>
-            Draft
-          </button>
-        </li>
-      </ul>
-    </div>
-  );
-};
+interface Blog {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string;
+  content?: string;
+  image?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 export default function BlogsPage() {
-  const [blogs, setBlogs] = useState(initialBlogs);
+  const pageTitle = "Blogs";
+  const breadcrumbs = [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Blogs" },
+  ];
 
-  const handleStatusChange = (id: number, newStatus: 'Published' | 'Draft') => {
-    setBlogs((prevBlogs) =>
-      prevBlogs.map((blog) => (blog.id === id ? { ...blog, status: newStatus } : blog))
-    );
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const hasFetched = useRef(false);
+
+  const fetchBlogs = async () => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
+    setIsLoading(true);
+    try {
+      const result = await getBlogs();
+      // server returns: { message: "...", data: [...] }
+      const data = result && Array.isArray(result.data) ? result.data : [];
+      setBlogs(data);
+    } catch (err: any) {
+      console.error("fetchBlogs error", err);
+      MySwal.fire("Error", err?.message || "Failed to fetch blogs.", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
+
+  const handleDelete = (id: string) => {
+    MySwal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#007bff",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        deleteBlog(id)
+          .then(() => {
+            MySwal.fire("Deleted!", "Blog has been deleted.", "success");
+            hasFetched.current = false;
+            fetchBlogs();
+          })
+          .catch((error: any) => {
+            console.error("deleteBlog error", error);
+            MySwal.fire(
+              "Failed",
+              error.message || "Failed to delete blog.",
+              "error"
+            );
+          });
+      }
+    });
   };
 
   return (
-    <div className="container-fluid p-4">
-      <h1 className="fs-3 fw-semibold text-dark mb-4">Blogs</h1>
-      <div className="text-dark fw-semibold px-4 py-3 rounded-top-3" style={{ backgroundColor: '#b3faffff' }}>
-        Blogs
-      </div>
+    <div className="w-100 position-relative">
+      <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
 
-      <div className="bg-white rounded-bottom-3 shadow-sm overflow-auto">
-        <table className="table table-responsive table-striped align-middle mb-0">
-          <thead className="text-secondary small">
-            <tr>
-              <th className="px-3 py-2">Blog No</th>
-              <th className="px-3 py-2">Title</th>
-              <th className="px-3 py-2">Published At</th>
-              <th className="px-3 py-2">Status</th>
-              <th className="px-3 py-2 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {blogs.map((blog) => (
-              <tr key={blog.id}>
-                <td className="px-3 py-2 text-dark fw-medium">{blog.no}</td>
-                <td className="px-3 py-2 text-dark">{blog.title}</td>
-                <td className="px-3 py-2 text-secondary">{blog.date}</td>
-                <td className="px-3 py-2">
-                  <StatusDropdown initialStatus={blog.status} blogId={blog.id} onStatusChange={handleStatusChange} />
-                </td>
-                <td className="px-3 py-2 text-center">
-                  <a href={`/dashboard/blogs/edit/${blog.id}`} className="btn btn-link text-secondary p-0">
-                    <Edit2 size={18} />
-                  </a>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {isLoading && (
+        <div className="text-center p-5">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      )}
+
+      {!isLoading && blogs.length === 0 && (
+        <div className="text-center p-5 bg-white rounded-3 shadow-sm">
+          <p className="text-muted mb-0">
+            No blogs found. Click the '+' button to add one.
+          </p>
+        </div>
+      )}
+
+      {!isLoading && blogs.length > 0 && (
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 pb-5">
+          {blogs.map((b) => (
+            <div key={b.id} className="col">
+              <div
+                className="card h-100 overflow-hidden rounded-3 shadow-sm border-0"
+                style={{ backgroundColor: "#ffffff", borderColor: "#dee2e6" }}
+              >
+                <div
+                  style={{
+                    height: "200px",
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
+                >
+                  <Image
+                    src={b.image ?? "/images/logoRS.png"}
+                    alt={b.title ?? "blog image"}
+                    fill
+                    className="card-img-top"
+                    style={{ objectFit: "cover" }}
+                    unoptimized
+                  />
+                </div>
+
+                <div className="card-body p-3 text-start d-flex flex-column">
+                  <h5 className="card-title fw-semibold small text-dark mb-2">
+                    {b.title}
+                  </h5>
+                  <h5 className="card-title small text-dark mb-3 fw-normal">
+                    {(b.description ?? "").split(" ").slice(0, 12).join(" ") +
+                      ((b.description ?? "").split(" ").length > 12
+                        ? "..."
+                        : "")}
+                  </h5>
+
+                  <div className="mt-auto d-flex gap-2">
+                    <Link
+                      href={`/dashboard/blogs/edit/${b.id}`}
+                      className="btn btn-sm btn-outline-primary flex-fill rounded-3 d-flex align-items-center justify-content-center gap-1"
+                    >
+                      <Edit size={14} /> Edit
+                    </Link>
+
+                    <button
+                      onClick={() => handleDelete(b.id)}
+                      className="btn btn-sm btn-outline-danger flex-fill rounded-3 d-flex align-items-center justify-content-center gap-1"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </button>
+
+                    <Link
+                      href={`/blog/${b.slug}`}
+                      className="btn btn-sm btn-outline-secondary flex-fill rounded-3 d-flex align-items-center justify-content-center gap-1"
+                      target="_blank"
+                    >
+                      View
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
