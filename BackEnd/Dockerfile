@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libzip-dev \
     libssl-dev \
+    libsasl2-dev \
     && pecl install mongodb \
     && docker-php-ext-enable mongodb \
     && docker-php-ext-install \
