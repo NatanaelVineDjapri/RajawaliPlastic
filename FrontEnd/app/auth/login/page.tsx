@@ -1,10 +1,71 @@
 "use client";
-import React from "react";
+
+import React, { useState, FormEvent } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../../globals.css";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { login } from "@/services/authService";
+
+const MySwal = withReactContent(Swal);
 
 const LoginPage: React.FC = () => {
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await login({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      await MySwal.fire({
+        icon: "success",
+        title: "Berhasil masuk 🎉",
+        text: `Selamat datang kembali, ${res.user?.name || "User"}!`,
+        showConfirmButton: false,
+        timer: 2000,
+        background: "#fff",
+      });
+
+      if (res.user?.role === "admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/");
+      }
+    } catch (error: any) {
+      await MySwal.fire({
+        icon: "error",
+        title: "Login gagal ❌",
+        text: error.message || "Terjadi kesalahan, silakan coba lagi.",
+        confirmButtonColor: "#d33",
+        confirmButtonText: "OK",
+        background: "#fff",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-page-wrapper position-relative d-flex align-items-center justify-content-center">
       <video
@@ -14,7 +75,7 @@ const LoginPage: React.FC = () => {
         loop
         playsInline
       >
-      <source src="/videos/auth.mp4" type="video/mp4" />
+        <source src="/videos/auth.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
@@ -38,7 +99,7 @@ const LoginPage: React.FC = () => {
                 Mari sign-in ke akun anda!
               </p>
 
-              <form>
+              <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label htmlFor="email" className="form-label small fw-semibold">
                     Email
@@ -48,6 +109,9 @@ const LoginPage: React.FC = () => {
                     id="email"
                     className="form-control rounded-3 p-2"
                     placeholder="Isi email.."
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
 
@@ -63,6 +127,9 @@ const LoginPage: React.FC = () => {
                     id="password"
                     className="form-control rounded-3 p-2"
                     placeholder="Isi password.."
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
 
@@ -84,9 +151,10 @@ const LoginPage: React.FC = () => {
 
                 <button
                   type="submit"
+                  disabled={loading}
                   className="btn btn-gradient w-100 py-2 rounded-3 fw-semibold border-0 text-white"
                 >
-                  Sign in
+                  {loading ? "Memproses..." : "Sign in"}
                 </button>
               </form>
 

@@ -33,7 +33,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'address' => $request->address,
-            'phone_number' =>  $request->phone_number,
+            'phone_number' => $request->phone_number,
             'role' => 'customer',
             'image' => url(''), //belum disi wkwkkw
         ]);
@@ -49,32 +49,41 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|string|min:6|max:12',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['message' => $validator->errors()], 422);
+            return response()->json([
+                'message' => $validator->errors()
+            ], 422);
         }
 
         $user = User::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Wrong Email or Password'], 401);
+            return response()->json([
+                'message' => 'Email atau password salah!'
+            ], 401);
         }
 
         $customWord = "RajawaliXUntar2025@9823";
-        $randomPart = Str::random(40);
+        $randomPart = Str::random(60);
         $token = hash('sha256', $customWord . '_' . $randomPart);
 
-        $user->api_token = $token;
-        $user->save();
+        $user->update(['api_token' => $token]);
+
         return response()->json([
-            'message' => 'Login Success',
-            'user' => $user,
-            'role' => $user->role,
+            'message' => 'Login Berhasil!',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ],
             'token' => $token
         ], 200);
     }
+
 
     public function logout(Request $request)
     {
@@ -87,5 +96,25 @@ class AuthController extends Controller
             'message' => 'Logout berhasil!'
         ], 200);
     }
+
+    public function profile(Request $request)
+    {
+
+        $token = $request->bearerToken();
+        if (!$token) {
+            return response()->json(['message' => 'Token tidak ditemukan'], 401);
+        }
+
+        $user = User::where('api_token', $token)->first();
+        if (!$user) {
+            return response()->json(['message' => 'User tidak ditemukan'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Profile user ditemukan',
+            'user' => $user
+        ], 200);
+    }
+
 
 }

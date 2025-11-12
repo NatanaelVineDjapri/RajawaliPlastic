@@ -20,6 +20,7 @@ Route::prefix('rs')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/blogs', [BlogController::class, 'index']);
     Route::get('/partners', [PartnerController::class, 'index']);
+    Route::get('/profile', [AuthController::class, 'profile']);
 
     // Route::middleware('auth.api')->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -30,7 +31,7 @@ Route::prefix('rs')->group(function () {
         Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
 
  
-        // Route::middleware('role:admin')->group(function () {
+        Route::middleware('role:admin')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
             Route::get('/products/last-edited', [ProductController::class, 'lastEdited']);
             Route::get('/products/{id}', [ProductController::class, 'show']);
@@ -69,6 +70,6 @@ Route::prefix('rs')->group(function () {
             Route::get('/partners/{id}', [PartnerController::class, 'show']);      
 
             Route::delete('/partners/{id}', [PartnerController::class, 'destroy']);
-        // });
+        });
     // });
 });
