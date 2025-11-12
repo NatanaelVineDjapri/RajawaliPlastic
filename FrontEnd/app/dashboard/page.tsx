@@ -1,6 +1,6 @@
 'use client'; 
 
-import StatsGrid from "../components/admincomponents/StatsGrid"; 
+import StatsGrid from '../components/admincomponents/statsgrid';
 import SalesChartCard from '../components/admincomponents/SalesChart';
 import RecentlySoldTable from '../components/admincomponents/RecentlySold';
 
