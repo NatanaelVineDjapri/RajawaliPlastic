@@ -61,6 +61,7 @@ Route::prefix('rs')->group(function () {
             Route::delete('/sliders/{id}', [SliderController::class, 'destroy']);
 
             Route::post('/blogs', [BlogController::class, 'store']);
+            Route::get('/blogs/{id}', [BlogController::class, 'show']);      
             Route::put('/blogs/{id}', [BlogController::class, 'update']);
             Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
 
