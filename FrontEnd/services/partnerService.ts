@@ -94,3 +94,20 @@ export const deletePartner = async (id: string | number): Promise<ApiSuccessResp
 
   return await response.json() as ApiSuccessResponse;
 }
+
+export const getPartnersById = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/partners/${id}`, {
+    method: 'GET',
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json();
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
+    throw new Error(`Gagal mengambil data partner (ID: ${id}).`);
+  }
+
+  return await response.json() as ApiSuccessResponse;
+};

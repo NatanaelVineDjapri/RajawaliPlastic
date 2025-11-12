@@ -16,7 +16,7 @@ export default function EditTestimonyPage({ params }: { params: { testimonyId: s
       <h1 className="fs-3 fw-bold text-dark mb-4">Testimony</h1>
 
       <div 
-        className="rounded-3 p-4"
+        className="rounded-3 p-4 mb-4"
         style={{ backgroundColor: '#C0FBFF' }}
       >
         <h2 className="fs-5 fw-bold" style={{ color: '#005F6B' }}>
@@ -24,17 +24,16 @@ export default function EditTestimonyPage({ params }: { params: { testimonyId: s
         </h2>
       </div>
 
-      <form className="bg-white rounded-3 shadow p-4"> 
-        <div className="d-flex gap-4"> 
+      <form className="bg-white rounded-3 shadow p-4">
+        <div className="d-flex flex-column flex-lg-row gap-4">
           <div 
-            className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light"
+            className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light flex-shrink-0"
             style={{ 
-              flex: '1', 
               borderColor: '#d1d5db',
               cursor: 'pointer',
               transition: 'background-color 0.2s',
               minHeight: '250px',
-              maxWidth: '350px',
+              maxWidth: '100%',
               color: '#9ca3af',
               fontSize: '0.875rem',
               gap: '0.5rem'
@@ -47,26 +46,23 @@ export default function EditTestimonyPage({ params }: { params: { testimonyId: s
             <span>Upload Image</span>
           </div>
 
-          <div className="d-flex flex-column flex-grow-1" style={{ flex: 2 }}>
-            <div className="d-flex flex-column h-100">
-              <label htmlFor="description" className="form-label small fw-medium text-secondary mb-1">
-                Description
-              </label>
-              <textarea
-                id="description"
-                className="form-control p-3 border rounded-3 bg-light"
-                placeholder="--"
-                rows={8}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                style={{ 
-                  fontSize: '0.875rem',
-                  resize: 'vertical',
-                  flex: 1,
-                  minHeight: '250px' 
-                }}
-              />
-            </div>
+          <div className="d-flex flex-column flex-grow-1">
+            <label htmlFor="description" className="form-label small fw-medium text-secondary mb-1">
+              Description
+            </label>
+            <textarea
+              id="description"
+              className="form-control p-3 border rounded-3 bg-light"
+              placeholder="--"
+              rows={8}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              style={{ 
+                fontSize: '0.875rem',
+                resize: 'vertical',
+                minHeight: '250px'
+              }}
+            />
           </div>
         </div>
 

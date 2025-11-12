@@ -17,6 +17,19 @@ class PartnerController extends Controller
         ], 200);
     }
 
+    public function show($id)
+    {
+        $Partner = Partner::find($id);
+
+        if (!$Partner) {
+            return response()->json(['message' => 'Partner not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Partner retrieved successfully',
+            'data' => $Partner
+        ], 200);
+    }
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

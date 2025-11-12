@@ -39,20 +39,11 @@ const DELIVERY_OPTIONS: StatusOption[] = [
   { value: 'Processing', label: 'Processing', color: 'orange' },
 ];
 
-const StatusDropdown: React.FC<StatusDropdownProps> = ({
-  statusType,
-  currentStatus,
-  orderId,
-  onStatusChange,
-}) => {
+const StatusDropdown: React.FC<StatusDropdownProps> = ({ statusType, currentStatus, orderId, onStatusChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const options =
-    statusType === 'transaction' ? TRANSACTION_OPTIONS : DELIVERY_OPTIONS;
-  const activeOption = options.find((opt) => opt.value === currentStatus);
-  const { bg, text } =
-    activeOption && COLOR_MAP[activeOption.color]
-      ? COLOR_MAP[activeOption.color]
-      : { bg: '#e5e7eb', text: '#374151' };
+  const options = statusType === 'transaction' ? TRANSACTION_OPTIONS : DELIVERY_OPTIONS;
+  const activeOption = options.find(opt => opt.value === currentStatus);
+  const { bg, text } = activeOption && COLOR_MAP[activeOption.color] ? COLOR_MAP[activeOption.color] : { bg: '#e5e7eb', text: '#374151' };
 
   const handleSelect = (newStatus: StatusType) => {
     onStatusChange(orderId, statusType, newStatus);
@@ -60,20 +51,20 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
   };
 
   return (
-    <div className="relative inline-block w-[120px] sm:w-[100px] xs:w-[90px] mb-2 mr-4">
+    <div className="relative inline-block w-[120px] mb-2 mr-4">
       <button
         type="button"
         className="flex justify-between items-center w-full px-2 py-1 text-xs font-semibold rounded-full border border-gray-300 transition-colors"
         style={{ backgroundColor: bg, color: text }}
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="truncate">{currentStatus}</span>
+        {currentStatus}
         {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
       {isOpen && (
         <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
           <div className="py-1">
-            {options.map((option) => (
+            {options.map(option => (
               <div
                 key={option.value}
                 onClick={() => handleSelect(option.value)}
@@ -88,26 +79,6 @@ const StatusDropdown: React.FC<StatusDropdownProps> = ({
           </div>
         </div>
       )}
-      <style jsx>{`
-        @media (max-width: 768px) {
-          div {
-            width: 100px;
-          }
-          button {
-            font-size: 0.7rem;
-            padding: 4px 6px;
-          }
-        }
-        @media (max-width: 480px) {
-          div {
-            width: 90px;
-          }
-          button {
-            font-size: 0.65rem;
-            padding: 3px 5px;
-          }
-        }
-      `}</style>
     </div>
   );
 };

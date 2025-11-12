@@ -11,9 +11,25 @@ class TestimonialController extends Controller
 {
     public function index()
     {
-        return response()->json(Testimonials::all());
+         return response()->json([
+            'message' => 'Testimonials retrieved successfully',
+            'data' => Testimonials::orderBy('created_at', 'desc')->get()
+        ], 200);
     }
 
+    public function show($id)
+    {
+        $testimonial = Testimonials::find($id);
+
+        if (!$testimonial) {
+            return response()->json(['message' => 'Testimonial not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Testimonial retrieved successfully',
+            'data' => $testimonial
+        ], 200);
+    }
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [

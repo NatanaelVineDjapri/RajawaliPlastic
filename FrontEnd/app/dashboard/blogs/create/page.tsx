@@ -3,7 +3,7 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
-import SubmitButton from "@/app/components/admincomponents/SubmitButton";
+import SubmitButton from "@/app/components/admincomponents/TempButton";
 import { addBlog } from "@/services/blogService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -80,15 +80,14 @@ export default function CreateBlogPage() {
     <div className="w-100">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
       <div className="row g-4">
-        <div className="col-lg-8">
+        <div className="col-12 col-lg-8">
           <form
             onSubmit={handleSubmit}
             id="blogUploadForm"
-            className="bg-white rounded-3 shadow-sm p-4 h-100 d-flex flex-column"
+            className="bg-white rounded-3 shadow-sm p-3 p-md-4 h-auto d-flex flex-column"
           >
             <h5 className="fw-bold mb-3">Blog Details</h5>
-
-            <div className="flex-grow-1 d-flex flex-column gap-3">
+            <div className="d-flex flex-column gap-3">
               <div>
                 <label
                   htmlFor="title"
@@ -106,13 +105,13 @@ export default function CreateBlogPage() {
                   required
                 />
               </div>
-
-              
-              <div className="flex-grow-1 d-flex flex-column">
-                <label htmlFor="descriptions" className="form-label fw-semibold text-secondary small mb-1">
+              <div>
+                <label
+                  htmlFor="description"
+                  className="form-label fw-semibold text-secondary small mb-1"
+                >
                   Description <span className="text-danger">*</span>
                 </label>
-
                 <textarea
                   id="description"
                   className="form-control p-3 border rounded-3"
@@ -121,39 +120,40 @@ export default function CreateBlogPage() {
                   style={{ minHeight: "30px", resize: "vertical" }}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  required
                 />
               </div>
-              <div className="flex-grow-1 d-flex flex-column">
+              <div>
                 <label
-                  htmlFor="contents"
+                  htmlFor="content"
                   className="form-label fw-semibold text-secondary small mb-1"
                 >
-                  Contents <span className="text-danger">*</span>
+                  Content <span className="text-danger">*</span>
                 </label>
                 <textarea
-                  id="description"
+                  id="content"
                   className="form-control p-3 border rounded-3"
-                  placeholder="Enter Blog content..."
+                  placeholder="Enter blog content..."
                   rows={3}
                   style={{ minHeight: "150px", resize: "vertical" }}
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
+                  required
                 />
               </div>
             </div>
-            
           </form>
         </div>
-        <div className="col-lg-4">
-          <div className="bg-white rounded-3 shadow-sm p-4 h-60 d-flex flex-column">
-            <h5 className="fw-bold mb-3">Cover Image</h5>
 
+        <div className="col-12 col-lg-4">
+          <div className="bg-white rounded-3 shadow-sm p-3 p-md-4 d-flex flex-column h-auto">
+            <h5 className="fw-bold mb-3">Cover Image</h5>
             <label
               htmlFor="blogImage"
-              className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
+              className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 position-relative"
               style={{
-                minHeight: "320px",
-
+                aspectRatio: "16/9",
+                minHeight: "200px",
                 borderColor: "#d1d5db",
                 cursor: "pointer",
                 transition: "background-color 0.2s",
@@ -170,21 +170,16 @@ export default function CreateBlogPage() {
                   src={previewImage}
                   alt="Cover Preview"
                   fill
-                  style={{
-                    objectFit: "cover",
-                    borderRadius: "8px",
-                  }}
+                  style={{ objectFit: "cover", borderRadius: "8px" }}
                   unoptimized
                 />
               ) : (
-                <>
-                  <div className="d-flex flex-column align-items-center">
-                    <Camera size={48} style={{ color: "#9ca3af" }} />
-                    <span className="small mt-2">
-                      Click to upload (Max 2MB, 16:9)
-                    </span>
-                  </div>
-                </>
+                <div className="d-flex flex-column align-items-center">
+                  <Camera size={48} style={{ color: "#9ca3af" }} />
+                  <span className="small mt-2">
+                    Click to upload (Max 2MB, 16:9)
+                  </span>
+                </div>
               )}
               <input
                 type="file"
@@ -196,7 +191,7 @@ export default function CreateBlogPage() {
               />
             </label>
           </div>
-          <div className="mt-3">
+          <div className="mt-3 d-flex justify-content-end">
             <SubmitButton
               isLoading={isLoading}
               text="Publish Blog"

@@ -1,16 +1,29 @@
-import StatsGrid from "../components/admincomponents/StatsGrid";
+'use client'; 
+
+import StatsGrid from "../components/admincomponents/StatsGrid"; 
+import SalesChartCard from '../components/admincomponents/SalesChart';
+import RecentlySoldTable from '../components/admincomponents/RecentlySold';
 
 export default function DashboardPage() {
   return (
-    <>
-      <StatsGrid />
-
-      <div className="mt-4">
-        <div className="p-4 bg-white rounded-3 shadow-sm">
-          <h2 className="fs-5 fw-bold">Konten</h2>
-          <p className="mt-2">Ini adalah area placeholder...</p>
+    <div className="container-fluid p-3 p-md-4 bg-light min-vh-100">
+      <div className="row g-3">
+        <div className="col-12">
+          <StatsGrid />
         </div>
       </div>
-    </>
+
+      <div className="row g-3 mt-3">
+        <div className="col-12 col-lg-12">
+          <SalesChartCard />
+        </div>
+      </div>
+
+      <div className="row g-3 mt-3">
+        <div className="col-12">
+          <RecentlySoldTable />
+        </div>
+      </div>
+    </div>
   );
 }

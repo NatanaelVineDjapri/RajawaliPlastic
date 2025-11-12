@@ -41,6 +41,7 @@ Route::prefix('rs')->group(function () {
            
 
             Route::post('/testimonials', [TestimonialController::class, 'store']);
+            Route::get('/testimonials/{id}', [TestimonialController::class, 'show']);      
             Route::put('/testimonials/{id}', [TestimonialController::class, 'update']);
             Route::delete('/testimonials/{id}', [TestimonialController::class, 'destroy']);
 
@@ -64,6 +65,8 @@ Route::prefix('rs')->group(function () {
             Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
 
             Route::post('/partners', [PartnerController::class, 'store']);
+            Route::get('/partners/{id}', [PartnerController::class, 'show']);      
+
             Route::delete('/partners/{id}', [PartnerController::class, 'destroy']);
         // });
     // });

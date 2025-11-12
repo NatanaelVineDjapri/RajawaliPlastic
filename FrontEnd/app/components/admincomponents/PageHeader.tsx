@@ -15,18 +15,12 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, breadcrumbs }: PageHeaderProps) {
   return (
-    <div className="mb-3"> 
-      <h1 className="fs-2 fw-bold text-dark mb-2">
-        {title}
-      </h1>
-      
+    <div className="page-header mb-3"> 
+      <h1 className="page-title fs-2 fw-bold text-dark mb-2">{title}</h1>
       <nav aria-label="breadcrumb">
-        <ol className="breadcrumb mb-0">
-          
+        <ol className="breadcrumb mb-0 flex-wrap">
           {breadcrumbs.map((item, index) => {
-            
             const isLastItem = index === breadcrumbs.length - 1;
-
             return (
               <li 
                 key={index} 
@@ -43,9 +37,32 @@ export default function PageHeader({ title, breadcrumbs }: PageHeaderProps) {
               </li>
             );
           })}
-          
         </ol>
       </nav>
+      <style jsx>{`
+        .page-title {
+          font-size: 2rem;
+        }
+        @media (max-width: 576px) {
+          .page-header {
+            margin-bottom: 1rem;
+          }
+          .page-title {
+            font-size: 1.4rem;
+          }
+          .breadcrumb {
+            font-size: 0.85rem;
+          }
+        }
+        @media (min-width: 577px) and (max-width: 991px) {
+          .page-title {
+            font-size: 1.6rem;
+          }
+          .breadcrumb {
+            font-size: 0.9rem;
+          }
+        }
+      `}</style>
     </div>
   );
 }
