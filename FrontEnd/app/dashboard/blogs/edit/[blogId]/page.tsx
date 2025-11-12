@@ -1,167 +1,238 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Camera } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { Camera } from "lucide-react";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import SubmitButton from "@/app/components/admincomponents/SubmitButton";
+import { getBlogsById, updateBlog } from "@/services/blogService";
 
-interface EditBlogPageProps {
-  params: { blogId: string };
+const MySwal = withReactContent(Swal);
+
+interface Blog {
+  id?: string | number;
+  title: string;
+  slug: string;
+  description: string;
+  content: string;
+  image?: string;
+  updated_at?: string;
+  created_at?: string;
 }
 
-export default function EditBlogPage({ params }: EditBlogPageProps) {
-  const [title, setTitle] = useState('');
-  const [contents, setContents] = useState('');
-  const [publishedAt, setPublishedAt] = useState('');
+export default function EditBlogPage() {
+  const { blogId } = useParams();
   const router = useRouter();
 
+  const [blog, setBlog] = useState<Blog | null>(null);
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
+  const [description, setDescription] = useState("");
+  const [content, setContent] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const pageTitle = "Edit Blog";
+  const breadcrumbs = [
+    { label: "Blog List", href: "/dashboard/blogs" },
+    { label: "Edit Blog" },
+  ];
+
   useEffect(() => {
-    setTitle('Judul Blog Lama dari Database');
-    setContents('Ini adalah isi konten blog yang sudah ada sebelumnya...');
-    setPublishedAt('01/11/25');
-  }, [params.blogId]);
+    const fetchData = async () => {
+      try {
+        const res = await getBlogsById(blogId as string);
+        const data = res.data;
 
-  const isFormValid = title.trim().length > 0 && contents.trim().length > 0;
+        if (!data) {
+          MySwal.fire("Oops...", "Blog not found", "error");
+          router.push("/dashboard/blogs");
+          return;
+        }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isFormValid) {
-      router.push('../');
-    } else {
-      alert('Please fill in all required fields.');
+        setBlog(data);
+        setTitle(data.title);
+        setSlug(data.slug);
+        setDescription(data.description || "");
+        setContent(data.content || "");
+        setPreviewImage(data.image || null);
+      } catch (err: any) {
+        MySwal.fire("Error", err.message || "Failed to fetch blog.", "error");
+        router.push("/dashboard/blogs");
+      }
+    };
+
+    if (blogId) fetchData();
+  }, [blogId, router]);
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImageFile(file);
+      if (previewImage) URL.revokeObjectURL(previewImage);
+      setPreviewImage(URL.createObjectURL(file));
     }
   };
 
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!blog) return;
+
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("slug", slug);
+    formData.append("description", description);
+    formData.append("content", content);
+    if (imageFile) formData.append("image", imageFile);
+
+    try {
+      const res = await updateBlog(blog.id!, formData);
+      MySwal.fire({
+        title: "Success!",
+        text: res.message || "Blog updated successfully!",
+        icon: "success",
+        confirmButtonColor: "#0d6efd",
+      });
+      router.push("/dashboard/blogs");
+    } catch (err: any) {
+      MySwal.fire("Error", err.message || "Update failed", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!blog) return <div className="p-5 text-center">Loading blog...</div>;
+
   return (
-    <div className="container-fluid p-3 p-md-4">
-      <h1 className="fs-3 fw-semibold text-dark mb-4">Blogs</h1>
+    <div className="w-100">
+      <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
+      <form onSubmit={handleSubmit} className="row g-4">
+        <div className="col-lg-8">
+          <div className="bg-white rounded-3 shadow p-4 h-100">
+            <h5 className="fw-bold mb-4">Blog Details</h5>
+            <div className="d-flex flex-column gap-3">
+              <div className="d-flex flex-column">
+                <label className="form-label fw-semibold small text-secondary">
+                  Title <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-control p-3 border rounded-3"
+                  placeholder="Enter blog title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                />
+              </div>
 
-      <div className="bg-info-subtle border border-info-subtle p-3 p-md-4 rounded-top-3 rounded-bottom-0">
-        <h2 className="fs-5 fw-semibold text-info">Edit Blog #{params.blogId}</h2>
-      </div>
+              <div className="d-flex flex-column">
+                <label className="form-label fw-semibold small text-secondary">
+                  Slug <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-control p-3 border rounded-3"
+                  placeholder="Enter slug"
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  required
+                />
+              </div>
 
-      <form
-        className="bg-white rounded-3 shadow-sm p-3 p-md-4 mt-0 rounded-bottom-3 rounded-top-0"
-        onSubmit={handleSubmit}
-      >
-        <div className="d-flex flex-column flex-lg-row gap-3 gap-lg-4">
-          <div
-            className="d-flex flex-column align-items-center justify-content-center border border-2 border-secondary-subtle bg-light rounded-3 p-3 p-md-4 text-muted small w-100"
-            style={{
-              minHeight: '200px',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s',
-            }}
-          >
-            <Camera size={48} className="text-secondary" />
-            <span className="mt-1">Upload Image</span>
+              <div className="d-flex flex-column">
+                <label className="form-label fw-semibold small text-secondary">
+                  Description
+                </label>
+                <textarea
+                  className="form-control p-3 border rounded-3"
+                  placeholder="Write description..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={1}
+                />
+              </div>
+
+              <div className="d-flex flex-column">
+                <label className="form-label fw-semibold small text-secondary">
+                  Content
+                </label>
+                <textarea
+                  className="form-control p-3 border rounded-3"
+                  placeholder="Write full content..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  rows={5}
+                />
+              </div>
+            </div>
           </div>
+        </div>
 
-          <div className="d-flex flex-column gap-3 flex-grow-1 w-100">
-            <div className="d-flex flex-column">
+        <div className="col-lg-4">
+          <div
+            className="bg-white rounded-3 shadow p-4 d-flex flex-column justify-content-between"
+            style={{ height: "60vh" }}
+          >
+            <div>
+              <h5 className="fw-bold mb-3">Blog Image</h5>
+
               <label
-                htmlFor="title"
-                className="form-label small fw-medium text-secondary mb-1"
-              >
-                Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                className="form-control form-control-sm bg-light text-dark"
-                placeholder="Enter Title..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                htmlFor="blogImage"
+                className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
                 style={{
-                  fontSize: '0.875rem',
-                  padding: '0.75rem',
-                  borderRadius: '0.5rem',
+                  minHeight: "320px",
+                  borderColor: "#d1d5db",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
                 }}
-              />
-            </div>
-
-            <div className="d-flex flex-column">
-              <label
-                htmlFor="contents"
-                className="form-label small fw-medium text-secondary mb-1"
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f3f4f6")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f9fafb")
+                }
               >
-                Contents
+                {previewImage ? (
+                  <Image
+                    src={previewImage}
+                    alt="Image Preview"
+                    fill
+                    style={{ objectFit: "cover", borderRadius: "8px" }}
+                    unoptimized
+                  />
+                ) : (
+                  <div className="d-flex flex-column align-items-center">
+                    <Camera size={48} style={{ color: "#9ca3af" }} />
+                    <span className="small mt-2">
+                      Click to upload (Max 2MB)
+                    </span>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  id="blogImage"
+                  className="d-none"
+                  onChange={handleImageChange}
+                  accept="image/png, image/jpeg, image/webp"
+                  required={!previewImage}
+                />
               </label>
-              <textarea
-                id="contents"
-                className="form-control bg-light text-dark"
-                placeholder="Enter Description..."
-                rows={5}
-                value={contents}
-                onChange={(e) => setContents(e.target.value)}
-                style={{
-                  fontSize: '0.875rem',
-                  minHeight: '150px',
-                  borderRadius: '0.5rem',
-                  resize: 'vertical',
-                }}
-              />
             </div>
-
-            <div className="d-flex flex-column w-50">
-              <label
-                htmlFor="publishedAt"
-                className="form-label small fw-medium text-secondary mb-1"
-              >
-                Published At
-              </label>
-              <input
-                type="text"
-                id="publishedAt"
-                className="form-control bg-light text-dark"
-                placeholder="-"
-                value={publishedAt}
-                onChange={(e) => setPublishedAt(e.target.value)}
-                style={{
-                  fontSize: '0.875rem',
-                  padding: '0.75rem',
-                  borderRadius: '0.5rem',
-                }}
-              />
-            </div>
-
-            <button
-              type="submit"
-              className={`btn btn-sm mt-3 align-self-end ${
-                isFormValid ? 'apply-button-active' : 'submit-button-disabled'
-              }`}
-              disabled={!isFormValid}
-              style={{ fontWeight: 600, fontSize: '0.875rem' }}
-            >
-              Apply
-            </button>
+          </div>
+          <div className="mt-4">
+            <SubmitButton
+              isLoading={isLoading}
+              text="Update Blog"
+              loadingText="Updating..."
+            />
           </div>
         </div>
       </form>
-
-      <style jsx>{`
-        .submit-button-disabled {
-          background-color: #f3f4f6;
-          color: #9ca3af;
-          padding: 0.6rem 1.5rem;
-          border: none;
-          border-radius: 0.5rem;
-          cursor: not-allowed;
-        }
-
-        .apply-button-active {
-          background-color: #c0fbff;
-          color: #005f6b;
-          padding: 0.6rem 1.5rem;
-          border: none;
-          border-radius: 0.5rem;
-          cursor: pointer;
-          transition: background-color 0.2s ease;
-        }
-
-        .apply-button-active:hover {
-          background-color: #a6f5fa;
-        }
-      `}</style>
     </div>
   );
 }

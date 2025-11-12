@@ -20,6 +20,7 @@ Route::prefix('rs')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/blogs', [BlogController::class, 'index']);
     Route::get('/partners', [PartnerController::class, 'index']);
+    Route::get('/profile', [AuthController::class, 'profile']);
 
     // Route::middleware('auth.api')->group(function (): void {
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -49,18 +50,21 @@ Route::prefix('rs')->group(function () {
             Route::put('/galleries/{id}', [GalleryController::class, 'update']);
             Route::delete('/galleries/{id}', [GalleryController::class, 'destroy']);
 
+            
             Route::post('/orders', [OrderController::class, 'store']);
+            Route::get('/orders/summary', [OrderController::class, 'summary']);
+            Route::get('/orders/summary-detail', [OrderController::class, 'summaryDetail']);
             Route::get('/orders/{id}', [OrderController::class, 'show']);      
             Route::put('/orders/{id}', [OrderController::class, 'update']);
             Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-            Route::get('/orders/summary', [OrderController::class, 'summary']);
-            Route::get('/orders/summary-detail', [OrderController::class, 'summaryDetail']);
+            
             
             Route::get('/sliders', [SliderController::class, 'index']);
             Route::post('/sliders', [SliderController::class, 'store']);
             Route::delete('/sliders/{id}', [SliderController::class, 'destroy']);
 
             Route::post('/blogs', [BlogController::class, 'store']);
+            Route::get('/blogs/{id}', [BlogController::class, 'show']);      
             Route::put('/blogs/{id}', [BlogController::class, 'update']);
             Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
 

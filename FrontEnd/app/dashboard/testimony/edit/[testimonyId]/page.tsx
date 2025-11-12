@@ -1,72 +1,63 @@
 "use client";
 
-// Importnya digabung dari Edit dan Create
 import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
-import { useParams, useRouter } from "next/navigation"; // Penting untuk Edit
-import { Camera, Save } from "lucide-react"; // Kita pakai Save untuk tombolnya
-import PageHeader from "@/app/components/admincomponents/PageHeader";
-import SubmitButton from "@/app/components/admincomponents/TempButton";
-import {
-  getTestimonialById, // Penting untuk Edit
-  updateTestimonial, // Penting untuk Edit
-} from "@/services/testimonialService";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import Image from "next/image";
+import { Camera } from "lucide-react";
+import PageHeader from "@/app/components/admincomponents/PageHeader";
+import SubmitButton from "@/app/components/admincomponents/SubmitButton";
+import {
+  getTestimonialById,
+  updateTestimonial,
+} from "@/services/testimonialService";
 
 const MySwal = withReactContent(Swal);
 
-// Interface-nya kita samain aja
 interface Testimonial {
-  _id: string;
+  _id?: string;
+  id?: string | number;
   name: string;
-  logo: string;
   description: string;
-  created_at: string;
-  updated_at: string;
+  logo?: string;
+  updated_at?: string;
+  created_at?: string;
 }
 
 export default function EditTestimonyPage() {
-  // Ini jadi halaman Edit
-  const { testimonyId } = useParams(); // Ambil ID dari URL
+  const { testimonyId } = useParams();
   const router = useRouter();
 
-  const pageTitle = "Edit Testimony"; // Ganti judul
-
-  // State dari halaman Create
+  const [testimony, setTestimony] = useState<Testimonial | null>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [logo, setLogo] = useState<File | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // State loading dari halaman Edit
-  const [isLoading, setIsLoading] = useState(false); // Untuk tombol submit
-  const [pageLoading, setPageLoading] = useState(true); // Untuk loading data awal
-
+  const pageTitle = "Edit Testimony";
   const breadcrumbs = [
     { label: "Testimony List", href: "/dashboard/testimony" },
-    { label: "Edit Testimony" }, // Ganti label
+    { label: "Edit Testimony" },
   ];
 
-  // --- INI LOGIKA PENTING YANG LU MINTA ---
-  // Ambil data pas halaman dibuka
   useEffect(() => {
     const fetchData = async () => {
-      if (!testimonyId) {
-        MySwal.fire("Error", "Testimonial ID not found.", "error");
-        router.push("/dashboard/testimony");
-        return;
-      }
-
       try {
-        setPageLoading(true);
-        const response = await getTestimonialById(testimonyId as string);
-        const data = response.data;
+        const res = await getTestimonialById(testimonyId as string);
+        const data = res.data;
 
-        // Set state pakai data yang di-fetch
+        if (!data) {
+          MySwal.fire("Oops...", "Testimonial not found", "error");
+          router.push("/dashboard/testimony");
+          return;
+        }
+
+        setTestimony(data);
         setName(data.name);
-        setDescription(data.description);
-        setPreviewLogo(data.logo); // Ini adalah URL logo yang lama (dari DB)
+        setDescription(data.description || "");
+        setPreviewLogo(data.logo || null);
       } catch (err: any) {
         MySwal.fire(
           "Error",
@@ -74,186 +65,145 @@ export default function EditTestimonyPage() {
           "error"
         );
         router.push("/dashboard/testimony");
-      } finally {
-        setPageLoading(false);
       }
     };
-    fetchData();
+
+    if (testimonyId) fetchData();
   }, [testimonyId, router]);
 
-  // Handler ganti logo, sama kayak Create
   const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setLogo(file); // Ini file baru
-      // Ganti preview-nya jadi file baru
+      setLogoFile(file);
+      if (previewLogo) URL.revokeObjectURL(previewLogo);
       setPreviewLogo(URL.createObjectURL(file));
     }
   };
 
-  // Handler submit, ini pakai logika UPDATE
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true); // Loading tombol submit
+    if (!testimony) return;
 
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
-    // PENTING: Cuma kirim 'logo' kalau user UDAH milih file baru
-    if (logo) {
-      formData.append("logo", logo);
-    }
-    // Note: Backend Laravel/PHP mungkin butuh ini untuk `update` pakai FormData
-    // formData.append("_method", "PATCH");
+    if (logoFile) formData.append("logo", logoFile);
 
     try {
-      // Panggil service UPDATE, bukan 'add'
-      const result = await updateTestimonial(testimonyId as string, formData);
+      const res = await updateTestimonial(testimony._id || testimony.id!, formData);
       MySwal.fire({
         title: "Success!",
-        text: result.message || "Testimonial updated successfully.",
+        text: res.message || "Testimonial updated successfully!",
         icon: "success",
         confirmButtonColor: "#0d6efd",
       });
-
-      // Redirect balik ke list
       router.push("/dashboard/testimony");
-    } catch (error) {
-      let msg = "An unknown error occurred.";
-      if (error instanceof Error) msg = error.message;
-      MySwal.fire({
-        title: "Oops...",
-        text: msg,
-        icon: "error",
-        confirmButtonColor: "#dc3545",
-      });
+    } catch (err: any) {
+      MySwal.fire("Error", err.message || "Update failed", "error");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Kasih loading spinner pas datanya diambil
-  if (pageLoading) {
-    return (
-      <div className="w-100 text-center p-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  if (!testimony)
+    return <div className="p-5 text-center">Loading testimonial...</div>;
 
-  // --- INI JSX (DESAIN) DARI 'CreateTestimonyPage' ---
   return (
     <div className="w-100">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
+      <form onSubmit={handleSubmit} className="row g-4">
+        <div className="col-lg-8">
+          <div className="bg-white rounded-3 shadow p-4 h-100">
+            <h5 className="fw-bold mb-4">Testimony Details</h5>
+            <div className="d-flex flex-column gap-3">
+              <div className="d-flex flex-column">
+                <label className="form-label fw-semibold small text-secondary">
+                  Client Name <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-control p-3 border rounded-3"
+                  placeholder="Enter client name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
 
-      <form onSubmit={handleSubmit}>
-        <div className="row g-4">
-          {/* LEFT SIDE */}
-          <div className="col-lg-8">
-            <div className="bg-white rounded-3 shadow-sm p-4 h-100">
-              <h5 className="fw-bold mb-4">Testimony Details</h5>
-
-              <div className="d-flex flex-column gap-3">
-                <div>
-                  <label
-                    htmlFor="clientName"
-                    className="form-label fw-semibold text-secondary small mb-1"
-                  >
-                    Client Name <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="clientName"
-                    className="form-control p-3 border rounded-3"
-                    placeholder="Enter client or company name"
-                    value={name} // <-- LOGIKA-nya masuk di sini
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="description"
-                    className="form-label fw-semibold text-secondary small mb-1"
-                  >
-                    Description
-                  </label>
-                  <textarea
-                    id="description"
-                    className="form-control p-3 border rounded-3"
-                    placeholder="Enter testimony description..."
-                    rows={9}
-                    style={{ minHeight: "150px", resize: "vertical" }}
-                    value={description} // <-- LOGIKA-nya masuk di sini
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                </div>
+              <div className="d-flex flex-column">
+                <label className="form-label fw-semibold small text-secondary">
+                  Description
+                </label>
+                <textarea
+                  className="form-control p-3 border rounded-3"
+                  placeholder="Write description..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  rows={10}
+                  style={{ minHeight: "200px" }}
+                />
               </div>
             </div>
           </div>
+        </div>
 
-          {/* RIGHT SIDE */}
-          <div className="col-lg-4">
-            <div className="bg-white rounded-3 shadow-sm p-4 mb-4 h-60">
-              <h5 className="fw-bold mb-4">Client Logo</h5>
+        <div className="col-lg-4">
+          <div
+            className="bg-white rounded-3 shadow p-4 d-flex flex-column justify-content-between"
+            style={{ height: "60vh" }}
+          >
+            <div>
+              <h5 className="fw-bold mb-3">Client Logo</h5>
 
               <label
-                className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 position-relative"
+                htmlFor="sliderImage"
+                className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
                 style={{
                   minHeight: "320px",
                   borderColor: "#d1d5db",
                   cursor: "pointer",
-                  transition: "background-color 0.2s, transform 0.1s",
+                  transition: "background-color 0.2s",
                 }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = "#f3f4f6";
-                  e.currentTarget.style.transform = "scale(1.01)";
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = "#f9fafb";
-                  e.currentTarget.style.transform = "scale(1)";
-                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f3f4f6")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f9fafb")
+                }
               >
-                {/* LOGIKA-nya masuk di sini */}
                 {previewLogo ? (
                   <Image
-                    src={previewLogo} // <-- Tampilkan data lama/baru
+                    src={previewLogo}
                     alt="Logo Preview"
                     fill
-                    style={{
-                      objectFit: "contain",
-                      borderRadius: "8px",
-                      padding: "20px",
-                    }}
+                    style={{ objectFit: "cover", borderRadius: "8px" }}
+                    unoptimized
                   />
                 ) : (
-                  <>
+                  <div className="d-flex flex-column align-items-center">
                     <Camera size={48} style={{ color: "#9ca3af" }} />
                     <span className="small mt-2">
-                      Click to upload (Max 2MB, 16:9)
+                      Click to upload (Max 2MB, 1:1)
                     </span>
-                  </>
+                  </div>
                 )}
                 <input
                   type="file"
+                  id="sliderImage"
                   className="d-none"
                   onChange={handleLogoChange}
                   accept="image/png, image/jpeg, image/webp"
-                  // 'required' DIHAPUS, karena edit boleh nggak ganti gambar
+                  required={!previewLogo}
                 />
               </label>
             </div>
-
-            <div className="d-grid">
-              <SubmitButton
-                isLoading={isLoading}
-                text="Save Changes" // Ganti teks tombol
-                loadingText="Saving..."
-              />
-            </div>
+          </div>
+          <div className="mt-4">
+            <SubmitButton
+              isLoading={isLoading}
+              text="Update Testimony"
+              loadingText="Updating..."
+            />
           </div>
         </div>
       </form>

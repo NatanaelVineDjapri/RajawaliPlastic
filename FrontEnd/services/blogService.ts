@@ -1,4 +1,6 @@
-const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
+// const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
+
+const API_URL = 'http://localhost:8000/api/rs';
 
 interface ApiSuccessResponse {
   message: string;
@@ -112,3 +114,20 @@ export const deleteBlog = async (id: string | number): Promise<ApiSuccessRespons
 
   return await response.json() as ApiSuccessResponse;
 }
+
+export const getBlogsById = async (id: string | number): Promise<ApiSuccessResponse> => {
+  const response = await fetch(`${API_URL}/blogs/${id}`, {
+    method: 'GET',
+    headers: getHeaders(),
+  });
+
+  if (!response.ok) {
+    const errorData: ApiErrorResponse = await response.json();
+    if (errorData.message) {
+      throw new Error(errorData.message);
+    }
+    throw new Error(`Gagal mengambil data blog (ID: ${id}).`);
+  }
+
+  return await response.json() as ApiSuccessResponse;
+};

@@ -28,7 +28,7 @@ class BlogController extends Controller
 
         return response()->json([
             'message' => 'Detail blog ditemukan',
-            'blog' => $blog,
+            'data' => $blog,
         ]);
     }
 

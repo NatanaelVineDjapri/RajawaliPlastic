@@ -148,7 +148,7 @@ export default function CreateTestimonyPage() {
                     alt="Logo Preview"
                     fill
                     style={{
-                      objectFit: "contain",
+                      objectFit: "cover",
                       borderRadius: "8px",
                       padding: "20px",
                     }}

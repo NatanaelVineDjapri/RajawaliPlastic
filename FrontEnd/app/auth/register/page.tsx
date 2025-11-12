@@ -1,10 +1,92 @@
 "use client";
-import React from "react";
+
+import React, { useState, FormEvent } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../../globals.css";
 import Image from "next/image";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { register } from "@/services/authService"; 
+
+const MySwal = withReactContent(Swal);
 
 const RegisterPage: React.FC = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    address: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.email || !formData.password) {
+      return MySwal.fire({
+        icon: "warning",
+        title: "Data Belum Lengkap",
+        text: "Mohon isi semua field yang wajib diisi.",
+        confirmButtonColor: "#facc15",
+        background: "#fffbea",
+      });
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      return MySwal.fire({
+        icon: "error",
+        title: "Password Tidak Cocok",
+        text: "Pastikan password dan konfirmasi password sama ya!",
+        confirmButtonColor: "#ef4444",
+        background: "#fef2f2",
+      });
+    }
+
+    setIsLoading(true);
+    try {
+      await register({
+        name: formData.name,
+        email: formData.email,
+        address: formData.address,
+        phone_number: formData.phone, 
+        password: formData.password,
+        password_confirmation: formData.confirmPassword, 
+      });
+
+      MySwal.fire({
+        icon: "success",
+        title: "Registrasi Berhasil 🎉",
+        text: "Akun kamu berhasil dibuat. Silakan login sekarang!",
+        confirmButtonText: "Ke Halaman Login",
+        confirmButtonColor: "#16a34a",
+        background: "#f0fdf4",
+      }).then(() => {
+        window.location.href = "/auth/login";
+      });
+    } catch (err: any) {
+      MySwal.fire({
+        icon: "error",
+        title: "Registrasi Gagal",
+        text:
+          err?.response?.data?.message ||
+          "Tolong isi form dengan benar sebelum mengirim.",
+        confirmButtonColor: "#dc2626",
+        background: "#fef2f2",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="auth-page-wrapper position-relative d-flex align-items-center justify-content-center">
       <video
@@ -14,7 +96,7 @@ const RegisterPage: React.FC = () => {
         loop
         playsInline
       >
-      <source src="/videos/auth.mp4" type="video/mp4" />
+        <source src="/videos/auth.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
 
@@ -29,23 +111,31 @@ const RegisterPage: React.FC = () => {
                 Mohon mengisi data untuk membuat akun
               </p>
 
-              <form>
+              <form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-lg-6 col-md-12">
                     <div className="mb-3">
-                      <label htmlFor="fullname" className="form-label small fw-semibold">
+                      <label
+                        htmlFor="name"
+                        className="form-label small fw-semibold"
+                      >
                         Nama Lengkap
                       </label>
                       <input
                         type="text"
-                        id="fullname"
+                        id="name"
                         className="form-control rounded-3 p-2"
                         placeholder="Isi Nama Lengkap..."
+                        value={formData.name}
+                        onChange={handleChange}
                       />
                     </div>
 
                     <div className="mb-3">
-                      <label htmlFor="email" className="form-label small fw-semibold">
+                      <label
+                        htmlFor="email"
+                        className="form-label small fw-semibold"
+                      >
                         Email
                       </label>
                       <input
@@ -53,11 +143,16 @@ const RegisterPage: React.FC = () => {
                         id="email"
                         className="form-control rounded-3 p-2"
                         placeholder="Isi email..."
+                        value={formData.email}
+                        onChange={handleChange}
                       />
                     </div>
 
                     <div className="mb-3">
-                      <label htmlFor="address" className="form-label small fw-semibold">
+                      <label
+                        htmlFor="address"
+                        className="form-label small fw-semibold"
+                      >
                         Alamat
                       </label>
                       <input
@@ -65,13 +160,18 @@ const RegisterPage: React.FC = () => {
                         id="address"
                         className="form-control rounded-3 p-2"
                         placeholder="Isi alamat..."
+                        value={formData.address}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
 
                   <div className="col-lg-6 col-md-12">
                     <div className="mb-3">
-                      <label htmlFor="phone" className="form-label small fw-semibold">
+                      <label
+                        htmlFor="phone"
+                        className="form-label small fw-semibold"
+                      >
                         No. Telpon
                       </label>
                       <input
@@ -79,11 +179,16 @@ const RegisterPage: React.FC = () => {
                         id="phone"
                         className="form-control rounded-3 p-2"
                         placeholder="Isi nomor telepon..."
+                        value={formData.phone}
+                        onChange={handleChange}
                       />
                     </div>
 
                     <div className="mb-3">
-                      <label htmlFor="password" className="form-label small fw-semibold">
+                      <label
+                        htmlFor="password"
+                        className="form-label small fw-semibold"
+                      >
                         Password
                       </label>
                       <input
@@ -91,18 +196,25 @@ const RegisterPage: React.FC = () => {
                         id="password"
                         className="form-control rounded-3 p-2"
                         placeholder="Isi password..."
+                        value={formData.password}
+                        onChange={handleChange}
                       />
                     </div>
 
                     <div className="mb-4">
-                      <label htmlFor="confirmPassword" className="form-label small fw-semibold">
+                      <label
+                        htmlFor="confirmPassword"
+                        className="form-label small fw-semibold"
+                      >
                         Confirm Password
                       </label>
                       <input
                         type="password"
                         id="confirmPassword"
                         className="form-control rounded-3 p-2"
-                        placeholder="isi kembali password..."
+                        placeholder="Isi kembali password..."
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
                       />
                     </div>
                   </div>
@@ -111,14 +223,18 @@ const RegisterPage: React.FC = () => {
                 <button
                   type="submit"
                   className="btn btn-gradient w-100 py-2 rounded-3 fw-semibold border-0 text-white"
+                  disabled={isLoading}
                 >
-                  Register
+                  {isLoading ? "Loading..." : "Register"}
                 </button>
               </form>
 
               <p className="mt-4 text-center small text-muted">
                 Sudah punya akun?{" "}
-                <a href="/auth/login" className="text-decoration-none fw-semibold">
+                <a
+                  href="/auth/login"
+                  className="text-decoration-none fw-semibold"
+                >
                   Sign in
                 </a>
               </p>
