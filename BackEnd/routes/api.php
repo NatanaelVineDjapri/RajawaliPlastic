@@ -31,7 +31,7 @@ Route::prefix('rs')->group(function () {
         Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
 
  
-        Route::middleware('role:admin')->group(function () {
+        // Route::middleware('role:admin')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
             Route::get('/products/last-edited', [ProductController::class, 'lastEdited']);
             Route::get('/products/{id}', [ProductController::class, 'show']);
@@ -50,12 +50,14 @@ Route::prefix('rs')->group(function () {
             Route::put('/galleries/{id}', [GalleryController::class, 'update']);
             Route::delete('/galleries/{id}', [GalleryController::class, 'destroy']);
 
+            
             Route::post('/orders', [OrderController::class, 'store']);
+            Route::get('/orders/summary', [OrderController::class, 'summary']);
+            Route::get('/orders/summary-detail', [OrderController::class, 'summaryDetail']);
             Route::get('/orders/{id}', [OrderController::class, 'show']);      
             Route::put('/orders/{id}', [OrderController::class, 'update']);
             Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
-            Route::get('/orders/summary', [OrderController::class, 'summary']);
-            Route::get('/orders/summary-detail', [OrderController::class, 'summaryDetail']);
+            
             
             Route::get('/sliders', [SliderController::class, 'index']);
             Route::post('/sliders', [SliderController::class, 'store']);
@@ -70,6 +72,6 @@ Route::prefix('rs')->group(function () {
             Route::get('/partners/{id}', [PartnerController::class, 'show']);      
 
             Route::delete('/partners/{id}', [PartnerController::class, 'destroy']);
-        });
+        // });
     // });
 });

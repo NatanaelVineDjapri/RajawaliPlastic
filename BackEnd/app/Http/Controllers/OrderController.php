@@ -18,6 +18,13 @@ class OrderController extends Controller
         ], 200);
     }
 
+    public function get10Index()
+    {
+        return response()->json([
+            'message' => 'Orders retrieved successfully',
+            'data' => Order::with('user')->latest('_id')->take(10)->get()
+        ], 200);
+    }
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -84,18 +91,18 @@ class OrderController extends Controller
     }
 
     public function show($id)
-{
-    $order = Order::find($id);
+    {
+        $order = Order::find($id);
 
-    if (!$order) {
-        return response()->json(['message' => 'Order not found'], 404);
+        if (!$order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Order retrieved successfully',
+            'data' => $order
+        ], 200);
     }
-
-    return response()->json([
-        'message' => 'Order retrieved successfully',
-        'data' => $order
-    ], 200);
-}
 
     public function update(Request $request, $id)
     {
@@ -186,49 +193,36 @@ class OrderController extends Controller
 
     public function summary()
     {
-        $summary = Order::raw(function ($collection) {
-            return $collection->aggregate([
-                [
-                    '$unwind' => '$products'
-                ],
-                [
-                    '$group' => [
-                        '_id' => '$user_id',
-                        'total_orders' => ['$sum' => 1],
-                        'total_quantity' => ['$sum' => '$products.quantity'],
-                        'total_price' => ['$sum' => '$products.total_price'],
-                    ]
-                ]
-            ]);
-        });
+        $orders = Order::all();
 
-        return response()->json(['data' => $summary]);
+        $summary = [
+            'total_orders' => $orders->count(),
+            'total_quantity' => $orders->sum('total_quantity'),
+            'total_price' => $orders->sum('total_price'),
+        ];
+
+        return response()->json([
+            'message' => 'Order summary retrieved successfully',
+            'data' => $summary
+        ], 200);
     }
 
     public function summaryDetail()
     {
-        $summary = Order::raw(function ($collection) {
-            return $collection->aggregate([
-                [
-                    '$unwind' => '$products'
-                ],
-                [
-                    '$group' => [
-                        '_id' => [
-                            'user_id' => '$user_id',
-                            'user_email' => '$user_email'
-                        ],
-                        'total_orders' => ['$sum' => 1],
-                        'total_quantity' => ['$sum' => '$products.quantity'],
-                        'total_price' => ['$sum' => '$products.total_price'],
-                    ]
-                ],
-                [
-                    '$sort' => ['total_price' => -1]
-                ]
-            ]);
+        $orders = Order::all();
+
+        $summary = $orders->groupBy('user_id')->map(function ($userOrders, $userId) {
+            return [
+                'user_id' => $userId, 
+                'user_email' => $userOrders->first()->user_email,
+                'total_orders' => $userOrders->count(),
+                'total_price' => $userOrders->sum('total_price'), 
+            ];
         });
 
-        return response()->json(['data' => $summary]);
+        return response()->json([
+            'message' => 'Order detail summary retrieved successfully',
+            'data' => $summary->values(), 
+        ], 200);
     }
 }

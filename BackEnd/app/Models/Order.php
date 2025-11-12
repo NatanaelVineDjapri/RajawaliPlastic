@@ -35,5 +35,9 @@ class Order extends Model
     // protected $casts = [
     //     'user_id' => 'objectid',
     // ];
-
+public function products()
+{
+    return $this->embedsMany(Product::class); // kalau pakai MongoDB embedded
+    // atau hasMany kalau relational
+}
 }
