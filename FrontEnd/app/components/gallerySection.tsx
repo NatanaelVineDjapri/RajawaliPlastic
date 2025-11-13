@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Container, Row, Col, Spinner } from 'react-bootstrap';
-import { getGalleries } from '@/services/galleryService'; // pastikan path-nya bener ya bro
+import { getGalleries } from '@/services/galleryService'; 
 
 interface GalleryItem {
   id: number;
@@ -19,7 +19,6 @@ const GallerySection: React.FC = () => {
     const fetchGalleries = async () => {
       try {
         const response = await getGalleries();
-        // asumsi struktur data: { message: "...", data: [ { id, image_url, ... } ] }
         setGalleries(response.data);
       } catch (err: any) {
         setError(err.message || 'Failed to load galleries');
