@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Camera, Trash2 } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/TempButton";
 import { addSlider, deleteSlider, getSliders } from "@/services/heroService";
@@ -11,19 +12,19 @@ import Image from "next/image";
 
 const MySwal = withReactContent(Swal);
 
-interface SliderItem {
+interface HeroItem {
   id: string;
-  image: string;
+  image_base64: string;
   created_at: string;
 }
 
 export default function SliderManagementPage() {
   const pageTitle = "Homepage Slider Management";
-
+  const router = useRouter();
   const [sliderImage, setSliderImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [sliders, setSliders] = useState<SliderItem[]>([]);
+  const [sliders, setSliders] = useState<HeroItem[]>([]);
   const [isListLoading, setIsListLoading] = useState(true);
 
   const breadcrumbs = [
@@ -73,6 +74,7 @@ export default function SliderManagementPage() {
       setSliderImage(null);
       if (previewImage) { URL.revokeObjectURL(previewImage); setPreviewImage(null); }
       fetchSliders();
+      router.push("/dashboard/hero");
     } catch (error) {
       let msg = "An unknown error occurred.";
       if (error instanceof Error) msg = error.message;
@@ -119,7 +121,7 @@ export default function SliderManagementPage() {
             <label
               htmlFor="sliderImage"
               className="d-flex flex-column align-items-center justify-content-center p-3 p-md-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
-              style={{ minHeight: "200px", cursor: "pointer", transition: "background-color 0.2s" }}
+              style={{ minHeight: "320px", cursor: "pointer", transition: "background-color 0.2s" }}
               onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#f3f4f6")}
               onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#f9fafb")}
             >
@@ -181,12 +183,11 @@ export default function SliderManagementPage() {
                       >
                         <div className="d-flex align-items-center gap-2 gap-md-3">
                           <Image
-                            src={slider.image}
+                            src={`data:image/jpeg;base64,${slider.image_base64}`}
                             alt={`Slider ${slider.id}`}
                             width={100}
                             height={60}
                             style={{ objectFit: "cover", borderRadius: "4px" }}
-                            unoptimized
                           />
                           <small className="text-muted">
                             Uploaded: {new Date(slider.created_at).toLocaleDateString()}

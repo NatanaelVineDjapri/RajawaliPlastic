@@ -12,7 +12,7 @@ const MySwal = withReactContent(Swal);
 
 interface HeroItem {
   id: string;
-  image: string;
+  image_base64: string;
   label?: string;
 }
 
@@ -95,7 +95,7 @@ export default function HeroPage() {
       )}
 
       {!isLoading && heroItems.length > 0 && (
-        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 pb-5 mt-2">
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 pb-5">
           {heroItems.map((item) => (
             <div key={item.id} className="col">
               <div
@@ -107,7 +107,7 @@ export default function HeroPage() {
                   style={{ minHeight: "180px", position: "relative" }}
                 >
                   <Image
-                    src={item.image}
+                    src={`data:image/jpeg;base64,${item.image_base64}`}
                     alt={item.label || `Hero item ${item.id}`}
                     fill
                     style={{ objectFit: "cover" }}

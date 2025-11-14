@@ -17,7 +17,7 @@ interface Blog {
   slug: string;
   description?: string;
   content?: string;
-  image?: string;
+  image_base64?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -40,7 +40,6 @@ export default function BlogsPage() {
     setIsLoading(true);
     try {
       const result = await getBlogs();
-      // server returns: { message: "...", data: [...] }
       const data = result && Array.isArray(result.data) ? result.data : [];
       setBlogs(data);
     } catch (err: any) {
@@ -120,8 +119,8 @@ export default function BlogsPage() {
                   }}
                 >
                   <Image
-                    src={b.image ?? "/images/logoRS.png"}
-                    alt={b.title ?? "blog image"}
+                    src={`data:image/jpeg;base64,${b.image_base64}`}
+                    alt={b.title}
                     fill
                     className="card-img-top"
                     style={{ objectFit: "cover" }}
