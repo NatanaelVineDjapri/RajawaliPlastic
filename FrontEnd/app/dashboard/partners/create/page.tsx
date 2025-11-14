@@ -2,6 +2,7 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/TempButton";
 import { addPartner } from "@/services/partnerService";
@@ -13,6 +14,8 @@ const MySwal = withReactContent(Swal);
 
 export default function CreatePartnerPage() {
   const pageTitle = "Add Partner";
+  const router = useRouter();
+  
 
   const [name, setName] = useState("");
   const [link, setLink] = useState("");
@@ -59,6 +62,7 @@ export default function CreatePartnerPage() {
         URL.revokeObjectURL(previewLogo);
         setPreviewLogo(null);
       }
+      router.push("/dashboard/partners");
     } catch (error) {
       let msg = "An unknown error occurred.";
       if (error instanceof Error) msg = error.message;

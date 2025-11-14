@@ -14,7 +14,7 @@ const MySwal = withReactContent(Swal);
 interface Product {
   id: string;
   name: string;
-  image_url: string;
+  image_base64: string;
   description?: string;
   quantity?: number;
 }
@@ -107,7 +107,7 @@ export default function ProductsPage() {
                   }}
                 >
                   <Image
-                    src={item.image_url}
+                    src={`data:image/jpeg;base64,${item.image_base64}`}
                     alt={item.name}
                     fill
                     className="card-img-top"
@@ -133,13 +133,13 @@ export default function ProductsPage() {
                   <div className="mt-auto d-flex gap-2">
                     <Link
                       href={`/dashboard/products/edit/${item.id}`}
-                      className="btn btn-sm btn-outline-primary px-3 rounded-3 d-flex align-items-center gap-1"
+                      className="btn btn-sm btn-outline-primary flex-fill rounded-3 d-flex align-items-center justify-content-center gap-1"
                     >
                       <Edit size={14} /> Edit
                     </Link>
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className="btn btn-sm btn-outline-danger px-3 rounded-3 d-flex align-items-center gap-1"
+                      className="btn btn-sm btn-outline-danger flex-fill rounded-3 d-flex align-items-center justify-content-center gap-1"
                     >
                       <Trash2 size={14} /> Delete
                     </button>

@@ -5,16 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
+use MongoDB\BSON\Binary;
 
 class ProductController extends Controller
 {
     public function index()
     {
+        $products = Product::orderBy('created_at', 'desc')->get();
 
         return response()->json([
             'message' => 'Products retrieved successfully',
-            'data' => Product::orderBy('created_at', 'desc')->get()
+            'data' => $products
         ], 200);
     }
 
@@ -22,17 +23,16 @@ class ProductController extends Controller
     {
         $products = Product::where('total_update', '>', 0)
             ->orderBy('updated_at', 'desc')
-            ->take(100) 
+            ->take(100)
             ->get()
             ->filter(fn($p) => $p->updated_at != $p->created_at)
-            ->take(5); 
+            ->take(5);
 
         return response()->json([
             'message' => 'Last edited products retrieved successfully',
             'data' => $products->values()
         ], 200);
     }
-
 
     public function show($id)
     {
@@ -60,16 +60,15 @@ class ProductController extends Controller
             return response()->json(['messages' => $validator->errors()], 422);
         }
 
-        $path = null;
-
+        $binary = null;
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('products', 'public');
+            $binary = new Binary(file_get_contents($request->file('image')->getRealPath()));
         }
 
         $product = Product::create([
             'name' => $request->name,
             'description' => $request->description,
-            'image_url' => $path ? asset('storage/' . $path) : null,
+            'image_url' => $binary,
             'total_update' => 0,
         ]);
 
@@ -97,19 +96,12 @@ class ProductController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($product->image_url) {
-                $oldPath = str_replace(asset('storage/') . '/', '', $product->image_url);
-                Storage::disk('public')->delete($oldPath);
-            }
-
-            $path = $request->file('image')->store('products', 'public');
-            $product->image_url = asset('storage/' . $path);
+            $product->image_url = new Binary(file_get_contents($request->file('image')->getRealPath()));
         }
-        $totalUpdate = $product->total_update + 1;
 
         $product->name = $request->name ?? $product->name;
         $product->description = $request->description ?? $product->description;
-        $product->total_update = $totalUpdate;
+        $product->total_update = $product->total_update + 1;
         $product->save();
 
         return response()->json([
@@ -123,11 +115,6 @@ class ProductController extends Controller
         $product = Product::find($id);
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
-        }
-
-        if ($product->image_url) {
-            $oldPath = str_replace(asset('storage/') . '/', '', $product->image_url);
-            Storage::disk('public')->delete($oldPath);
         }
 
         $product->delete();

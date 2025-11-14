@@ -17,7 +17,7 @@ const MySwal = withReactContent(Swal);
 interface Testimonial {
   id: string;
   name: string;
-  logo: string;
+  logo_base64: string;
   description?: string;
 }
 
@@ -117,7 +117,8 @@ export default function TestimonyPage() {
                   }}
                 >
                   <Image
-                    src={item.logo}
+                    src={`data:image/jpeg;base64,${item.logo_base64}`}
+
                     alt={item.name}
                     fill
                     className="card-img-top"
@@ -130,7 +131,8 @@ export default function TestimonyPage() {
                   <h5 className="card-title fw-semibold small text-dark mb-2">
                     {item.name}
                   </h5>
-                  <h5 className="card-title small text-dark mb-3 fw-normal">
+                  <h5 className="card-title small text-dark mb-3 fw-normal"  style={{ textAlign: 'justify' }}
+>
                     {item.description}
                   </h5>
 

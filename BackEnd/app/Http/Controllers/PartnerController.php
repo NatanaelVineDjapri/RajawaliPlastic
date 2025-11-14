@@ -6,16 +6,19 @@ use App\Models\Partner;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-
+use MongoDB\BSON\Binary;
 class PartnerController extends Controller
 {
-    public function index()
+     public function index()
     {
+        $products = Partner::orderBy('created_at', 'desc')->get();
+
         return response()->json([
             'message' => 'Partner retrieved successfully',
-            'data' => Partner::orderBy('created_at', 'desc')->get()
+            'data' => $products
         ], 200);
     }
+
 
     public function show($id)
     {
@@ -42,14 +45,14 @@ class PartnerController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
         
-        $path = null;
-
+        $binary = null;
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('partner', 'public');
+            $binary = new Binary(file_get_contents($request->file('logo')->getRealPath()));
         }
+
         $partner = Partner::create([
             'name' => $request->name,
-            'logo' => $path ? asset('storage/' . $path) : null,
+            'logo' => $binary,
             'link' => $request->link,
         ]);
 
@@ -64,11 +67,6 @@ class PartnerController extends Controller
         $partner = Partner::find($id);
         if (!$partner) {
             return response()->json(['message' => 'Partner not found'], 404);
-        }
-
-        if ($partner->image_url) {
-            $oldPath = str_replace(asset('storage/') . '/', '', $partner->image_url);
-            Storage::disk('public')->delete($oldPath);
         }
 
         $partner->delete();

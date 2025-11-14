@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Camera } from "lucide-react";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/TempButton";
@@ -13,7 +14,8 @@ const MySwal = withReactContent(Swal);
 
 export default function CreateTestimonyPage() {
   const pageTitle = "Add Testimony";
-
+  const router = useRouter();
+  
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [logo, setLogo] = useState<File | null>(null);
@@ -59,6 +61,7 @@ export default function CreateTestimonyPage() {
         URL.revokeObjectURL(previewLogo);
         setPreviewLogo(null);
       }
+      router.push("/dashboard/testimony");
     } catch (error) {
       let msg = "An unknown error occurred.";
       if (error instanceof Error) msg = error.message;
@@ -150,7 +153,7 @@ export default function CreateTestimonyPage() {
                     style={{
                       objectFit: "cover",
                       borderRadius: "8px",
-                      padding: "20px",
+                      // padding: "20px",
                     }}
                   />
                 ) : (

@@ -5,12 +5,18 @@ namespace App\Http\Controllers;
 use App\Models\Gallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use MongoDB\BSON\Binary;
 
 class GalleryController extends Controller
 {
     public function index()
     {
-        return response()->json([Gallery::all()]);
+        $gallery = Gallery::orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'message' => 'Gallery retrieved successfully',
+            'data' => $gallery
+        ], 200);
     }
 
     public function store(Request $request)
@@ -25,13 +31,14 @@ class GalleryController extends Controller
             return response()->json(['messages' => $validator->errors()], 422);
         }
 
+        $binary = null;
         if ($request->hasFile('image')) {
-             $path = $request->file('image')->store('galleries', 'public');
+            $binary = new Binary(file_get_contents($request->file('image')->getRealPath())); 
         }
 
         $gallery = Gallery::create([
             'title' => $request->title ?: 'Galeri Rajawali Plastic',
-            'image' => $path ? asset('storage/' . $path) : null,
+            'image'=> $binary,
             'description' => $request->description ?: 'Foto kegiatan atau produk kami.',
         ]);
 
@@ -49,7 +56,7 @@ class GalleryController extends Controller
             return response()->json(['message' => 'Galeri tidak ditemukan'], 404);
         }
 
-         $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'title' => 'nullable|string|max:255',
             'image' => 'nullable|string',
             'description' => 'nullable|string',
@@ -73,9 +80,10 @@ class GalleryController extends Controller
         ], 200);
     }
 
-    public function destroy($id){
+    public function destroy($id)
+    {
         $gallery = Gallery::find($id);
-        if(!$gallery){
+        if (!$gallery) {
             return response()->json(['message' => 'Galeri item tidak ditemukan'], 404);
         }
 

@@ -21,7 +21,7 @@ interface Product {
   id?: string | number;
   name: string;
   description: string;
-  image_url?: string;
+  image_base64?: string |null;
   updated_at?: string;
   total_update?: number;
   price?: number;
@@ -61,10 +61,16 @@ export default function EditProductPage() {
         setProduct(target);
         setProductName(target.name);
         setDescription(target.description || "");
-        setPreviewImage(target.image_url || null);
+        setPreviewImage(target.image_base64 ? `data:image/jpeg;base64,${target.image_base64}` : null);
 
         const lastEditedRes = await getLastEditedProducts();
-        setRecentProducts(lastEditedRes.data || []);
+        if (Array.isArray(lastEditedRes.data)) {
+          const formatted = lastEditedRes.data.map((p: Product) => ({
+            ...p,
+            image_base64: p.image_base64 ? `data:image/jpeg;base64,${p.image_base64}` : null,
+          }));
+          setRecentProducts(formatted);
+        }
       } catch (err: any) {
         MySwal.fire(
           "Error",
@@ -209,7 +215,6 @@ export default function EditProductPage() {
               isLoading={isLoading}
               text="Update Product"
               loadingText="Updating..."
-
             />
           </div>
         </div>
@@ -233,9 +238,9 @@ export default function EditProductPage() {
                 recentProducts.map((p) => (
                   <tr key={p._id || p.id}>
                     <td style={{ width: "80px" }}>
-                      {p.image_url ? (
+                      {p.image_base64 ? (
                         <Image
-                          src={p.image_url}
+                          src={p.image_base64}
                           alt={p.name}
                           width={60}
                           height={60}
