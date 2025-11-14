@@ -1,7 +1,7 @@
 'use client';
 
-import Sidenavbar from '../components/admincomponents/SideNavBar';
-import TopNavbar from '../components/admincomponents/TopNavBar';
+import Sidenavbar from '../components/admincomponents/SideNavbar';
+import TopNavbar from '../components/admincomponents/Topnavbar';
 import CreateButton from '@/app/components/admincomponents/CreateButton';
 import React from 'react';
 import { AuthProvider } from '@/app/contexts/AuthContext';

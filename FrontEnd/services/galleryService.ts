@@ -32,13 +32,10 @@ const getHeaders = (): HeadersInit => {
   return headers;
 };
 
-
 export const addGallery = async (formData: FormData): Promise<ApiSuccessResponse> => {
-  const headers = getHeaders();
-  
-  const response = await fetch(`${API_URL}/galleries`, {
+  const response = await fetch(`${API_URL}/products`, {
     method: 'POST',
-    headers: headers,
+    headers: getHeaders(), 
     body: formData,
   });
 
@@ -51,7 +48,7 @@ export const addGallery = async (formData: FormData): Promise<ApiSuccessResponse
     if (errorData.message) {
       throw new Error(errorData.message);
     }
-    throw new Error(`Failed to add gallery item. Status: ${response.status}`);
+    throw new Error(`Gagal menambahkan Gallery. Status: ${response.status}`);
   }
 
   return await response.json() as ApiSuccessResponse;

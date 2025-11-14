@@ -8,9 +8,13 @@ use Illuminate\Support\Facades\Validator;
 
 class GalleryController extends Controller
 {
+
     public function index()
     {
-        return response()->json([Gallery::all()]);
+        return response()->json([
+            'message' => 'Gallery retrieved successfully',
+            'data' => Gallery::orderBy('created_at', 'desc')->get()
+        ], 200);
     }
 
     public function store(Request $request)

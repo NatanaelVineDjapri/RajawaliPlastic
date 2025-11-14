@@ -6,8 +6,8 @@ import { getGalleries } from '@/services/galleryService';
 
 interface GalleryItem {
   id: number;
-  image_url: string;
-  title?: string;
+  image: string;
+  label?: string;
 }
 
 const GallerySection: React.FC = () => {
@@ -19,7 +19,7 @@ const GallerySection: React.FC = () => {
     const fetchGalleries = async () => {
       try {
         const response = await getGalleries();
-        setGalleries(response.data);
+        setGalleries(response.data.data);
       } catch (err: any) {
         setError(err.message || 'Failed to load galleries');
       } finally {
@@ -54,11 +54,13 @@ const GallerySection: React.FC = () => {
                 <Col key={item.id} xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center">
                   <div className="gallery-image-wrapper position-relative" style={{ width: '100%', height: '250px' }}>
                     <Image
-                      src={item.image_url}
-                      alt={item.title || `Gallery ${item.id}`}
+                      src={item.image}
+                      alt={item.label || `Gallery ${item.id}`}
                       fill
+                      
                       className="gallery-image"
                       style={{ objectFit: 'cover' }}
+                      unoptimized
                     />
                   </div>
                 </Col>
