@@ -2,6 +2,7 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/TempButton";
 import { addProduct } from "@/services/productService";
@@ -13,7 +14,8 @@ const MySwal = withReactContent(Swal);
 
 export default function CreateProductPage() {
   const pageTitle = "Add Product";
-
+  const router = useRouter();
+  
   const [productName, setProductName] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -62,6 +64,8 @@ export default function CreateProductPage() {
         URL.revokeObjectURL(previewImage);
         setPreviewImage(null);
       }
+      router.push("/dashboard/products");
+
     } catch (error) {
       let msg = "An unknown error occurred.";
       if (error instanceof Error) msg = error.message;

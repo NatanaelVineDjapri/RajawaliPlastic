@@ -13,7 +13,7 @@ const MySwal = withReactContent(Swal);
 interface Partner {
   id: string;
   name: string;
-  logo: string;
+  logo_base64: string;
   link: string;
 }
 
@@ -114,9 +114,10 @@ export default function PartnersPage() {
                   }}
                 >
                   <Image
-                    src={partner.logo}
+                    src={`data:image/jpeg;base64,${partner.logo_base64}`}
                     alt={partner.name}
                     fill
+                    className="card-img-top"
                     style={{ objectFit: "cover" }}
                     unoptimized
                   />

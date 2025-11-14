@@ -6,12 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Testimonials;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-
+use MongoDB\BSON\Binary;
 class TestimonialController extends Controller
 {
     public function index()
     {
-         return response()->json([
+        return response()->json([
             'message' => 'Testimonials retrieved successfully',
             'data' => Testimonials::orderBy('created_at', 'desc')->get()
         ], 200);
@@ -42,14 +42,14 @@ class TestimonialController extends Controller
             return response()->json(['message' => $validator->errors()], 422);
         }
 
-        $path = null;
+        $binary = null;
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('testimonials', 'public');
+            $binary = new Binary(file_get_contents($request->file('logo')->getRealPath()));
         }
 
         $testimonials = Testimonials::create([
             'name' => $request->name,
-            'logo' => $path ? asset('storage/' . $path) : asset('images/default-logo.png'),
+            'logo' => $binary,
             'description' => $request->description ?: 'Kami bangga bermitra bersama dengan UMKM terpercaya seperti Rajawali Plastic.',
         ]);
 
@@ -75,15 +75,8 @@ class TestimonialController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()], 422);
         }
-
         if ($request->hasFile('logo')) {
-            if ($testimonial->logo && str_contains($testimonial->logo, 'storage/')) {
-                $oldPath = str_replace(asset('storage/') . '/', '', $testimonial->logo);
-                Storage::disk('public')->delete($oldPath);
-            }
-
-            $path = $request->file('logo')->store('testimonials', 'public');
-            $testimonial->logo = asset('storage/' . $path);
+            $testimonial->logo = new Binary(file_get_contents($request->file('logo')->getRealPath()));
         }
 
         $testimonial->name = $request->name ?? $testimonial->name;
@@ -101,11 +94,6 @@ class TestimonialController extends Controller
         $testimonial = Testimonials::find($id);
         if (!$testimonial) {
             return response()->json(['message' => 'Testimoni tidak ditemukan'], 404);
-        }
-
-        if ($testimonial->logo && str_contains($testimonial->logo, 'storage/')) {
-            $oldPath = str_replace(asset('storage/') . '/', '', $testimonial->logo);
-            Storage::disk('public')->delete($oldPath);
         }
 
         $testimonial->delete();

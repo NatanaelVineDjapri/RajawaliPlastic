@@ -20,7 +20,7 @@ interface Testimonial {
   id?: string | number;
   name: string;
   description: string;
-  logo?: string;
+  logo_base64?: string; // harus sudah include data:mime;base64, dari backend
   updated_at?: string;
   created_at?: string;
 }
@@ -57,7 +57,14 @@ export default function EditTestimonyPage() {
         setTestimony(data);
         setName(data.name);
         setDescription(data.description || "");
-        setPreviewLogo(data.logo || null);
+
+        // pastikan backend mengirim data:image/...;base64,
+        if (data.logo_base64) {
+          setPreviewLogo(data.logo_base64.startsWith("data:") 
+            ? data.logo_base64 
+            : `data:image/jpeg;base64,${data.logo_base64}`
+          );
+        }
       } catch (err: any) {
         MySwal.fire(
           "Error",
@@ -75,9 +82,21 @@ export default function EditTestimonyPage() {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setLogoFile(file);
-      if (previewLogo) URL.revokeObjectURL(previewLogo);
+
+      if (previewLogo && !previewLogo.startsWith("data:")) {
+        URL.revokeObjectURL(previewLogo);
+      }
+
       setPreviewLogo(URL.createObjectURL(file));
     }
+  };
+
+  const getImageSrc = () => {
+    if (!previewLogo) return "";
+    // jika base64 dari backend
+    if (previewLogo.startsWith("data:")) return previewLogo;
+    // jika file baru upload
+    return previewLogo;
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -156,7 +175,7 @@ export default function EditTestimonyPage() {
               <h5 className="fw-bold mb-3">Client Logo</h5>
 
               <label
-                htmlFor="sliderImage"
+                htmlFor="logoImage"
                 className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
                 style={{
                   minHeight: "320px",
@@ -173,7 +192,7 @@ export default function EditTestimonyPage() {
               >
                 {previewLogo ? (
                   <Image
-                    src={previewLogo}
+                    src={getImageSrc()}
                     alt="Logo Preview"
                     fill
                     style={{ objectFit: "cover", borderRadius: "8px" }}
@@ -189,7 +208,7 @@ export default function EditTestimonyPage() {
                 )}
                 <input
                   type="file"
-                  id="sliderImage"
+                  id="logoImage"
                   className="d-none"
                   onChange={handleLogoChange}
                   accept="image/png, image/jpeg, image/webp"
