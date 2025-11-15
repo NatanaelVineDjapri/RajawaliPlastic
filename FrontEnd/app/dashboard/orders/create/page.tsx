@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect, FormEvent } from "react";
 import { addOrder } from "@/services/orderService";
+import { useParams, useRouter } from "next/navigation";
 import { getProducts } from "@/services/productService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/TempButton";
-import CustomSelect, { SelectOption } from "@/app/components/admincomponents/customSelect";
+import CustomSelect, { SelectOption } from "@/app/components/admincomponents/CustomSelect";
 import { Plus, Trash2 } from "lucide-react";
 const MySwal = withReactContent(Swal);
 
@@ -34,7 +35,7 @@ export default function CreateOrderPage() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [status, setStatus] = useState<string>("pending");
   const [notes, setNotes] = useState<string>("");
-  
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [productOptions, setProductOptions] = useState<SelectOption[]>([]);
   
@@ -140,6 +141,7 @@ export default function CreateOrderPage() {
       const defaultProductId = productOptions.length > 0 ? productOptions[0].value : "";
       const defaultPrice = products.find(p => String(p.id) === defaultProductId)?.price || 0;
       setOrderProducts([{ productId: defaultProductId, quantity: 1, totalPrice: defaultPrice }]);
+      router.push("/dashboard/orders");
     } catch (error) {
       let errorMessage = "An unknown error occurred.";
       if (error instanceof Error) errorMessage = error.message;
@@ -205,6 +207,7 @@ export default function CreateOrderPage() {
                         options={productOptions}
                         value={productOptions.find((opt) => opt.value === product.productId) || null}
                         placeholder={!products || products.length === 0 ? "Loading..." : "Select product"}
+                        onChange={(selected) => handleProductChange(index, selected?.value || "")}
                         required
                       />
                     </div>
@@ -278,6 +281,7 @@ export default function CreateOrderPage() {
                   id="status"
                   options={statusOptions}
                   value={statusOptions.find((opt) => opt.value === status)}
+                  onChange={(selected) => setStatus(selected?.value || "pending")}
                   required
                 />
               </div>

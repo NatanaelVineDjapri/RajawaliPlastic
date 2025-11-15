@@ -4,7 +4,9 @@ import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { getProfile, logout, getToken } from "@/services/authService";
+import { getProfile, logout,  } from "@/services/authService";
+import { useRouter } from "next/navigation"; 
+import Link from "next/link"; 
 
 const MySwal = withReactContent(Swal);
 
@@ -20,38 +22,29 @@ interface User {
 const Profile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter(); 
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const token = getToken();
-      if (!token) {
-        window.location.href = "/auth/login";
-        return;
-      }
-
-      try {
-        const profile = await getProfile();
-        setUser(profile);
-      } catch (err: any) {
-        MySwal.fire({
-          icon: "error",
-          title: "Gagal Ambil Data 😔",
-          text: err.message || "Terjadi kesalahan saat memuat profile",
-          confirmButtonColor: "#dc2626",
-        }).then(() => {
-          window.location.href = "/auth/login";
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
+ useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const profile = await getProfile();
+      setUser(profile);
+    } catch (err: any) {
+      MySwal.fire({
+        icon: "error",
+        title: "Gagal Ambil Data",
+        text: err.message || "Terjadi kesalahan saat memuat profile",
+        confirmButtonColor: "#dc2626",
+      }).then(() => router.push("/auth/login"));
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchProfile();
+}, [router]);
   const handleLogout = async () => {
     await logout();
-    window.location.href = "/auth/login";
+    router.push("/auth/login");
   };
 
   if (loading) {
@@ -63,7 +56,7 @@ const Profile: React.FC = () => {
   }
 
   if (!user) {
-    return null; // kalau user null, udah dialihkan ke login
+    return null; 
   }
 
   return (
@@ -120,9 +113,9 @@ const Profile: React.FC = () => {
           </div>
 
           <div className="d-flex justify-content-center gap-3">
-            <a href="/edit-profile" className="btn profile-btn">
+            <Link href="/edit-profile" className="btn profile-btn">
               Ubah Informasi
-            </a>
+            </Link>
 
             <button onClick={handleLogout} className="btn profile-btn">
               Log Out

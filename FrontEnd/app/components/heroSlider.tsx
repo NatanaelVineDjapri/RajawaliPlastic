@@ -4,24 +4,52 @@ import Image from 'next/image';
 import { Container } from 'react-bootstrap';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'react-bootstrap-icons';
+import { getSliders } from '@/services/heroService';
 
-const images = [
-  '/images/Background_Hero.png',
-  '/images/Background_Hero2.png',
-];
+interface SliderItem {
+  id: string;
+  image_base64: string;
+}
 
 const Hero: React.FC = () => {
+  const [sliders, setSliders] = useState<SliderItem[]>([]);
   const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % images.length);
-    }, 20000);
-    return () => clearInterval(timer);
+    const fetchSliders = async () => {
+      try {
+        const res = await getSliders();
+        setSliders(res.data);
+      } catch (err) {
+        console.error('Failed to fetch sliders:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSliders();
   }, []);
 
-  const prevSlide = () => setIndex((prev) => (prev - 1 + images.length) % images.length);
-  const nextSlide = () => setIndex((prev) => (prev + 1) % images.length);
+  useEffect(() => {
+    if (sliders.length === 0) return;
+
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % sliders.length);
+    }, 20000);
+
+    return () => clearInterval(timer);
+  }, [sliders]);
+
+  const prevSlide = () => {
+    if (sliders.length === 0) return;
+    setIndex((prev) => (prev - 1 + sliders.length) % sliders.length);
+  };
+
+  const nextSlide = () => {
+    if (sliders.length === 0) return;
+    setIndex((prev) => (prev + 1) % sliders.length);
+  };
 
   return (
     <section
@@ -40,21 +68,23 @@ const Hero: React.FC = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 1.2, ease: 'easeInOut' }}
             className="position-absolute top-0 start-0 w-100 h-100"
-            style={{ backgroundColor: 'black' }}
           >
             <Image
-              src={images[index]}
+              src={
+                sliders.length > 0
+                  ? `data:image/*;base64,${sliders[index].image_base64}`
+                  : '/images/Background_Hero.png'
+              }
               alt="Hero Background"
               fill
               priority
               style={{
                 objectFit: 'cover',
-                filter: 'brightness(90%)',
+                filter: 'brightness(99%)',
               }}
             />
           </motion.div>
         </AnimatePresence>
-
       </div>
 
       <Container>
@@ -74,6 +104,7 @@ const Hero: React.FC = () => {
       >
         <ChevronLeft />
       </button>
+
       <button
         onClick={nextSlide}
         className="position-absolute top-50 end-0 translate-middle-y btn btn-link text-white fs-1"

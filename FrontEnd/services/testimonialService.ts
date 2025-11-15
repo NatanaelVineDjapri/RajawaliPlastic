@@ -13,31 +13,14 @@ interface ApiErrorResponse {
   messages?: Record<string, string[]>;
 }
 
-const getToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken'); 
-  }
-  return null;
-};
-
-const getHeaders = (): HeadersInit => {
-  const token = getToken();
-  
-  const headers: HeadersInit = {
-    'Accept': 'application/json', 
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  return headers;
-};
-
+const getHeaders = (): HeadersInit => ({
+  Accept: "application/json", 
+});
 
 export async function getTestimonials(): Promise<ApiSuccessResponse> {
   const response = await fetch(`${API_URL}/testimonials`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(),
   });
 
@@ -55,6 +38,7 @@ export async function getTestimonials(): Promise<ApiSuccessResponse> {
 export async function addTestimonial(formData: FormData): Promise<ApiSuccessResponse> {
   const response = await fetch(`${API_URL}/testimonials`, {
     method: 'POST',
+    credentials: 'include',
     headers: getHeaders(), 
     body: formData,
   });
@@ -80,6 +64,7 @@ export async function updateTestimonial(id: string | number, formData: FormData)
 
   const response = await fetch(`${API_URL}/testimonials/${id}`, {
     method: 'POST', 
+    credentials: 'include',
     headers: getHeaders(), 
     body: formData,
   });
@@ -102,6 +87,7 @@ export async function updateTestimonial(id: string | number, formData: FormData)
 export async function deleteTestimonial(id: string | number): Promise<ApiSuccessResponse> {
   const response = await fetch(`${API_URL}/testimonials/${id}`, {
     method: 'DELETE',
+    credentials: 'include',
     headers: getHeaders(), 
   });
 
@@ -119,6 +105,7 @@ export async function deleteTestimonial(id: string | number): Promise<ApiSuccess
 export const getTestimonialById = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/testimonials/${id}`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(),
   });
 

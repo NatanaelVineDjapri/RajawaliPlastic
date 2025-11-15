@@ -6,12 +6,30 @@ use Illuminate\Http\Request;
 use App\Models\Slider;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use MongoDB\BSON\Binary;
 
 class SliderController extends Controller
 {
+    // public function index()
+    // {
+    //     return response()->json(Slider::latest()->get());
+    // }
+
     public function index()
     {
-        return response()->json(Slider::latest()->get());
+        $sliders = Slider::orderBy('created_at', 'desc')->get();
+
+        $sliders->transform(function ($item) {
+            if (isset($item->image) && $item->image instanceof MongoDB\BSON\Binary) {
+                $item->image = base64_encode($item->image->getData());
+            }
+            return $item;
+        });
+
+        return response()->json([
+            'message' => 'Sliders retrieved successfully',
+            'data' => $sliders
+        ], 200);
     }
 
     public function store(Request $request)
@@ -24,14 +42,14 @@ class SliderController extends Controller
             return response()->json(['message' => $validator->errors()], 422);
         }
 
-        $path = null;
+        $binary = null;
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('sliders', 'public');
+            $binary = new Binary(file_get_contents($request->file('image')->getRealPath()));
         }
 
         $slider = Slider::create([
-            'image' => $path ? asset('storage/' . $path) : null,
+            'image' => $binary 
         ]);
 
         return response()->json([
@@ -45,11 +63,6 @@ class SliderController extends Controller
         $slider = Slider::find($id);
         if (!$slider) {
             return response()->json(['message' => 'Slider tidak ditemukan'], 404);
-        }
-
-        if ($slider->image && str_contains($slider->image, 'storage/')) {
-            $oldPath = str_replace('storage/', '', $slider->image);
-            Storage::disk('public')->delete($oldPath);
         }
 
         $slider->delete();

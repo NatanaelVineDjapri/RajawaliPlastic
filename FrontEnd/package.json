@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@types/react-dom": "^19.2.2",
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",
