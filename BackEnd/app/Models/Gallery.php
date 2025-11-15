@@ -18,7 +18,7 @@ class Gallery extends Model
         'description',
     ];
 
-     protected $hidden = ['image'];
+    protected $hidden = ['image'];
 
     protected $appends = ['image_base64'];
 

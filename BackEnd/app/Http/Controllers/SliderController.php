@@ -9,9 +9,26 @@ use Illuminate\Support\Facades\Storage;
 
 class SliderController extends Controller
 {
+    // public function index()
+    // {
+    //     return response()->json(Slider::latest()->get());
+    // }
+
     public function index()
     {
-        return response()->json(Slider::latest()->get());
+        $sliders = Slider::orderBy('created_at', 'desc')->get();
+
+        $sliders->transform(function ($item) {
+            if (isset($item->image) && $item->image instanceof MongoDB\BSON\Binary) {
+                $item->image = base64_encode($item->image->getData());
+            }
+            return $item;
+        });
+
+        return response()->json([
+            'message' => 'Sliders retrieved successfully',
+            'data' => $sliders
+        ], 200);
     }
 
     public function store(Request $request)

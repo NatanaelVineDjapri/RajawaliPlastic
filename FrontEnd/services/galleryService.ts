@@ -57,10 +57,33 @@ export const addGallery = async (formData: FormData): Promise<ApiSuccessResponse
   return await response.json() as ApiSuccessResponse;
 }
 
+// export const getGalleries = async (): Promise<ApiSuccessResponse> => {
+//   const response = await fetch(`${API_URL}/galleries`, {
+//     method: 'GET',
+//     headers: getHeaders(), 
+//   });
+
+//   if (!response.ok) {
+//     const errorData: ApiErrorResponse = await response.json();
+//     if (errorData.message) {
+//       throw new Error(errorData.message);
+//     }
+//     throw new Error(`Failed to retrieve gallery data. Status: ${response.status}`);
+//   }
+
+//   const rawData = await response.json();
+  
+//   return {
+//     message: "Galleries retrieved successfully",
+//     // Mengasumsikan respons API Gallery telah diperbaiki atau kita menangani struktur array seperti ini:
+//     data: Array.isArray(rawData) ? (rawData.length > 0 ? rawData[0] : []) : rawData 
+//   } as ApiSuccessResponse;
+// }
+
 export const getGalleries = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/galleries`, {
     method: 'GET',
-    headers: getHeaders(), 
+    headers: getHeaders(),
   });
 
   if (!response.ok) {
@@ -74,11 +97,10 @@ export const getGalleries = async (): Promise<ApiSuccessResponse> => {
   const rawData = await response.json();
   
   return {
-    message: "Galleries retrieved successfully",
-    // Mengasumsikan respons API Gallery telah diperbaiki atau kita menangani struktur array seperti ini:
-    data: Array.isArray(rawData) ? (rawData.length > 0 ? rawData[0] : []) : rawData 
-  } as ApiSuccessResponse;
-}
+    message: rawData.message,
+    data: rawData.data,
+  };
+};
 
 export const updateGallery = async (id: string | number, formData: FormData): Promise<ApiSuccessResponse> => {
   
