@@ -3,14 +3,13 @@ import React, { FormEvent, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../globals.css";
 import { sendForm } from "@emailjs/browser";
+import { EMAILJS_CONFIG } from "./emailConfig";
 
 export default function SendEmail(): JSX.Element {
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
-  const SERVICE_ID = "service_yr7pexc";
-  const TEMPLATE_ID = "template_805tlar";
-  const PUBLIC_KEY = "sa58FMmlOepRb0RWj";
+  const { SERVICE_ID, TEMPLATE_ID, PUBLIC_KEY } = EMAILJS_CONFIG;
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -21,6 +20,7 @@ export default function SendEmail(): JSX.Element {
       const form = e.currentTarget;
       const result = await sendForm(SERVICE_ID, TEMPLATE_ID, form, PUBLIC_KEY);
       console.log("EmailJS success:", result.text);
+
       setStatus("Pesan terkirim. Terima kasih!");
       form.reset();
     } catch (err) {
@@ -47,7 +47,8 @@ export default function SendEmail(): JSX.Element {
               Send Us an <span>Email!</span>
             </h2>
             <p className="mt-3 fs-6 fw-light">
-              Tolong tinggalkan masukan untuk kami, karena kami terus berupaya untuk menjadi lebih baik!
+              Tolong tinggalkan masukan untuk kami, karena kami terus berupaya
+              untuk menjadi lebih baik!
             </p>
           </div>
 
