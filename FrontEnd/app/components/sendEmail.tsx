@@ -1,5 +1,5 @@
 "use client";
-import React, { FormEvent, useState } from "react";
+import React, { FormEvent, JSX, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../globals.css";
 import { sendForm } from "@emailjs/browser";
