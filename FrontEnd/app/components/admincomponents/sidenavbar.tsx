@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import LogoutModal from './LogoutModal';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
 import {
   LayoutDashboard,
   Boxes,
@@ -20,6 +22,10 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react';
+
+import { logout } from '@/services/authService'; 
+
+const MySwal = withReactContent(Swal);
 
 const mainNavLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -45,22 +51,57 @@ interface NavLinkProps {
 
 export default function Sidenavbar() {
   const pathname = usePathname();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleLogoutConfirm = () => {
-    setIsModalOpen(false);
+  const handleLogout = async () => {
+    const result = await MySwal.fire({
+      title: "Logout?",
+      text: "Are you sure want to Logout ?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Logout",
+      cancelButtonText: "Batal",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6c757d",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await logout();
+        localStorage.removeItem("token");
+
+        await MySwal.fire({
+          icon: "success",
+          title: "Logged out",
+          text: "Anda berhasil keluar.",
+          timer: 1400,
+          showConfirmButton: false,
+        });
+
+        window.location.href = "/auth/login";
+      } catch (err) {
+        MySwal.fire({
+          icon: "error",
+          title: "Gagal Logout",
+          text: "Terjadi kesalahan, coba lagi.",
+        });
+      }
+    }
   };
 
   const renderLink = (link: NavLinkProps) => {
     const { href, label, icon: Icon } = link;
     const isActive = pathname === href;
-    const linkClassName = `nav-link d-flex align-items-center gap-2 rounded-3 py-2 px-3 ${
-      isActive ? 'active fw-semibold' : 'text-dark'
-    }`;
 
     return (
-      <Link key={href} href={href} className={linkClassName} onClick={() => setIsOpen(false)}>
+      <Link
+        key={href}
+        href={href}
+        className={`nav-link d-flex align-items-center gap-2 rounded-3 py-2 px-3 ${
+          isActive ? 'active fw-semibold' : 'text-dark'
+        }`}
+        onClick={() => setIsOpen(false)}
+      >
         <Icon size={16} />
         {label}
       </Link>
@@ -120,8 +161,8 @@ export default function Sidenavbar() {
                 role="button"
                 className="nav-link text-danger d-flex align-items-center gap-2 rounded-3 py-2 px-3"
                 onClick={() => {
-                  setIsModalOpen(true);
                   setIsOpen(false);
+                  handleLogout();
                 }}
               >
                 <LogOut size={16} />
@@ -130,14 +171,9 @@ export default function Sidenavbar() {
             </nav>
           </div>
         </div>
-
-        <LogoutModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onConfirm={handleLogoutConfirm}
-        />
       </aside>
 
+      {/* Responsive CSS */}
       <style jsx>{`
         @media (min-width: 768px) {
           aside {

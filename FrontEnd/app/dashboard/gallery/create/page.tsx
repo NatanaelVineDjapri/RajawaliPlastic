@@ -2,6 +2,7 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/TempButton";
 import { addGallery } from "@/services/galleryService";
@@ -13,7 +14,7 @@ const MySwal = withReactContent(Swal);
 
 export default function CreateGalleryPage() {
   const pageTitle = "Add Gallery Item";
-
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
@@ -60,6 +61,7 @@ export default function CreateGalleryPage() {
         URL.revokeObjectURL(previewImage);
         setPreviewImage(null);
       }
+      // router.push("/dashboard/gallery");
     } catch (error) {
       let msg = "An unknown error occurred.";
       if (error instanceof Error) msg = error.message;

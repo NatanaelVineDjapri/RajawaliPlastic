@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use MongoDB\BSON\Binary;
+
 
 class BlogController extends Controller
 {
@@ -46,10 +48,10 @@ class BlogController extends Controller
         }
 
         $slug = Str::slug($request->title);
-        $path = null;
+        $binary = null;
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('blog', 'public');
+            $binary = new Binary(file_get_contents($request->file('image')->getRealPath()));
         }
 
         $blog = Blog::create([
@@ -57,9 +59,7 @@ class BlogController extends Controller
             'slug' => $slug,
             'description' => $request->description,
             'content' => $request->input('content'),
-            'image' => $path
-                ? asset('storage/' . $path)
-                : asset('images/default-image.png'),
+            'image' => $binary
         ]);
 
         return response()->json([
@@ -88,13 +88,8 @@ class BlogController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($blog->image && str_contains($blog->image, 'storage/blog/')) {
-                $oldPath = str_replace(asset('storage/'), '', $blog->image);
-                Storage::disk('public')->delete($oldPath);
-            }
+             $blog->image = new Binary(file_get_contents($request->file('image')->getRealPath()));
 
-            $path = $request->file('image')->store('blog', 'public');
-            $blog->image = asset('storage/' . $path);
         }
 
         $blog->update([

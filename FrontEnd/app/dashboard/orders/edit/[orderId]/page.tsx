@@ -9,39 +9,36 @@ import SubmitButton from "@/app/components/admincomponents/SubmitButton";
 import { getOrderById, updateOrder } from "@/services/orderService";
 import { getProducts } from "@/services/productService";
 
-// Import tipe dasar dari file kamu
 import type { 
   Order as BaseOrder, 
   StatusType 
-} from "@/app/types"; // <-- GANTI PATH INI
+} from "@/app/types"; 
 
 const MySwal = withReactContent(Swal);
 
-// --- PERBAIKAN BESAR: Ubah ID jadi string ---
 interface ProductMaster {
-  id: string; // ID produk adalah string
+  id: string; 
   name: string;
 }
 
 interface OrderLineItem {
-  product_id: string | number; // Bisa string (dari API) atau number 0 (utk "Pilih")
+  product_id: string | number;
   quantity: number;
   total_price: number;
 }
 
 interface OrderForPage extends Omit<BaseOrder, 'products' | 'id' | 'total_price'> {
-  id: string; // ID order juga string
+  id: string; 
   total_price: number;
   products: OrderLineItem[];
 }
 
-// Tipe untuk data mentah dari API
+
 interface ApiOrderProduct {
-  product_id: string | number; // Biarkan apa adanya
+  product_id: string | number; 
   quantity: string | number;
   total_price: string | number;
 }
-// ---------------------------------------------
 
 export default function EditOrderPage() {
   const { orderId } = useParams();
@@ -80,13 +77,12 @@ export default function EditOrderPage() {
         console.log("Data Order Mentah dari API:", orderRes.data);
         console.log("Data Master Produk:", productRes.data);
 
-        // --- PERBAIKAN BESAR: JANGAN KONVERSI ID ---
         const orderData: OrderForPage = {
           ...orderRes.data,
-          id: orderRes.data.id, // Biarkan string
+          id: orderRes.data.id, 
           total_price: Number(orderRes.data.total_price),
           products: orderRes.data.products.map((p: ApiOrderProduct) => ({
-            product_id: p.product_id, // Biarkan string/number apa adanya
+            product_id: p.product_id, 
             quantity: Number(p.quantity),
             total_price: Number(p.total_price),
           })),
@@ -94,13 +90,12 @@ export default function EditOrderPage() {
 
         setOrder(orderData);
         
-        // --- PERBAIKAN BESAR: JANGAN KONVERSI ID ---
         const masterProducts = productRes.data
           .map((p: any) => ({
-            id: p.id, // Biarkan string
+            id: p.id, 
             name: p.name,
           }))
-          .filter((p: ProductMaster) => p.id); // Filter yg id-nya null/undefined
+          .filter((p: ProductMaster) => p.id); 
 
         setProducts(masterProducts);
 
@@ -177,7 +172,6 @@ export default function EditOrderPage() {
     e.preventDefault();
     if (!order) return;
     
-    // Cek jika product_id masih 0
     const hasInvalidProduct = order.products.some(p => p.product_id === 0);
     if (hasInvalidProduct) {
       MySwal.fire("Warning", "Pastikan semua produk sudah dipilih", "warning");
@@ -214,10 +208,8 @@ export default function EditOrderPage() {
     <div className="w-100">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
       <form onSubmit={handleSubmit} className="row g-4">
-        {/* Kolom Kiri (Order Details) */}
         <div className="col-lg-4">
           <div className="bg-white rounded-3 shadow p-4 h-100">
-            {/* ... (Input email, status, notes - INI SUDAH BENAR) ... */}
             <h5 className="fw-bold mb-4">Order Details</h5>
 
             <div className="mb-3">
@@ -239,9 +231,9 @@ export default function EditOrderPage() {
                 onChange={(e) => handleChange("status_delivery", e.target.value as StatusType)}
               >
                 <option value="pending">Pending</option>
-                <option value="proses">Proses</option>
-                <option value="kirim">Kirim</option>
-                <option value="selesai">Selesai</option>
+                <option value="proses">Processing</option>
+                <option value="kirim">Shipped</option>
+                <option value="selesai">Completed</option>
               </select>
             </div>
 

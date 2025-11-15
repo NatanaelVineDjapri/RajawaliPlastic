@@ -29,7 +29,6 @@ export default function EditBlogPage() {
 
   const [blog, setBlog] = useState<Blog | null>(null);
   const [title, setTitle] = useState("");
-  const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -43,31 +42,35 @@ export default function EditBlogPage() {
   ];
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getBlogsById(blogId as string);
-        const data = res.data;
+  const fetchData = async () => {
+    try {
+      const res = await getBlogsById(blogId as string);
+      const data = res.data;
 
-        if (!data) {
-          MySwal.fire("Oops...", "Blog not found", "error");
-          router.push("/dashboard/blogs");
-          return;
-        }
-
-        setBlog(data);
-        setTitle(data.title);
-        setSlug(data.slug);
-        setDescription(data.description || "");
-        setContent(data.content || "");
-        setPreviewImage(data.image || null);
-      } catch (err: any) {
-        MySwal.fire("Error", err.message || "Failed to fetch blog.", "error");
+      if (!data) {
+        MySwal.fire("Oops...", "Blog not found", "error");
         router.push("/dashboard/blogs");
+        return;
       }
-    };
 
-    if (blogId) fetchData();
-  }, [blogId, router]);
+      setBlog(data);
+      setTitle(data.title);
+      setDescription(data.description || "");
+      setContent(data.content || "");
+
+      if (data.image_base64) {
+        setPreviewImage(`data:image/jpeg;base64,${data.image_base64}`);
+      } else {
+        setPreviewImage(null);
+      }
+    } catch (err: any) {
+      MySwal.fire("Error", err.message || "Failed to fetch blog.", "error");
+      router.push("/dashboard/blogs");
+    }
+  };
+
+  if (blogId) fetchData();
+}, [blogId, router]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -85,7 +88,6 @@ export default function EditBlogPage() {
     setIsLoading(true);
     const formData = new FormData();
     formData.append("title", title);
-    formData.append("slug", slug);
     formData.append("description", description);
     formData.append("content", content);
     if (imageFile) formData.append("image", imageFile);
@@ -132,20 +134,6 @@ export default function EditBlogPage() {
 
               <div className="d-flex flex-column">
                 <label className="form-label fw-semibold small text-secondary">
-                  Slug <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="form-control p-3 border rounded-3"
-                  placeholder="Enter slug"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="d-flex flex-column">
-                <label className="form-label fw-semibold small text-secondary">
                   Description
                 </label>
                 <textarea
@@ -166,7 +154,7 @@ export default function EditBlogPage() {
                   placeholder="Write full content..."
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  rows={5}
+                  rows={3}
                 />
               </div>
             </div>
@@ -176,7 +164,7 @@ export default function EditBlogPage() {
         <div className="col-lg-4">
           <div
             className="bg-white rounded-3 shadow p-4 d-flex flex-column justify-content-between"
-            style={{ height: "60vh" }}
+            style={{ height: "55vh" }}
           >
             <div>
               <h5 className="fw-bold mb-3">Blog Image</h5>

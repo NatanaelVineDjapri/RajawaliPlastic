@@ -12,31 +12,15 @@ interface ApiErrorResponse {
   messages?: Record<string, string[]>;
 }
 
-const getToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken'); 
-  }
-  return null;
-};
-
-const getHeaders = (): HeadersInit => {
-  const token = getToken();
-  
-  const headers: HeadersInit = {
-    'Accept': 'application/json', 
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  return headers;
-};
+const getHeaders = (): HeadersInit => ({
+  Accept: "application/json", 
+});
 
 
 export const addProduct = async (formData: FormData): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/products`, {
     method: 'POST',
+    credentials: 'include',
     headers: getHeaders(), 
     body: formData,
   });
@@ -59,6 +43,7 @@ export const addProduct = async (formData: FormData): Promise<ApiSuccessResponse
 export const getProducts = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/products`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(), 
   });
 
@@ -78,6 +63,7 @@ export const updateProduct = async (id: string | number, formData: FormData): Pr
 
   const response = await fetch(`${API_URL}/products/${id}`, {
     method: 'POST',
+    credentials: 'include',
     headers: getHeaders(),
     body: formData,
   });
@@ -100,6 +86,7 @@ export const updateProduct = async (id: string | number, formData: FormData): Pr
 export const deleteProduct = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/products/${id}`, {
     method: 'DELETE',
+    credentials: 'include',
     headers: getHeaders(), 
   });
 
@@ -117,6 +104,7 @@ export const deleteProduct = async (id: string | number): Promise<ApiSuccessResp
 export const getLastEditedProducts = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/products/last-edited`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(),
   });
 
@@ -134,6 +122,7 @@ export const getLastEditedProducts = async (): Promise<ApiSuccessResponse> => {
 export const getProductById = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/products/${id}`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(),
   });
 

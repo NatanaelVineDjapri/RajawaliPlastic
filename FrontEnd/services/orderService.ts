@@ -11,52 +11,36 @@ interface ApiErrorResponse {
   messages?: Record<string, string[]>;
 }
 
-const getToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken'); 
-  }
-  return null;
-};
+const getHeaders = (): HeadersInit => ({
+  Accept: "application/json", 
+});
 
-const getHeaders = (): Record<string, string> => { // 1. Ubah HeadersInit
-  const token = getToken();
-  const headers: Record<string, string> = { // 2. Ubah HeadersInit
-    'Accept': 'application/json', 
-  };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-  return headers;
-};
 
 export const addOrder = async (payload: any): Promise<ApiSuccessResponse> => {
-  const headers = getHeaders();
-  headers['Content-Type'] = 'application/json';
-
   const response = await fetch(`${API_URL}/orders`, {
     method: 'POST',
-    headers: headers,
+    credentials: 'include', 
+    headers: {
+      ...getHeaders(),
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const errorData: ApiErrorResponse = await response.json();
-    if (errorData.messages) {
-      const firstError = Object.values(errorData.messages)[0][0];
-      throw new Error(firstError);
-    }
-    if (errorData.message) {
-      throw new Error(errorData.message);
-    }
+    if (errorData.messages) throw new Error(Object.values(errorData.messages)[0][0]);
+    if (errorData.message) throw new Error(errorData.message);
     throw new Error(`Gagal menambahkan order. Status: ${response.status}`);
   }
 
-  return await response.json() as ApiSuccessResponse;
-}
+  return response.json() as Promise<ApiSuccessResponse>;
+};
 
 export const getOrders = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/orders`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(), 
   });
 
@@ -74,6 +58,7 @@ export const getOrders = async (): Promise<ApiSuccessResponse> => {
 export const getOrderById = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/orders/${id}`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(),
   });
 
@@ -90,33 +75,34 @@ export const getOrderById = async (id: string | number): Promise<ApiSuccessRespo
 
 
 export const updateOrder = async (id: string | number, payload: any): Promise<ApiSuccessResponse> => {
-  const headers = getHeaders();
-  headers['Content-Type'] = 'application/json';
-
   const response = await fetch(`${API_URL}/orders/${id}`, {
-    method: 'PUT', 
-    headers: headers, 
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      ...getHeaders(),
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const errorData: ApiErrorResponse = await response.json();
     if (errorData.messages) {
-      const firstError = Object.values(errorData.messages)[0][0];
-      throw new Error(firstError);
+      throw new Error(Object.values(errorData.messages)[0][0]);
     }
-    if (errorData.message) {
+    if (errorData.message){
       throw new Error(errorData.message);
     }
     throw new Error(`Gagal mengupdate order. Status: ${response.status}`);
   }
 
-  return await response.json() as ApiSuccessResponse;
-}
+  return response.json() as Promise<ApiSuccessResponse>;
+};
 
 export const deleteOrder = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/orders/${id}`, {
     method: 'DELETE',
+    credentials: 'include',
     headers: getHeaders(), 
   });
 
@@ -134,6 +120,7 @@ export const deleteOrder = async (id: string | number): Promise<ApiSuccessRespon
 export const getOrderSummary = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/orders/summary`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(),
   });
 
@@ -151,6 +138,7 @@ export const getOrderSummary = async (): Promise<ApiSuccessResponse> => {
 export const getOrderDetailSummary = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/orders/summary-detail`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(),
   });
 
