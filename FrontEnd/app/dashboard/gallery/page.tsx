@@ -31,9 +31,12 @@ export default function GalleryPage() {
     setIsLoading(true);
     try {
       const result = await getGalleries();
-     if (result.data && result.data.data && Array.isArray(result.data.data)) {
-        setGalleryItems(result.data.data);  
-     } else {
+
+      if (Array.isArray(result.data)) {
+        setGalleryItems(result.data);
+      } else if (Array.isArray(result.data.data)) {
+        setGalleryItems(result.data.data);
+      } else {
         console.error("Struktur data tidak diharapkan:", result);
       }
     } catch (error: any) {
@@ -120,13 +123,8 @@ export default function GalleryPage() {
                 </div>
 
                 <div className="card-body p-3 d-flex flex-column">
-                  <p className="fw-semibold text-dark mb-2 ">
-                    {item.title}
-                  </p>
-                  <p
-                    className="text-muted"
-                    style={{ fontSize: "0.85rem" }}
-                  >
+                  <p className="fw-semibold text-dark mb-2 ">{item.title}</p>
+                  <p className="text-muted" style={{ fontSize: "0.85rem" }}>
                     {item.description}
                   </p>
 

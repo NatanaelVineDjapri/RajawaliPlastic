@@ -23,8 +23,9 @@ Route::prefix('rs')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
 
     // Route::middleware('auth.api')->group(function (): void {
+        Route::put('/profile/update', [AuthController::class, 'updateProfile']);
         Route::post('/logout', [AuthController::class, 'logout']);
-
+    
         Route::get('/messages/{receiverId}', [MessageController::class, 'index']);
         Route::post('/messages', [MessageController::class, 'store']);
         Route::put('/messages/{id}/read', [MessageController::class, 'markAsRead']);
