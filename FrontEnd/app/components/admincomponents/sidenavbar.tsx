@@ -91,7 +91,14 @@ export default function Sidenavbar() {
 
   const renderLink = (link: NavLinkProps) => {
     const { href, label, icon: Icon } = link;
-    const isActive = pathname === href;
+    const isDashboardRoot = href === '/dashboard';
+    const isExactMatch = pathname === href;
+    const isSubPage = pathname.startsWith(href + '/');
+
+    const isActive = isExactMatch || (!isDashboardRoot && isSubPage);
+    const linkClassName = `nav-link d-flex align-items-center gap-2 rounded-3 py-2 px-3 ${
+      isActive ? 'active fw-semibold' : 'text-dark'
+    }`;
 
     return (
       <Link
@@ -147,7 +154,7 @@ export default function Sidenavbar() {
               <Link
                 href="/dashboard/adminsettings"
                 className={`nav-link d-flex align-items-center gap-2 rounded-3 py-2 px-3 ${
-                  pathname === '/dashboard/adminsettings'
+                  pathname === '/dashboard/adminsettings' || pathname.startsWith('/dashboard/adminsettings' + '/') 
                     ? 'active fw-semibold'
                     : 'text-dark'
                 }`}
@@ -173,7 +180,6 @@ export default function Sidenavbar() {
         </div>
       </aside>
 
-      {/* Responsive CSS */}
       <style jsx>{`
         @media (min-width: 768px) {
           aside {
