@@ -12,31 +12,15 @@ interface ApiErrorResponse {
   errors?: Record<string, string[]>; 
 }
 
-const getToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken'); 
-  }
-  return null;
-};
-
-const getHeaders = (): HeadersInit => {
-  const token = getToken();
-  
-  const headers: HeadersInit = {
-    'Accept': 'application/json', 
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  return headers;
-};
+const getHeaders = (): HeadersInit => ({
+  Accept: "application/json", 
+});
 
 
 export const addPartner = async (formData: FormData): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/partners`, {
     method: 'POST',
+    credentials: 'include',
     headers: getHeaders(), 
     body: formData,
   });
@@ -63,6 +47,7 @@ export const addPartner = async (formData: FormData): Promise<ApiSuccessResponse
 export const getPartners = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/partners`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(), 
   });
 
@@ -80,6 +65,7 @@ export const getPartners = async (): Promise<ApiSuccessResponse> => {
 export const deletePartner = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/partners/${id}`, {
     method: 'DELETE',
+    credentials: 'include',
     headers: getHeaders(), 
   });
 
@@ -97,6 +83,7 @@ export const deletePartner = async (id: string | number): Promise<ApiSuccessResp
 export const getPartnersById = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/partners/${id}`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(),
   });
 

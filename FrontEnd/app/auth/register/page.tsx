@@ -6,7 +6,9 @@ import "../../globals.css";
 import Image from "next/image";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { register } from "@/services/authService"; 
+import { register } from "@/services/authService";
+import { useRouter } from "next/navigation"; 
+import Link from "next/link"; 
 
 const MySwal = withReactContent(Swal);
 
@@ -20,6 +22,7 @@ const RegisterPage: React.FC = () => {
     confirmPassword: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter(); 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -65,20 +68,21 @@ const RegisterPage: React.FC = () => {
       MySwal.fire({
         icon: "success",
         title: "Registrasi Berhasil 🎉",
-        text: "Akun kamu berhasil dibuat. Silakan login sekarang!",
-        confirmButtonText: "Ke Halaman Login",
-        confirmButtonColor: "#16a34a",
-        background: "#f0fdf4",
+        text: "Akun dibuat. Mengalihkan ke halaman login...", // Teks diubah
+        
+        timer: 2000, 
+        timerProgressBar: true, 
+        showConfirmButton: false, 
+        
       }).then(() => {
-        window.location.href = "/auth/login";
+        router.push("/auth/login"); 
       });
+
     } catch (err: any) {
       MySwal.fire({
         icon: "error",
         title: "Registrasi Gagal",
-        text:
-          err?.response?.data?.message ||
-          "Tolong isi form dengan benar sebelum mengirim.",
+        text: err.message || "Tolong isi form dengan benar sebelum mengirim.",
         confirmButtonColor: "#dc2626",
         background: "#fef2f2",
       });
@@ -86,7 +90,6 @@ const RegisterPage: React.FC = () => {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="auth-page-wrapper position-relative d-flex align-items-center justify-content-center">
       <video
@@ -231,12 +234,12 @@ const RegisterPage: React.FC = () => {
 
               <p className="mt-4 text-center small text-muted">
                 Sudah punya akun?{" "}
-                <a
-                  href="/auth/login"
+                <Link
+                  href="/auth/login" 
                   className="text-decoration-none fw-semibold"
                 >
                   Sign in
-                </a>
+                </Link>
               </p>
             </div>
           </div>

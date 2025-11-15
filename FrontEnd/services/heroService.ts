@@ -11,26 +11,9 @@ interface ApiErrorResponse {
   messages?: Record<string, string[]>;
 }
 
-const getToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken'); 
-  }
-  return null;
-};
-
-const getHeaders = (): HeadersInit => {
-  const token = getToken();
-  
-  const headers: HeadersInit = {
-    'Accept': 'application/json', 
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  return headers;
-};
+const getHeaders = (): HeadersInit => ({
+  Accept: "application/json", 
+});
 
 
 export const addSlider = async (formData: FormData): Promise<ApiSuccessResponse> => {
@@ -38,6 +21,7 @@ export const addSlider = async (formData: FormData): Promise<ApiSuccessResponse>
   
   const response = await fetch(`${API_URL}/sliders`, {
     method: 'POST',
+    credentials: 'include',
     headers: headers,
     body: formData,
   });
@@ -60,6 +44,7 @@ export const addSlider = async (formData: FormData): Promise<ApiSuccessResponse>
 export const getSliders = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/sliders`, {
     method: 'GET',
+    credentials: 'include',
     headers: getHeaders(), 
   });
 
@@ -82,6 +67,7 @@ export const getSliders = async (): Promise<ApiSuccessResponse> => {
 export const deleteSlider = async (id: string | number): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/sliders/${id}`, {
     method: 'DELETE',
+    credentials: 'include',
     headers: getHeaders(), 
   });
 

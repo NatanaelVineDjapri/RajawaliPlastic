@@ -2,6 +2,7 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { Camera } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/TempButton";
 import { addBlog } from "@/services/blogService";
@@ -13,7 +14,7 @@ const MySwal = withReactContent(Swal);
 
 export default function CreateBlogPage() {
   const pageTitle = "Add Blog Post";
-
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [description, setDescription] = useState("");
@@ -62,6 +63,7 @@ export default function CreateBlogPage() {
         URL.revokeObjectURL(previewImage);
         setPreviewImage(null);
       }
+      router.push("/dashboard/blogs");
     } catch (error) {
       let msg = "An unknown error occurred.";
       if (error instanceof Error) msg = error.message;
@@ -153,7 +155,7 @@ export default function CreateBlogPage() {
               className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 position-relative"
               style={{
                 aspectRatio: "16/9",
-                minHeight: "200px",
+                minHeight: "320px",
                 borderColor: "#d1d5db",
                 cursor: "pointer",
                 transition: "background-color 0.2s",

@@ -1,10 +1,10 @@
 'use client';
 
-import Sidenavbar from '../components/admincomponents/SideNavBar';
-import TopNavbar from '../components/admincomponents/TopNavBar';
+import Sidenavbar from '../components/admincomponents/SideNavbar';
+import TopNavbar from '../components/admincomponents/TopNavbar';
 import CreateButton from '@/app/components/admincomponents/CreateButton';
 import React from 'react';
-import { AuthProvider } from '@/app/contexts/AuthContext';
+import AdminRoute from '../components/admincomponents/AdminRoute';
 
 export default function DashboardLayout({
   children,
@@ -12,7 +12,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AuthProvider>
+   <AdminRoute>
       <div className="d-flex flex-column vh-100 bg-light">
         <TopNavbar />
         <div className="d-flex flex-column flex-lg-row flex-grow-1 overflow-hidden position-relative">
@@ -31,6 +31,6 @@ export default function DashboardLayout({
           </div>
         </div>
       </div>
-    </AuthProvider>
+    </AdminRoute>
   );
 }

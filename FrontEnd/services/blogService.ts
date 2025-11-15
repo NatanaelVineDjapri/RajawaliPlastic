@@ -1,6 +1,6 @@
 // const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
 
-const API_URL = 'http://localhost:8000/api/rs';
+const API_URL = "http://localhost:8000/api/rs";
 
 interface ApiSuccessResponse {
   message: string;
@@ -12,32 +12,17 @@ interface ApiErrorResponse {
   messages?: Record<string, string[]>;
 }
 
-const getToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken'); 
-  }
-  return null;
-};
+const getHeaders = (): HeadersInit => ({
+  Accept: "application/json",
+});
 
-const getHeaders = (): HeadersInit => {
-  const token = getToken();
-  
-  const headers: HeadersInit = {
-    'Accept': 'application/json', 
-  };
-
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
-
-  return headers;
-};
-
-
-export const addBlog = async (formData: FormData): Promise<ApiSuccessResponse> => {
+export const addBlog = async (
+  formData: FormData
+): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/blogs`, {
-    method: 'POST',
-    headers: getHeaders(), 
+    method: "POST",
+    credentials: "include",
+    headers: getHeaders(),
     body: formData,
   });
 
@@ -53,13 +38,14 @@ export const addBlog = async (formData: FormData): Promise<ApiSuccessResponse> =
     throw new Error(`Failed to add blog. Status: ${response.status}`);
   }
 
-  return await response.json() as ApiSuccessResponse;
-}
+  return (await response.json()) as ApiSuccessResponse;
+};
 
 export const getBlogs = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/blogs`, {
-    method: 'GET',
-    headers: getHeaders(), 
+    method: "GET",
+    credentials: "include",
+    headers: getHeaders(),
   });
 
   if (!response.ok) {
@@ -70,16 +56,19 @@ export const getBlogs = async (): Promise<ApiSuccessResponse> => {
     throw new Error(`Failed to retrieve blogs. Status: ${response.status}`);
   }
 
-  return await response.json() as ApiSuccessResponse;
-}
+  return (await response.json()) as ApiSuccessResponse;
+};
 
-export const updateBlog = async (id: string | number, formData: FormData): Promise<ApiSuccessResponse> => {
-  
-  formData.append('_method', 'PUT');
+export const updateBlog = async (
+  id: string | number,
+  formData: FormData
+): Promise<ApiSuccessResponse> => {
+  formData.append("_method", "PUT");
 
   const response = await fetch(`${API_URL}/blogs/${id}`, {
-    method: 'POST', 
-    headers: getHeaders(), 
+    method: "POST",
+    credentials: "include",
+    headers: getHeaders(),
     body: formData,
   });
 
@@ -95,13 +84,16 @@ export const updateBlog = async (id: string | number, formData: FormData): Promi
     throw new Error(`Failed to update blog. Status: ${response.status}`);
   }
 
-  return await response.json() as ApiSuccessResponse;
-}
+  return (await response.json()) as ApiSuccessResponse;
+};
 
-export const deleteBlog = async (id: string | number): Promise<ApiSuccessResponse> => {
+export const deleteBlog = async (
+  id: string | number
+): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/blogs/${id}`, {
-    method: 'DELETE',
-    headers: getHeaders(), 
+    method: "DELETE",
+    credentials: "include",
+    headers: getHeaders(),
   });
 
   if (!response.ok) {
@@ -112,12 +104,15 @@ export const deleteBlog = async (id: string | number): Promise<ApiSuccessRespons
     throw new Error(`Failed to delete blog. Status: ${response.status}`);
   }
 
-  return await response.json() as ApiSuccessResponse;
-}
+  return (await response.json()) as ApiSuccessResponse;
+};
 
-export const getBlogsById = async (id: string | number): Promise<ApiSuccessResponse> => {
+export const getBlogsById = async (
+  id: string | number
+): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/blogs/${id}`, {
-    method: 'GET',
+    method: "GET",
+    credentials: "include",
     headers: getHeaders(),
   });
 
@@ -129,5 +124,5 @@ export const getBlogsById = async (id: string | number): Promise<ApiSuccessRespo
     throw new Error(`Gagal mengambil data blog (ID: ${id}).`);
   }
 
-  return await response.json() as ApiSuccessResponse;
+  return (await response.json()) as ApiSuccessResponse;
 };
