@@ -44,7 +44,6 @@ export const addBlog = async (
 export const getBlogs = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/blogs`, {
     method: "GET",
-    credentials: "include",
     headers: getHeaders(),
   });
 

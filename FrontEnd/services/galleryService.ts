@@ -43,7 +43,6 @@ export const addGallery = async (formData: FormData): Promise<ApiSuccessResponse
 export const getGalleries = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/galleries`, {
     method: 'GET',
-     credentials: 'include',
     headers: getHeaders(),
   });
 

@@ -103,21 +103,21 @@ export const logout = async (): Promise<void> => {
   }
 };
 
-export const getProfile = async (): Promise<User> => {
-  const response = await fetch(`${API_URL}/profile`, {
-    method: 'GET',
-    credentials: 'include', 
-    headers: getHeaders(),
-  });
+  export const getProfile = async (): Promise<User> => {
+    const response = await fetch(`${API_URL}/profile`, {
+      method: 'GET',
+      credentials: 'include', 
+      headers: getHeaders(),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Gagal ambil profile');
-  }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Gagal ambil profile');
+    }
 
-  const data = await response.json();
-  return data.user;
-};
+    const data = await response.json();
+    return data.user;
+  };
 
 export const updateProfile = async (formData: FormData): Promise<User> => {
     formData.append('_method', 'PUT');

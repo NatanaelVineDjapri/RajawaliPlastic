@@ -60,6 +60,7 @@ const GallerySection: React.FC = () => {
                       fill
                       className="gallery-image"
                       style={{ objectFit: 'cover' }}
+                      unoptimized
                     />
                   </div>
                 </Col>
