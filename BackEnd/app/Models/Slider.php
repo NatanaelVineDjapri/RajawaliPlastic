@@ -10,7 +10,7 @@ class Slider extends Model
 {
     use HasFactory;
     protected $connection = 'mongodb';
-    protected $collection = 'products';
+    protected $collection = 'sliders';
 
     protected $fillable = [
         'image'

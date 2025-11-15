@@ -5,10 +5,11 @@ import { Container, Row, Col, Spinner } from 'react-bootstrap';
 import { getGalleries } from '@/services/galleryService'; 
 
 interface GalleryItem {
-  id: number;
-  image_url: string;
+  id: string;
   title?: string;
+  image_base64?: string;
 }
+
 
 const GallerySection: React.FC = () => {
   const [galleries, setGalleries] = useState<GalleryItem[]>([]);
@@ -54,7 +55,7 @@ const GallerySection: React.FC = () => {
                 <Col key={item.id} xs={12} sm={6} md={4} lg={3} className="d-flex justify-content-center">
                   <div className="gallery-image-wrapper position-relative" style={{ width: '100%', height: '250px' }}>
                     <Image
-                      src={item.image_url}
+                      src={`data:image/*;base64,${item.image_base64}`}
                       alt={item.title || `Gallery ${item.id}`}
                       fill
                       className="gallery-image"

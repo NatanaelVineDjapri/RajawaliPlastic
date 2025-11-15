@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/TempButton";
-import CustomSelect, { SelectOption } from "@/app/components/admincomponents/customSelect";
+import CustomSelect, { SelectOption } from "@/app/components/admincomponents/CustomSelect";
 import { Plus, Trash2 } from "lucide-react";
 const MySwal = withReactContent(Swal);
 
