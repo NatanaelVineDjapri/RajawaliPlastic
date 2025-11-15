@@ -1,3 +1,7 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 interface LogoutModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -5,7 +9,13 @@ interface LogoutModalProps {
 }
 
 export default function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalProps) {
+  const router = useRouter();
   if (!isOpen) return null;
+
+  const handleYes = () => {
+    onConfirm(); 
+    router.push("http://localhost:3000/auth/login");
+  };
 
   return (
     <div 
@@ -17,7 +27,7 @@ export default function LogoutModal({ isOpen, onClose, onConfirm }: LogoutModalP
         <div className="d-flex justify-content-center gap-3 flex-wrap">
           <button 
             className="btn px-4 py-2 rounded-3 fw-bold"
-            onClick={onConfirm}
+            onClick={handleYes}
             style={{ backgroundColor: '#A6F5FA', color: '#005F6B' }}
           >
             YES

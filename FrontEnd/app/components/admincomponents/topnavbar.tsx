@@ -22,9 +22,7 @@ export default function TopNavbar() {
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [dropdownRef]);
 
   const handleLogoutConfirm = () => {
@@ -39,50 +37,40 @@ export default function TopNavbar() {
 
   return (
     <>
-      <header className="d-flex justify-content-between align-items-center w-100 py-3 px-3 px-md-4 bg-white border-bottom shadow-sm flex-wrap">
-        
+      <header className="d-flex justify-content-between align-items-center w-100 py-3 px-3 px-md-4 border-bottom shadow-sm flex-wrap topnav-gradient">
         <div className="d-none d-lg-flex align-items-center gap-2 flex-grow-0 me-2">
-          <Image
-            src="/images/logoRS.png"
-            alt="Rajawali Plastik Logo"
-            width={40}
-            height={40}
-          />
-          <span className="fs-5 fw-bold text-dark d-none d-lg-inline">Rajawali Plastik</span>
-        </div>
-        
-        <h1 className="flex-grow-1 fs-6 fs-md-5 fs-lg-4 fw-semibold text-dark text-center m-0">
-          <span className="d-lg-none">
+          <Image src="/images/logoRS.png" alt="Rajawali Plastik Logo" width={40} height={40} />
+          <span className="fs-5 fw-bold text-dark d-none d-lg-inline">
+            Rajawali Plastik
           </span>
+        </div>
+
+        <h1 className="flex-grow-1 fs-6 fs-md-5 fs-lg-4 fw-semibold text-dark text-center m-0">
           Administrator Dashboard
         </h1>
-        
-        <div
-          className="position-relative d-flex justify-content-end flex-grow-0 ms-2"
-          ref={dropdownRef}
-        >
+
+        <div className="position-relative d-flex justify-content-end flex-grow-0 ms-2" ref={dropdownRef}>
           <div
-            className="d-flex align-items-center gap-2 p-1 rounded"
+            className="d-flex align-items-center gap-2 p-1 rounded user-box"
             role="button"
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            style={{ cursor: 'pointer' }}
           >
             <Image
               src="/images/avatarplaceholder.png"
               alt="User Avatar"
               width={40}
               height={40}
-              className="rounded-circle object-fit-cover"
+              className="rounded-circle object-fit-cover border border-secondary shadow-sm"
             />
-            <div className="d-none d-sm-flex flex-column text-end">
+
+            <div className="d-none d-sm-flex flex-column text-end text-dark">
               <span className="fw-semibold small">Moni Roy</span>
-              <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-                Admin
-              </span>
+              <span className="text-muted" style={{ fontSize: '0.75rem' }}>Admin</span>
             </div>
+
             <ChevronDown
               size={20}
-              className="text-muted"
+              className="text-dark"
               style={{
                 transition: 'transform 0.2s ease',
                 transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -94,17 +82,14 @@ export default function TopNavbar() {
             className={`dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2 mt-2 mt-md-5 ${
               isDropdownOpen ? 'show' : ''
             }`}
-            style={{
-              width: '200px',
-              right: '0', 
-            }}
+            style={{ width: '200px', right: '0' }}
           >
             <Link
               href="/dashboard/adminsettings"
               className="dropdown-item d-flex align-items-center gap-2 fw-medium rounded-2"
               onClick={() => setIsDropdownOpen(false)}
             >
-              <Settings size={18} className="text-info" />
+              <Settings size={18} className="text-primary" />
               Admin Settings
             </Link>
 
@@ -119,14 +104,22 @@ export default function TopNavbar() {
           </nav>
         </div>
       </header>
-      
+
       <style jsx>{`
+        .topnav-gradient {
+          background: linear-gradient(180deg, #f7fbff, #e3f0ff);
+        }
+
+        .user-box {
+          cursor: pointer;
+        }
+
         @media (max-width: 576px) {
           .dropdown-menu {
             min-width: 150px;
-            right: 0px !important; 
-            left: auto !important; 
-            margin-right: 1rem; 
+            right: 0px !important;
+            left: auto !important;
+            margin-right: 1rem;
           }
         }
       `}</style>
