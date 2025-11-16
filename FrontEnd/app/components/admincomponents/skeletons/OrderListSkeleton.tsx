@@ -6,8 +6,6 @@ export default function OrderListSkeleton({ count = 10 }) {
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="card mb-3 shadow-sm border-0">
           <div className="card-body p-3">
-
-            {/* Header */}
             <div className="d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
                 <div
@@ -25,7 +23,6 @@ export default function OrderListSkeleton({ count = 10 }) {
                   />
                 </div>
               </div>
-
               <div className="text-end d-none d-sm-block">
                 <div
                   className="bg-light rounded mb-2"

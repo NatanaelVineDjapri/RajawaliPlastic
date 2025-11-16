@@ -40,22 +40,16 @@ export default function DashboardPage() {
 
   return (
     <div className="container-fluid p-3 p-md-4 bg-light min-vh-100">
-
-      {/* Stats Grid */}
       <div className="row g-3">
         <div className="col-12">
           {loading ? <StatsGridSkeleton /> : <StatsGrid summary={summary} />}
         </div>
       </div>
-
-      {/* Chart */}
       <div className="row g-3 mt-3">
         <div className="col-12">
           {loading ? <SalesChartSkeleton /> : <SalesChartCard orders={orders} />}
         </div>
       </div>
-
-      {/* Table */}
       <div className="row g-3 mt-3">
         <div className="col-12">
           {loading ? <RecentlySoldSkeleton /> : <RecentlySoldTable orders={orders} />}

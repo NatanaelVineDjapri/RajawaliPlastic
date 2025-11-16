@@ -80,7 +80,7 @@ export default function EditProductPage() {
           setRecentProducts(formatted);
         }
 
-        setPageLoading(false); // <-- WAJIB ADA INI
+        setPageLoading(false); 
       } catch (err: any) {
         MySwal.fire(
           "Error",

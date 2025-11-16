@@ -137,7 +137,6 @@ class OrderController extends Controller
             ]);
         }
 
-        // Update products if ada
         if ($request->has('products')) {
             $productsData = [];
             $totalOrderPrice = 0;
@@ -199,6 +198,8 @@ class OrderController extends Controller
             'total_orders' => $orders->count(),
             'total_quantity' => $orders->sum('total_quantity'),
             'total_price' => $orders->sum('total_price'),
+            'total_users' => $orders->unique('user_id')->count(), 
+            // 'total_users' => 2, 
         ];
 
         return response()->json([

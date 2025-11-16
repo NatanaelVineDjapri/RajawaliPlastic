@@ -9,6 +9,7 @@ import { Camera } from "lucide-react";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/SubmitButton";
 import { getBlogsById, updateBlog } from "@/services/blogService";
+import UniversalFormSkeleton from "@/app/components/admincomponents/skeletons/UniversalFormSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -34,6 +35,7 @@ export default function EditBlogPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const pageTitle = "Edit Blog";
   const breadcrumbs = [
@@ -42,35 +44,37 @@ export default function EditBlogPage() {
   ];
 
   useEffect(() => {
-  const fetchData = async () => {
-    try {
-      const res = await getBlogsById(blogId as string);
-      const data = res.data;
+    const fetchData = async () => {
+      try {
+        const res = await getBlogsById(blogId as string);
+        const data = res.data;
 
-      if (!data) {
-        MySwal.fire("Oops...", "Blog not found", "error");
+        if (!data) {
+          MySwal.fire("Oops...", "Blog not found", "error");
+          router.push("/dashboard/blogs");
+          return;
+        }
+
+        setBlog(data);
+        setTitle(data.title);
+        setDescription(data.description || "");
+        setContent(data.content || "");
+
+        if (data.image_base64) {
+          setPreviewImage(`data:image/jpeg;base64,${data.image_base64}`);
+        } else {
+          setPreviewImage(null);
+        }
+
+        setPageLoading(false);
+      } catch (err: any) {
+        MySwal.fire("Error", err.message || "Failed to fetch blog.", "error");
         router.push("/dashboard/blogs");
-        return;
       }
+    };
 
-      setBlog(data);
-      setTitle(data.title);
-      setDescription(data.description || "");
-      setContent(data.content || "");
-
-      if (data.image_base64) {
-        setPreviewImage(`data:image/jpeg;base64,${data.image_base64}`);
-      } else {
-        setPreviewImage(null);
-      }
-    } catch (err: any) {
-      MySwal.fire("Error", err.message || "Failed to fetch blog.", "error");
-      router.push("/dashboard/blogs");
-    }
-  };
-
-  if (blogId) fetchData();
-}, [blogId, router]);
+    if (blogId) fetchData();
+  }, [blogId, router]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -108,7 +112,19 @@ export default function EditBlogPage() {
     }
   };
 
-  if (!blog) return <div className="p-5 text-center">Loading blog...</div>;
+  if (!blog) {
+    return (
+      <div className="w-100">
+        <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
+
+        <UniversalFormSkeleton
+          leftFields={1}
+          rightBoxes={1}
+          textareaHeight={250}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-100">

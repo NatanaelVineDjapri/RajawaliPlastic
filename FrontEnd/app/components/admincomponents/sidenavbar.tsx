@@ -136,7 +136,7 @@ export default function Sidenavbar() {
           transition: 'transform 0.3s ease',
         }}
       >
-        <div className="flex-grow-1 overflow-auto">
+        <div className="flex-grow-1 overflow-hidden">
           <nav className="nav nav-pills flex-column p-3 pt-1 mt-1 gap-1">
             {mainNavLinks.map(renderLink)}
           </nav>
