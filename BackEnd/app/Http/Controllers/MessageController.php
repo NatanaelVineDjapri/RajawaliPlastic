@@ -3,43 +3,50 @@
 namespace App\Http\Controllers;
 
 use App\Models\Message;
+use App\Models\User; 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Events\MessageSent;
 
 class MessageController extends Controller
 {
-    public function index($receiverId)
+    private function getAuthenticatedUser(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+        $token = $request->cookie('authToken');
+        if (!$token) return null;
+        return User::where('api_token', $token)->first();
+    }
 
-        $userId = Auth::id();
+    public function index($receiverId, Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user) return response()->json(['error' => 'Unauthorized'], 401);
+        
+        $userId = $user->id;
 
-        $messages = Message::where(function ($q) use ($userId, $receiverId) {
-                $q->where('sender_id', $userId)
-                  ->where('receiver_id', $receiverId);
+        $messages = Message::where(function($query) use ($userId, $receiverId) {
+                $query->where('sender_id', $userId)
+                      ->where('receiver_id', $receiverId);
             })
-            ->orWhere(function ($q) use ($userId, $receiverId) {
-                $q->where('sender_id', $receiverId)
-                  ->where('receiver_id', $userId);
+            ->orWhere(function($query) use ($userId, $receiverId) {
+                $query->where('sender_id', $receiverId)
+                      ->where('receiver_id', $userId);
             })
+            ->with(['sender', 'receiver'])
             ->orderBy('created_at', 'asc')
             ->get();
 
         return response()->json([
             'success' => true,
             'data' => $messages,
-        ]);
+        ], 200);
     }
 
     public function store(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user) return response()->json(['error' => 'Unauthorized'], 401);
 
         $validator = Validator::make($request->all(), [
             'receiver_id' => 'required|exists:users,id',
@@ -52,24 +59,26 @@ class MessageController extends Controller
         }
 
         $data = $validator->validated();
-
-        if ($data['receiver_id'] == Auth::id()) {
-            return response()->json(['error' => 'Tidak bisa mengirim pesan ke diri sendiri'], 422);
-        }
+        $senderId = $user->id;
 
         $imageUrl = null;
         if ($request->hasFile('image')) {
-            $userFolder = 'messages/' . Auth::id();
+            $userFolder = 'messages/' . $senderId;
             $path = $request->file('image')->store($userFolder, 'public');
             $imageUrl = asset('storage/' . $path);
         }
 
         $message = Message::create([
-            'sender_id' => Auth::id(),
+            'sender_id' => $senderId,
             'receiver_id' => $data['receiver_id'],
             'message' => $data['message'] ?? '',
             'image_url' => $imageUrl,
+            'is_read' => false,
         ]);
+
+        $message->load(['sender', 'receiver']);
+
+        broadcast(new MessageSent($message));
 
         return response()->json([
             'success' => true,
@@ -78,15 +87,52 @@ class MessageController extends Controller
         ], 201);
     }
 
-    public function markAsRead($id)
+    public function getConversations(Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
+
+        $latestMessages = Message::with(['sender', 'receiver'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $safeMessages = $latestMessages->filter(function ($message) {
+            return $message->sender !== null && $message->receiver !== null;
+        });
+
+        $conversations = $safeMessages
+            ->groupBy(function(Message $message) {
+                $ids = [$message->sender_id, $message->receiver_id];
+                sort($ids); 
+                return implode('_', $ids);
+            })
+            ->map(function($group) use ($user) {
+                $unreadCount = $group->where('receiver_id', $user->id)
+                                    ->where('is_read', false)
+                                    ->count();
+                
+                $latestMessage = $group->first();
+                $latestMessage->unread_count = $unreadCount;
+
+                return $latestMessage;
+            })
+            ->values()
+            ->sortByDesc('created_at')
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $conversations,
+        ], 200);
+    }
+
+    public function markAsRead($id, Request $request)
+    {
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user) return response()->json(['error' => 'Unauthorized'], 401);
 
         $message = Message::findOrFail($id);
-
-        if ($message->receiver_id !== Auth::id()) {
+        if ($message->receiver_id !== $user->id) {
             return response()->json(['error' => 'Tidak punya akses untuk mengubah status pesan ini'], 403);
         }
 
@@ -95,18 +141,17 @@ class MessageController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Pesan ditandai telah dibaca',
-        ]);
+        ], 200);
     }
 
-    public function destroy($id)
+    public function destroy($id, Request $request)
     {
-        if (!Auth::check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+        $user = $this->getAuthenticatedUser($request);
+        if (!$user) return response()->json(['error' => 'Unauthorized'], 401);
 
         $message = Message::findOrFail($id);
 
-        if ($message->sender_id !== Auth::id()) {
+        if ($message->sender_id !== $user->id) {
             return response()->json(['error' => 'Tidak punya izin untuk menghapus pesan ini'], 403);
         }
 
@@ -122,6 +167,6 @@ class MessageController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Pesan berhasil dihapus',
-        ]);
+        ], 200);
     }
 }

@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cookie;
 
 class AuthController extends Controller
-{
+{   
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -77,10 +77,10 @@ class AuthController extends Controller
             60 * 24 * 7,   // 7 hari
             '/',
             null,
-            false,          // secure=false supaya bisa di localhost
-            true,           // httpOnly
+            false,         // secure=false supaya bisa di localhost
+            true,          // httpOnly
             false,
-            'Lax'           // sameSite
+            'Lax'          // sameSite
         );
 
         return response()->json([
@@ -167,6 +167,70 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Profil berhasil diperbarui!',
             'user' => $user
+        ], 200);
+    }
+
+    public function getAllUsers(Request $request)
+    {
+        $token = $request->cookie('authToken');
+        $admin = User::where('api_token', $token)->first();
+
+        if (!$admin || $admin->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized: Akses ditolak. Hanya admin.'], 403);
+        }
+
+        $users = User::all([
+            '_id', 'name', 'email', 'role', 'phone_number', 'address', 'image'
+        ]);
+
+        return response()->json([
+            'message' => 'Data user berhasil diambil.',
+            'users' => $users
+        ], 200);
+    }
+    
+    public function deleteUser(string $id, Request $request)
+    {
+        $token = $request->cookie('authToken');
+        $admin = User::where('api_token', $token)->first();
+
+        if (!$admin || $admin->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized: Akses ditolak. Hanya admin.'], 403);
+        }
+        
+        if (empty($id) || !is_string($id) || strlen($id) < 24) { 
+             return response()->json(['message' => 'ID user tidak valid atau kosong.'], 400);
+        }
+
+        $userToDelete = User::find($id);
+
+        if (!$userToDelete) {
+            return response()->json(['message' => 'User tidak ditemukan.'], 404);
+        }
+        
+        if ((string)$userToDelete->_id === (string)$admin->_id || $userToDelete->role === 'admin') {
+             return response()->json(['message' => 'Tidak dapat menghapus admin atau diri sendiri.'], 403);
+        }
+
+        $userToDelete->delete();
+
+        return response()->json(['message' => "User {$userToDelete->name} berhasil dihapus."], 200);
+    }
+    
+    public function getAdminUserForChat(Request $request)
+    {
+        $admin = User::where('role', 'admin')
+                     ->first([
+                         '_id', 'name', 'email', 'role'
+                     ]);
+        
+        if (!$admin) {
+             return response()->json(['message' => 'Admin support tidak ditemukan.'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Admin support berhasil ditemukan.',
+            'admin' => $admin
         ], 200);
     }
 }

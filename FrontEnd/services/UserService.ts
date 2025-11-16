@@ -1,5 +1,4 @@
-import { getCsrfCookie } from './authService'; 
-
+import { getCsrfCookie } from './authService';
 
 export type UserData = { 
     id: string; 
@@ -11,7 +10,18 @@ export type UserData = {
     image?: string; 
 };
 
-const API_BASE_URL = 'http://localhost:8000/api/rs'; 
+const API_BASE_URL = 'http://localhost:8000/api/rs';
+
+function getSessionHeaders(includeContentTypeJson = false): HeadersInit {
+    const headers: HeadersInit = {
+        "Accept": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+    };
+    if (includeContentTypeJson) {
+        headers["Content-Type"] = "application/json";
+    }
+    return headers;
+}
 
 async function handleResponse(response: Response, defaultErrorMessage: string) {
     if (response.ok) {
@@ -24,9 +34,8 @@ async function handleResponse(response: Response, defaultErrorMessage: string) {
         errorMessage = errorData.message || response.statusText;
     } catch (_e) {
         const responseText = await response.text();
-        
         if (response.status === 401 || response.status === 403) {
-            errorMessage = "Akses ditolak. Anda tidak login sebagai Admin atau token kedaluwarsa.";
+            errorMessage = "Akses ditolak. Anda belum login atau sesi telah berakhir.";
         } else {
             errorMessage = `Server Error (${response.status}). Respons non-JSON/HTML: ${responseText.substring(0, 50)}...`;
         }
@@ -35,24 +44,37 @@ async function handleResponse(response: Response, defaultErrorMessage: string) {
     throw new Error(`${defaultErrorMessage}: ${errorMessage}`);
 }
 
+export async function fetchCurrentUserProfile(): Promise<UserData> {
+    const defaultMessage = "Gagal mengambil profil user yang sedang login";
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/profile`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: getSessionHeaders(),
+        });
+
+        const data = await handleResponse(response, defaultMessage);
+        return data.user as UserData;
+        
+    } catch (error) {
+        console.error(`Error di fetchCurrentUserProfile:`, error);
+        throw error;
+    }
+}
 
 export async function fetchAllUsers(): Promise<UserData[]> {
-    const defaultMessage = "Failed to fetch";
-    
+    const defaultMessage = "Gagal mengambil daftar semua user";
+
     try {
         const response = await fetch(`${API_BASE_URL}/users`, {
             method: 'GET',
-            credentials: 'include', 
-            headers: { "Accept": "application/json" },
+            credentials: 'include',
+            headers: getSessionHeaders(),
         });
 
-        if (!response.ok) {
-            await handleResponse(response, defaultMessage);
-        }
-        
-        const data = await response.json(); 
-        
-        return data.users as UserData[]; 
+        const data = await handleResponse(response, defaultMessage);
+        return data.users as UserData[];
         
     } catch (error) {
         console.error(`Error di fetchAllUsers:`, error);
@@ -60,24 +82,43 @@ export async function fetchAllUsers(): Promise<UserData[]> {
     }
 }
 
+export async function fetchAdminUserForChat(): Promise<UserData> {
+    const defaultMessage = "Gagal menemukan Admin Support untuk chat";
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/admin-for-chat`, {
+            method: 'GET',
+            credentials: 'include',
+            headers: getSessionHeaders(),
+        });
+
+        const data = await handleResponse(response, defaultMessage);
+
+        if (!data.admin) {
+            throw new Error("Admin support tidak ditemukan.");
+        }
+
+        return data.admin as UserData;
+        
+    } catch (error) {
+        console.error(`Error di fetchAdminUserForChat:`, error);
+        throw error;
+    }
+}
+
 export async function deleteUser(id: string): Promise<void> {
-    const defaultMessage = "Failed to load user";
+    const defaultMessage = "Gagal menghapus user";
 
     try {
-        await getCsrfCookie(); 
+        await getCsrfCookie();
 
         const response = await fetch(`${API_BASE_URL}/users/${id}`, {
             method: 'DELETE',
-            credentials: 'include', 
-            headers: {
-                 "Content-Type": "application/json",
-                 "Accept": "application/json",
-            },
+            credentials: 'include',
+            headers: getSessionHeaders(true),
         });
 
-        if (!response.ok) {
-            await handleResponse(response, defaultMessage);
-        }
+        await handleResponse(response, defaultMessage);
 
     } catch (error) {
         console.error(`Error di deleteUser:`, error);
