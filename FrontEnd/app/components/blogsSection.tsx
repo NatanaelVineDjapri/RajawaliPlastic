@@ -29,9 +29,11 @@ const Blogs: React.FC = () => {
 
         const mappedBlogs: BlogItem[] = blogData.map((blog: any) => ({
           id: blog.id,
-          image: blog.image_url || '/images/testimoniesSection/testi1.jpg', 
-          title: blog.title || 'Untitled Blog',
-          text: blog.description || blog.text || 'No description available.',
+          image: blog.image_base64
+            ? `data:image/jpeg;base64,${blog.image_base64}`
+            : "/images/testimoniesSection/testi1.jpg",
+          title: blog.title || "Untitled Blog",
+          text: blog.description || blog.text || "No description available.",
           link: `/blogcontent/${blog.id}`,
         }));
 
