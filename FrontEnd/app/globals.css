@@ -142,7 +142,7 @@ body {
 
   .auth-image {
     order: 1 !important;
-    height: 300px; /* biar gambar keliatan jelas */
+    height: 300px;
   }
 
   .auth-form-wrapper {
@@ -461,29 +461,32 @@ body {
 
 /* TESTIMONY SECTION */
 
-.testimony-section {
-  background-color: #ffffff;
-  padding-top: 40px;
-  padding-bottom: 40px;
-  margin-top: -60px;
-  transition: all 0.3s ease;
-}
-
-.testimony-section h2 {
-  font-size: 3.4rem;
-  color: #162737;
-  margin-bottom: 2rem;
-}
-
-.carousel-caption {
+.testimony-caption {
   bottom: 1rem !important;
-  right: 2rem !important;
-  left: 2rem !important;
+  left: 1rem !important;
+  right: 1rem !important;
 }
 
-.carousel-caption p {
-  margin-bottom: 0.3rem;
-  font-size: 0.95rem;
+@media (max-width: 576px) {
+  .testimony-caption {
+    padding: 0.75rem !important;
+    font-size: 0.85rem;
+  }
+
+  .testimony-caption p {
+    font-size: 0.8rem !important;
+  }
+
+  .testimony-caption small {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .testimony-caption {
+    padding: 1rem !important;
+    font-size: 1rem;
+  }
 }
 
 /* BLOGS SECTION */
@@ -699,12 +702,13 @@ button.custom-btn:hover {
 /* BLOG CONTENT HERO */
 
 .content-hero-section {
+  width: 100%;
   height: 85vh;
-  overflow: hidden;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .content-hero-bg-image {
@@ -722,29 +726,24 @@ button.custom-btn:hover {
   z-index: 1;
 }
 
-.content-hero-image-wrapper {
-  position: relative;
-  z-index: 2;
-  max-width: 60%;
-  border-radius: 20px;
+.blog-hero-foreground {
+  width: 700px;
+  height: 350px;
+  border-radius: 24px;
   overflow: hidden;
-  transition: max-width 0.3s ease, margin-top 0.3s ease;
-}
-
-.content-hero-image {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  border-radius: 20px;
-  margin-top: 100px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  background-color: #e5e7eb;
+  margin-top: 90px;
+  transition: width 0.3s ease, height 0.3s ease, margin-top 0.3s ease;
 }
 
 @media (max-width: 1200px) {
   .content-hero-section {
     height: 75vh;
   }
-  .content-hero-image-wrapper {
-    max-width: 70%;
+  .blog-hero-foreground {
+    width: 600px;
+    height: 320px;
   }
 }
 
@@ -752,8 +751,10 @@ button.custom-btn:hover {
   .content-hero-section {
     height: 65vh;
   }
-  .content-hero-image-wrapper {
-    max-width: 80%;
+  .blog-hero-foreground {
+    width: 500px;
+    height: 280px;
+    margin-top: 70px;
   }
 }
 
@@ -761,18 +762,42 @@ button.custom-btn:hover {
   .content-hero-section {
     height: 60vh;
   }
-  .content-hero-image-wrapper {
-    max-width: 90%;
-    border-radius: 16px;
+  .blog-hero-foreground {
+    width: 90%;
+    height: 240px;
+    margin-top: 60px;
+    border-radius: 18px;
   }
 }
 
 @media (max-width: 576px) {
   .content-hero-section {
-    height: 35vh;
+    height: 45vh;
   }
-  .content-hero-image-wrapper {
-    max-width: 95%;
+  .blog-hero-foreground {
+    width: 95%;
+    height: 200px;
+    margin-top: 40px;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .content-hero-section {
+    height: 40vh;
+  }
+  .blog-hero-foreground {
+    height: 180px;
+    margin-top: 35px;
+  }
+}
+
+@media (max-width: 350px) {
+  .content-hero-section {
+    height: 38vh;
+  }
+  .blog-hero-foreground {
+    height: 160px;
   }
 }
 
