@@ -8,6 +8,7 @@ import { getProducts, deleteProduct } from "@/services/productService";
 import { Edit, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import UniversalCardSkeleton from "@/app/components/admincomponents/skeletons/UniversalCardSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -75,13 +76,8 @@ export default function ProductsPage() {
     <div className="w-100 position-relative">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
 
-      {isLoading && (
-        <div className="text-center p-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      )}
+      {isLoading && <UniversalCardSkeleton count={6} imageHeight="200px" />}
+
 
       {!isLoading && products.length === 0 && (
         <div className="text-center p-5 bg-white rounded-3 shadow-sm">

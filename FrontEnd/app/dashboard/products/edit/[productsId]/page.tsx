@@ -13,6 +13,7 @@ import {
   getLastEditedProducts,
   updateProduct,
 } from "@/services/productService";
+import UniversalFormSkeleton from "@/app/components/admincomponents/skeletons/UniversalFormSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -21,7 +22,7 @@ interface Product {
   id?: string | number;
   name: string;
   description: string;
-  image_base64?: string |null;
+  image_base64?: string | null;
   updated_at?: string;
   total_update?: number;
   price?: number;
@@ -29,7 +30,7 @@ interface Product {
 }
 
 export default function EditProductPage() {
-  const { productsId } = useParams(); 
+  const { productsId } = useParams();
   const router = useRouter();
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -39,6 +40,7 @@ export default function EditProductPage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [recentProducts, setRecentProducts] = useState<Product[]>([]);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const pageTitle = "Edit Product";
   const breadcrumbs = [
@@ -61,16 +63,24 @@ export default function EditProductPage() {
         setProduct(target);
         setProductName(target.name);
         setDescription(target.description || "");
-        setPreviewImage(target.image_base64 ? `data:image/jpeg;base64,${target.image_base64}` : null);
+        setPreviewImage(
+          target.image_base64
+            ? `data:image/jpeg;base64,${target.image_base64}`
+            : null
+        );
 
         const lastEditedRes = await getLastEditedProducts();
         if (Array.isArray(lastEditedRes.data)) {
           const formatted = lastEditedRes.data.map((p: Product) => ({
             ...p,
-            image_base64: p.image_base64 ? `data:image/jpeg;base64,${p.image_base64}` : null,
+            image_base64: p.image_base64
+              ? `data:image/jpeg;base64,${p.image_base64}`
+              : null,
           }));
           setRecentProducts(formatted);
         }
+
+        setPageLoading(false); // <-- WAJIB ADA INI
       } catch (err: any) {
         MySwal.fire(
           "Error",
@@ -80,8 +90,9 @@ export default function EditProductPage() {
         router.push("/dashboard/products");
       }
     };
+
     if (productsId) fetchProductData();
-  }, [productsId, router]); 
+  }, [productsId, router]);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -118,107 +129,128 @@ export default function EditProductPage() {
     }
   };
 
-  if (!product)
-    return <div className="p-5 text-center">Loading product...</div>;
+  if (pageLoading) {
+    return (
+      <div className="w-100">
+        <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
+
+        <UniversalFormSkeleton
+          leftFields={1}
+          rightBoxes={1}
+          textareaHeight={250}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="w-100">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
-      <form onSubmit={handleSubmit} className="row g-4">
-        <div className="col-lg-8">
-          <div className="bg-white rounded-3 shadow p-4 h-100">
-            <h5 className="fw-bold mb-4">Product Details</h5>
-            <div className="d-flex flex-column gap-3">
-              <div className="d-flex flex-column">
-                <label className="form-label fw-semibold small text-secondary">
-                  Product Name <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="form-control p-3 border rounded-3"
-                  placeholder="Enter product name"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                />
-              </div>
+      {isLoading && (
+        <UniversalFormSkeleton
+          leftFields={1}
+          rightBoxes={1}
+          textareaHeight={250}
+        />
+      )}
 
-              <div className="d-flex flex-column">
-                <label className="form-label fw-semibold small text-secondary">
-                  Description
-                </label>
-                <textarea
-                  className="form-control p-3 border rounded-3"
-                  placeholder="Write description..."
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={10}
-                  style={{ minHeight: "200px" }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-lg-4">
-          <div
-            className="bg-white rounded-3 shadow p-4 d-flex flex-column justify-content-between"
-            style={{ height: "60vh" }}
-          >
-            <div>
-              <h5 className="fw-bold mb-3">Product Image</h5>
-
-              <label
-                htmlFor="sliderImage"
-                className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
-                style={{
-                  minHeight: "320px",
-                  borderColor: "#d1d5db",
-                  cursor: "pointer",
-                  transition: "background-color 0.2s",
-                }}
-                onMouseOver={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#f3f4f6")
-                }
-                onMouseOut={(e) =>
-                  (e.currentTarget.style.backgroundColor = "#f9fafb")
-                }
-              >
-                {previewImage ? (
-                  <Image
-                    src={previewImage}
-                    alt="Slider Preview"
-                    fill
-                    style={{ objectFit: "cover", borderRadius: "8px" }}
-                    unoptimized
+      {!isLoading && (
+        <form onSubmit={handleSubmit} className="row g-4">
+          <div className="col-lg-8">
+            <div className="bg-white rounded-3 shadow p-4 h-100">
+              <h5 className="fw-bold mb-4">Product Details</h5>
+              <div className="d-flex flex-column gap-3">
+                <div className="d-flex flex-column">
+                  <label className="form-label fw-semibold small text-secondary">
+                    Product Name <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    className="form-control p-3 border rounded-3"
+                    placeholder="Enter product name"
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)}
                   />
-                ) : (
-                  <div className="d-flex flex-column align-items-center">
-                    <Camera size={48} style={{ color: "#9ca3af" }} />
-                    <span className="small mt-2">
-                      Click to upload (Max 2MB, 16:9)
-                    </span>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  id="sliderImage"
-                  className="d-none"
-                  onChange={handleImageChange}
-                  accept="image/png, image/jpeg, image/webp"
-                   required={!previewImage} 
-                />
-              </label>
+                </div>
+
+                <div className="d-flex flex-column">
+                  <label className="form-label fw-semibold small text-secondary">
+                    Description
+                  </label>
+                  <textarea
+                    className="form-control p-3 border rounded-3"
+                    placeholder="Write description..."
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    rows={10}
+                    style={{ minHeight: "200px" }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <div className="mt-4">
-            <SubmitButton
-              isLoading={isLoading}
-              text="Update Product"
-              loadingText="Updating..."
-            />
+
+          <div className="col-lg-4">
+            <div
+              className="bg-white rounded-3 shadow p-4 d-flex flex-column justify-content-between"
+              style={{ height: "60vh" }}
+            >
+              <div>
+                <h5 className="fw-bold mb-3">Product Image</h5>
+
+                <label
+                  htmlFor="sliderImage"
+                  className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 flex-grow-1 position-relative"
+                  style={{
+                    minHeight: "320px",
+                    borderColor: "#d1d5db",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s",
+                  }}
+                  onMouseOver={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#f3f4f6")
+                  }
+                  onMouseOut={(e) =>
+                    (e.currentTarget.style.backgroundColor = "#f9fafb")
+                  }
+                >
+                  {previewImage ? (
+                    <Image
+                      src={previewImage}
+                      alt="Slider Preview"
+                      fill
+                      style={{ objectFit: "cover", borderRadius: "8px" }}
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="d-flex flex-column align-items-center">
+                      <Camera size={48} style={{ color: "#9ca3af" }} />
+                      <span className="small mt-2">
+                        Click to upload (Max 2MB, 16:9)
+                      </span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    id="sliderImage"
+                    className="d-none"
+                    onChange={handleImageChange}
+                    accept="image/png, image/jpeg, image/webp"
+                    required={!previewImage}
+                  />
+                </label>
+              </div>
+            </div>
+            <div className="mt-4">
+              <SubmitButton
+                isLoading={isLoading}
+                text="Update Product"
+                loadingText="Updating..."
+              />
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      )}
 
       <div className="mt-5 bg-white rounded-3 shadow-sm p-4">
         <h5 className="fw-bold mb-3">Recently Edited Products</h5>

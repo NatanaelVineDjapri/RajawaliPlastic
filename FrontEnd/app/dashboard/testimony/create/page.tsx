@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Camera } from "lucide-react";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
@@ -9,6 +9,7 @@ import { addTestimonial } from "@/services/testimonialService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Image from "next/image";
+import UniversalFormSkeleton from "@/app/components/admincomponents/skeletons/UniversalFormSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -26,6 +27,12 @@ export default function CreateTestimonyPage() {
     { label: "Testimony List", href: "/dashboard/testimony" },
     { label: "Add Testimony" },
   ];
+
+  useEffect(() => {
+      setIsLoading(true);
+      const timer = setTimeout(() => setIsLoading(false), 800);
+      return () => clearTimeout(timer);
+    }, []);
 
   const handleLogoChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -79,8 +86,9 @@ export default function CreateTestimonyPage() {
   return (
     <div className="w-100">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
-
-      <form onSubmit={handleSubmit}>
+      {isLoading && <UniversalFormSkeleton leftFields={1} rightBoxes={1} textareaHeight={250} />}
+      
+      {!isLoading && (<form onSubmit={handleSubmit}>
         <div className="row g-4">
           <div className="col-lg-8">
             <div className="bg-white rounded-3 shadow-sm p-4 h-100">
@@ -185,7 +193,7 @@ export default function CreateTestimonyPage() {
             </div>
           </div>
         </div>
-      </form>
+      </form> )}
     </div>
   );
 }

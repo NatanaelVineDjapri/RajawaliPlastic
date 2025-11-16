@@ -9,6 +9,7 @@ import { addSlider, deleteSlider, getSliders } from "@/services/heroService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Image from "next/image";
+import UniversalSliderSkeleton from "@/app/components/admincomponents/skeletons/UniversalSliderSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -108,6 +109,8 @@ export default function SliderManagementPage() {
   return (
     <div className="w-100 px-2 px-md-4">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
+      {isListLoading ? ( <UniversalSliderSkeleton  count={6} />) : (
+
       <div className="row g-4">
         <div className="col-12 col-lg-5">
           <form
@@ -207,7 +210,7 @@ export default function SliderManagementPage() {
             )}
           </div>
         </div>
-      </div>
+      </div> )}
     </div>
   );
 }
