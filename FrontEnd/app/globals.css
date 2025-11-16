@@ -461,29 +461,32 @@ body {
 
 /* TESTIMONY SECTION */
 
-.testimony-section {
-  background-color: #ffffff;
-  padding-top: 40px;
-  padding-bottom: 40px;
-  margin-top: -60px;
-  transition: all 0.3s ease;
-}
-
-.testimony-section h2 {
-  font-size: 3.4rem;
-  color: #162737;
-  margin-bottom: 2rem;
-}
-
-.carousel-caption {
+.testimony-caption {
   bottom: 1rem !important;
-  right: 2rem !important;
-  left: 2rem !important;
+  left: 1rem !important;
+  right: 1rem !important;
 }
 
-.carousel-caption p {
-  margin-bottom: 0.3rem;
-  font-size: 0.95rem;
+@media (max-width: 576px) {
+  .testimony-caption {
+    padding: 0.75rem !important;
+    font-size: 0.85rem;
+  }
+
+  .testimony-caption p {
+    font-size: 0.8rem !important;
+  }
+
+  .testimony-caption small {
+    font-size: 0.75rem !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .testimony-caption {
+    padding: 1rem !important;
+    font-size: 1rem;
+  }
 }
 
 /* BLOGS SECTION */

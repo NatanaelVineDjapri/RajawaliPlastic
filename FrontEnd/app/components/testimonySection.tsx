@@ -45,7 +45,6 @@ export default function TestimonySection() {
           Testimoni
         </h2>
 
-        {/* ================= SLIDER TESTIMONI ================= */}
         <div className="mb-5">
           <Carousel indicators={false} className="rounded-4 shadow">
             {testimonies.map((item, index) => (
@@ -64,7 +63,7 @@ export default function TestimonySection() {
                   />
                 </div>
 
-                <Carousel.Caption className="d-none d-md-block bg-white bg-opacity-75 p-3 rounded text-dark">
+                <Carousel.Caption className="bg-white bg-opacity-75 p-3 rounded text-dark testimony-caption">
                   <p className="fst-italic">
                     <i className="bi bi-quote text-primary fs-3"></i>{" "}
                     {item.description}
@@ -76,7 +75,6 @@ export default function TestimonySection() {
           </Carousel>
         </div>
 
-        {/* ================== PARTNERS ================== */}
         <div className="row justify-content-center align-items-center gy-4">
           {partners.map((partner, idx) => (
             <div className="col-4 col-sm-2 text-center" key={idx}>
