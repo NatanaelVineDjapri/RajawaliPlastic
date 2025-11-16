@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, FormEvent, ChangeEvent } from "react";
+import React, { useState, FormEvent, ChangeEvent, useEffect } from "react";
 import { Camera } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import PageHeader from "@/app/components/admincomponents/PageHeader";
@@ -9,6 +9,7 @@ import { addBlog } from "@/services/blogService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Image from "next/image";
+import UniversalFormSkeleton from "@/app/components/admincomponents/skeletons/UniversalFormSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -26,6 +27,11 @@ export default function CreateBlogPage() {
     { label: "Blog List", href: "/dashboard/blogs" },
     { label: "Add Blog" },
   ];
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 800);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -81,128 +87,138 @@ export default function CreateBlogPage() {
   return (
     <div className="w-100">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
-      <div className="row g-4">
-        <div className="col-12 col-lg-8">
-          <form
-            onSubmit={handleSubmit}
-            id="blogUploadForm"
-            className="bg-white rounded-3 shadow-sm p-3 p-md-4 h-auto d-flex flex-column"
-          >
-            <h5 className="fw-bold mb-3">Blog Details</h5>
-            <div className="d-flex flex-column gap-3">
-              <div>
-                <label
-                  htmlFor="title"
-                  className="form-label fw-semibold text-secondary small mb-1"
-                >
-                  Title <span className="text-danger">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="title"
-                  className="form-control p-3 border rounded-3"
-                  placeholder="Enter blog title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="description"
-                  className="form-label fw-semibold text-secondary small mb-1"
-                >
-                  Description <span className="text-danger">*</span>
-                </label>
-                <textarea
-                  id="description"
-                  className="form-control p-3 border rounded-3"
-                  placeholder="Enter short description..."
-                  rows={1}
-                  style={{ minHeight: "30px", resize: "vertical" }}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="content"
-                  className="form-label fw-semibold text-secondary small mb-1"
-                >
-                  Content <span className="text-danger">*</span>
-                </label>
-                <textarea
-                  id="content"
-                  className="form-control p-3 border rounded-3"
-                  placeholder="Enter blog content..."
-                  rows={3}
-                  style={{ minHeight: "150px", resize: "vertical" }}
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-          </form>
-        </div>
+      {isLoading && (
+        <UniversalFormSkeleton
+          leftFields={2}
+          rightBoxes={1}
+          textareaHeight={150}
+        />
+      )}
 
-        <div className="col-12 col-lg-4">
-          <div className="bg-white rounded-3 shadow-sm p-3 p-md-4 d-flex flex-column h-auto">
-            <h5 className="fw-bold mb-3">Cover Image</h5>
-            <label
-              htmlFor="blogImage"
-              className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 position-relative"
-              style={{
-                aspectRatio: "16/9",
-                minHeight: "320px",
-                borderColor: "#d1d5db",
-                cursor: "pointer",
-                transition: "background-color 0.2s",
-              }}
-              onMouseOver={(e) =>
-                (e.currentTarget.style.backgroundColor = "#f3f4f6")
-              }
-              onMouseOut={(e) =>
-                (e.currentTarget.style.backgroundColor = "#f9fafb")
-              }
+      {!isLoading && (
+        <div className="row g-4">
+          <div className="col-12 col-lg-8">
+            <form
+              onSubmit={handleSubmit}
+              id="blogUploadForm"
+              className="bg-white rounded-3 shadow-sm p-3 p-md-4 h-auto d-flex flex-column"
             >
-              {previewImage ? (
-                <Image
-                  src={previewImage}
-                  alt="Cover Preview"
-                  fill
-                  style={{ objectFit: "cover", borderRadius: "8px" }}
-                  unoptimized
-                />
-              ) : (
-                <div className="d-flex flex-column align-items-center">
-                  <Camera size={48} style={{ color: "#9ca3af" }} />
-                  <span className="small mt-2">
-                    Click to upload (Max 2MB, 16:9)
-                  </span>
+              <h5 className="fw-bold mb-3">Blog Details</h5>
+              <div className="d-flex flex-column gap-3">
+                <div>
+                  <label
+                    htmlFor="title"
+                    className="form-label fw-semibold text-secondary small mb-1"
+                  >
+                    Title <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    className="form-control p-3 border rounded-3"
+                    placeholder="Enter blog title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                  />
                 </div>
-              )}
-              <input
-                type="file"
-                id="blogImage"
-                className="d-none"
-                onChange={handleImageChange}
-                accept="image/png, image/jpeg, image/webp"
-                required
-              />
-            </label>
+                <div>
+                  <label
+                    htmlFor="description"
+                    className="form-label fw-semibold text-secondary small mb-1"
+                  >
+                    Description <span className="text-danger">*</span>
+                  </label>
+                  <textarea
+                    id="description"
+                    className="form-control p-3 border rounded-3"
+                    placeholder="Enter short description..."
+                    rows={1}
+                    style={{ minHeight: "30px", resize: "vertical" }}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="content"
+                    className="form-label fw-semibold text-secondary small mb-1"
+                  >
+                    Content <span className="text-danger">*</span>
+                  </label>
+                  <textarea
+                    id="content"
+                    className="form-control p-3 border rounded-3"
+                    placeholder="Enter blog content..."
+                    rows={3}
+                    style={{ minHeight: "150px", resize: "vertical" }}
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+            </form>
           </div>
-          <div className="mt-3 d-flex justify-content-end">
-            <SubmitButton
-              isLoading={isLoading}
-              text="Publish Blog"
-              loadingText="Publishing..."
-              form="blogUploadForm"
-            />
+
+          <div className="col-12 col-lg-4">
+            <div className="bg-white rounded-3 shadow-sm p-3 p-md-4 d-flex flex-column h-auto">
+              <h5 className="fw-bold mb-3">Cover Image</h5>
+              <label
+                htmlFor="blogImage"
+                className="d-flex flex-column align-items-center justify-content-center p-4 text-muted rounded-3 border-2 border-dashed bg-light w-100 position-relative"
+                style={{
+                  aspectRatio: "16/9",
+                  minHeight: "320px",
+                  borderColor: "#d1d5db",
+                  cursor: "pointer",
+                  transition: "background-color 0.2s",
+                }}
+                onMouseOver={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f3f4f6")
+                }
+                onMouseOut={(e) =>
+                  (e.currentTarget.style.backgroundColor = "#f9fafb")
+                }
+              >
+                {previewImage ? (
+                  <Image
+                    src={previewImage}
+                    alt="Cover Preview"
+                    fill
+                    style={{ objectFit: "cover", borderRadius: "8px" }}
+                    unoptimized
+                  />
+                ) : (
+                  <div className="d-flex flex-column align-items-center">
+                    <Camera size={48} style={{ color: "#9ca3af" }} />
+                    <span className="small mt-2">
+                      Click to upload (Max 2MB, 16:9)
+                    </span>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  id="blogImage"
+                  className="d-none"
+                  onChange={handleImageChange}
+                  accept="image/png, image/jpeg, image/webp"
+                  required
+                />
+              </label>
+            </div>
+            <div className="mt-3 d-flex justify-content-end">
+              <SubmitButton
+                isLoading={isLoading}
+                text="Publish Blog"
+                loadingText="Publishing..."
+                form="blogUploadForm"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

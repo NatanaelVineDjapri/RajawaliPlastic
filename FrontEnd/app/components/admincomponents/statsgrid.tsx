@@ -11,16 +11,15 @@ interface StatItem {
 }
 
 interface StatsGridProps {
-  summary: any; // object atau array
+  summary: any; 
 }
 
 export default function StatsGrid({ summary }: StatsGridProps) {
-  // Jika summary object, ubah ke array
   const summaryArray = Array.isArray(summary) ? summary : [summary];
 
-  const totalCustomer = summaryArray.length;
   const totalOrder = summaryArray.reduce((acc, cur) => acc + (cur.total_orders || 0), 0);
   const totalSales = summaryArray.reduce((acc, cur) => acc + (cur.total_price || 0), 0);
+  const totalCustomer = summaryArray.reduce((acc, cur) => acc + (cur.total_users || 0), 0);
 
   const stats: StatItem[] = [
     {

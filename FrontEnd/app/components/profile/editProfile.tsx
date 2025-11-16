@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 
 import { getProfile, updateProfile } from "@/services/authService";
+import EditProfileSkeleton from "../admincomponents/skeletons/EditProfileSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -73,11 +74,7 @@ const EditProfile: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="vh-100 d-flex justify-content-center align-items-center fs-5">
-        Loading profile...
-      </div>
-    );
+   return <EditProfileSkeleton />; 
   }
 
   return (
