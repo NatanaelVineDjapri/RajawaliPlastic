@@ -8,7 +8,7 @@ use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SliderController;
-use App\Http\Controllers\blogController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\PartnerController;
 
 Route::prefix('rs')->group(function () {

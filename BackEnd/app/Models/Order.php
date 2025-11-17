@@ -26,7 +26,7 @@ class Order extends Model
         'products' => 'array',
         'total_price' => 'float',
     ];
-
+    
     public function user()
     {
         return $this->belongsTo(User::class);
