@@ -77,7 +77,7 @@ class AuthController extends Controller
             60 * 24 * 7,   // 7 hari
             '/',
             null,
-            false,          // secure=false supaya bisa di localhost
+            true ,          
             true,           // httpOnly
             false,
             'None'           // sameSite
