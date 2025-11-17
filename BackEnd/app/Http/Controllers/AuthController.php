@@ -80,7 +80,7 @@ class AuthController extends Controller
             false,          // secure=false supaya bisa di localhost
             true,           // httpOnly
             false,
-            'Lax'           // sameSite
+            'None'           // sameSite
         );
 
         return response()->json([
