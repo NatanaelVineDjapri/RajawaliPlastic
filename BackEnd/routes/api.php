@@ -15,8 +15,8 @@ Route::prefix('rs')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/products', [ProductController::class, 'index']);
-    Route::get('/testimonials', action: [TestimonialController::class, 'index']);
-    Route::get('/galleries', action: [GalleryController::class, 'index']);
+    Route::get('/testimonials', [TestimonialController::class, 'index']);
+    Route::get('/galleries', [GalleryController::class, 'index']);
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/blogs', [BlogController::class, 'index']);
     Route::get('/partners', [PartnerController::class, 'index']);
