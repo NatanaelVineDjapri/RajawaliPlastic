@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image"; 
 import "bootstrap/dist/css/bootstrap.min.css";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import { getProfile, logout,  } from "@/services/authService";
+import { getProfile, logout } from "@/services/authService";
 import { useRouter } from "next/navigation"; 
 import Link from "next/link"; 
 
@@ -24,24 +25,25 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const router = useRouter(); 
 
- useEffect(() => {
-  const fetchProfile = async () => {
-    try {
-      const profile = await getProfile();
-      setUser(profile);
-    } catch (err: any) {
-      MySwal.fire({
-        icon: "error",
-        title: "Gagal Ambil Data",
-        text: err.message || "Terjadi kesalahan saat memuat profile",
-        confirmButtonColor: "#dc2626",
-      }).then(() => router.push("/auth/login"));
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchProfile();
-}, [router]);
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profile = await getProfile();
+        setUser(profile);
+      } catch (err: any) {
+        MySwal.fire({
+          icon: "error",
+          title: "Gagal Ambil Data",
+          text: err.message || "Terjadi kesalahan saat memuat profile",
+          confirmButtonColor: "#dc2626",
+        }).then(() => router.push("/auth/login"));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [router]);
+  
   const handleLogout = async () => {
     await logout();
     router.push("/auth/login");
@@ -69,9 +71,16 @@ const Profile: React.FC = () => {
         <div className="profile-inner text-center">
           <div className="mb-3">
             <div
-              className="profile-avatar rounded-circle bg-light mx-auto"
+              className="profile-avatar rounded-circle mx-auto overflow-hidden position-relative"
               style={{ width: 100, height: 100 }}
-            ></div>
+            >
+              <Image
+                src="/images/pfp.jpg" // Path relatif ke folder public
+                alt="Profile Picture"
+                fill // Menggunakan prop 'fill' untuk Next.js 13/14
+                style={{ objectFit: "cover" }} // Menggantikan objectFit="cover"
+              />
+            </div>
           </div>
 
           <div className="text-start mb-4">

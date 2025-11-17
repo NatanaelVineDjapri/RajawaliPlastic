@@ -1,6 +1,6 @@
 'use client';
 
-import Sidenavbar from '../components/admincomponents/SideNavBar';
+import Sidenavbar from '../components/admincomponents/SideNavbar';
 import TopNavbar from '../components/admincomponents/TopNavbar';
 import CreateButton from '@/app/components/admincomponents/CreateButton';
 import React from 'react';

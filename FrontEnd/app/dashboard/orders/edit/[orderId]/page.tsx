@@ -8,7 +8,7 @@ import PageHeader from "@/app/components/admincomponents/PageHeader";
 import SubmitButton from "@/app/components/admincomponents/SubmitButton";
 import { getOrderById, updateOrder } from "@/services/orderService";
 import { getProducts } from "@/services/productService";
-
+import EditOrderSkeleton from "@/app/components/admincomponents/skeletons/EditOrderSkeleton";
 import type { 
   Order as BaseOrder, 
   StatusType 
@@ -198,7 +198,7 @@ export default function EditOrderPage() {
   };
 
   if (pageIsLoading)
-    return <div className="p-5 text-center">Loading order...</div>;
+    return <EditOrderSkeleton/>;
   if (!order)
     return (
       <div className="p-5 text-center text-danger">Gagal memuat data order.</div>

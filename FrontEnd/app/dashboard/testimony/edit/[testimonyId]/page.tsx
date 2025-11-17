@@ -12,6 +12,7 @@ import {
   getTestimonialById,
   updateTestimonial,
 } from "@/services/testimonialService";
+import UniversalFormSkeleton from "@/app/components/admincomponents/skeletons/UniversalFormSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -20,7 +21,7 @@ interface Testimonial {
   id?: string | number;
   name: string;
   description: string;
-  logo_base64?: string; // harus sudah include data:mime;base64, dari backend
+  logo_base64?: string;
   updated_at?: string;
   created_at?: string;
 }
@@ -35,6 +36,7 @@ export default function EditTestimonyPage() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
 
   const pageTitle = "Edit Testimony";
   const breadcrumbs = [
@@ -58,13 +60,15 @@ export default function EditTestimonyPage() {
         setName(data.name);
         setDescription(data.description || "");
 
-        // pastikan backend mengirim data:image/...;base64,
         if (data.logo_base64) {
-          setPreviewLogo(data.logo_base64.startsWith("data:") 
-            ? data.logo_base64 
-            : `data:image/jpeg;base64,${data.logo_base64}`
+          setPreviewLogo(
+            data.logo_base64.startsWith("data:")
+              ? data.logo_base64
+              : `data:image/jpeg;base64,${data.logo_base64}`
           );
         }
+
+        setPageLoading(false);
       } catch (err: any) {
         MySwal.fire(
           "Error",
@@ -93,9 +97,7 @@ export default function EditTestimonyPage() {
 
   const getImageSrc = () => {
     if (!previewLogo) return "";
-    // jika base64 dari backend
     if (previewLogo.startsWith("data:")) return previewLogo;
-    // jika file baru upload
     return previewLogo;
   };
 
@@ -110,7 +112,10 @@ export default function EditTestimonyPage() {
     if (logoFile) formData.append("logo", logoFile);
 
     try {
-      const res = await updateTestimonial(testimony._id || testimony.id!, formData);
+      const res = await updateTestimonial(
+        testimony._id || testimony.id!,
+        formData
+      );
       MySwal.fire({
         title: "Success!",
         text: res.message || "Testimonial updated successfully!",
@@ -126,8 +131,17 @@ export default function EditTestimonyPage() {
   };
 
   if (!testimony)
-    return <div className="p-5 text-center">Loading testimonial...</div>;
+    return (
+      <div className="w-100">
+        <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
 
+        <UniversalFormSkeleton
+          leftFields={1}
+          rightBoxes={1}
+          textareaHeight={250}
+        />
+      </div>
+    );
   return (
     <div className="w-100">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />

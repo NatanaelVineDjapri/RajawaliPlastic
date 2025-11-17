@@ -8,13 +8,12 @@ const Footer: React.FC = () => {
     <footer className="text-white pt-5 pb-3" style={{ background: 'linear-gradient(180deg, #1e3a5f, #0b1e30)', borderRadius: '12px 12px 0 0' }}>
       <div className="container">
         <div className="row gy-4 align-items-start">
-          {/* === KIRI === */}
           <div className="col-md-4 text-md-start text-center">
             <h2 className="fw-bold display-5 mb-2">Rajawali</h2>
             <h3 className=" text-white mb-3" style={{ fontSize: '3.2rem' }}>Plastik</h3>
             <ul className="list-unstyled">
               <li className="mb-2 d-flex align-items-center justify-content-md-start justify-content-center gap-2">
-                <FaEnvelope /> <span>rajawaliplastik@gmail.com</span>
+                <FaEnvelope /> <span>rajawaliplastics@gmail.com</span>
               </li>
               <li className="mb-2 d-flex align-items-center justify-content-md-start justify-content-center gap-2">
                 <FaMapMarkerAlt /> <span>Tangerang, Indonesia</span>
@@ -25,18 +24,29 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* === TENGAH === */}
           <div className="col-md-3 text-md-start text-center">
             <ul className="list-unstyled">
-              <li className="mb-2"><a href="#" className="text-white text-decoration-none hover-link">Beranda</a></li>
-              <li className="mb-2"><a href="#" className="text-white text-decoration-none hover-link">Tentang Kami</a></li>
-              <li className="mb-2"><a href="#" className="text-white text-decoration-none hover-link">Produk</a></li>
-              <li className="mb-2"><a href="#" className="text-white text-decoration-none hover-link">Testimoni</a></li>
-              <li><a href="#" className="text-white text-decoration-none hover-link">Blogs</a></li>
+              <li className="mb-2">
+                <a href="/#home" className="text-white text-decoration-none hover-link">Beranda</a>
+              </li>
+              <li className="mb-2">
+                <a href="/#about" className="text-white text-decoration-none hover-link">Tentang Kami</a>
+              </li>
+              <li className="mb-2">
+                <a href="/#products" className="text-white text-decoration-none hover-link">Produk</a>
+              </li>
+              <li className="mb-2">
+                <a href="/#testimonies" className="text-white text-decoration-none hover-link">Testimoni</a>
+              </li>
+              <li className="mb-2">
+                <a href="/#blogs" className="text-white text-decoration-none hover-link">Blogs</a>
+              </li>
+              <li className="mb-2">
+                <a href="/#gallery" className="text-white text-decoration-none hover-link">Gallery</a>
+              </li>
             </ul>
           </div>
 
-          {/* === KANAN === */}
           <div className="col-md-5 text-center text-md-end">
             <iframe
               title="map"
@@ -48,7 +58,6 @@ const Footer: React.FC = () => {
           </div>
         </div>
 
-        {/* === BAWAH === */}
         <hr className="border-light my-4 opacity-50" />
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-center">
           <p className="mb-2 mb-md-0 small">Copyright © 2025 Rajawali Plastik</p>

@@ -8,6 +8,7 @@ import { getOrders } from "@/services/orderService";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { Order, Product, StatusType } from "../../types";
+import OrderListSkeleton from "@/app/components/admincomponents/skeletons/OrderListSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -209,11 +210,8 @@ export default function OrderListPage() {
       <PageHeader title="Order List" breadcrumbs={breadcrumbs} />
 
       {isLoading ? (
-        <div className="text-center p-5">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
+        <OrderListSkeleton count={10} />
+
       ) : orders.length === 0 ? (
         <div className="text-center p-5 bg-white rounded-3 shadow-sm">
           <p className="text-muted mb-0">No orders found.</p>
