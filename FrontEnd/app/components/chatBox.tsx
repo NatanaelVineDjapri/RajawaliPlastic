@@ -1,197 +1,148 @@
 'use client';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
-import { 
-    fetchMessages, 
-    sendMessage, 
-    MessageData,
-    UserData 
-} from '@/services/messageService'; 
-import { 
-    fetchCurrentUserProfile, 
-    fetchAdminUserForChat
-} from '@/services/UserService'; 
-import { listenToChannel } from '@/utils/echo'; 
+import { fetchMessages, sendMessage, MessageData, UserData } from '@/services/messageService';
+import { fetchCurrentUserProfile, fetchAdminUserForChat } from '@/services/UserService';
+import "@/utils/echo";
+
+declare global {
+    interface Window { Echo: any; }
+}
 
 interface UIMessage {
     id: string;
     text: string;
-    from: 'user' | 'bot'; 
-    isTemp?: boolean; 
+    from: 'user' | 'bot';
+    isTemp?: boolean;
 }
 
 const formatMessageForUI = (msg: MessageData, currentUserId: string): UIMessage => ({
-    id: msg._id,
+    id: (msg as any).id || (msg as any)._id || String(Date.now()),
     text: msg.message,
-    from: msg.sender_id === currentUserId ? 'user' : 'bot',
+    from: (msg as any).sender_id === currentUserId ? 'user' : 'bot',
 });
 
-
-const fetchDynamicAdminId = async (): Promise<string | null> => {
-    try {
-        const adminUser = await fetchAdminUserForChat(); 
-        
-        console.log(`[ChatBox] Admin ID ditemukan via Endpoint Khusus: ${adminUser.id} (${adminUser.name})`);
-        return adminUser.id;
-        
-    } catch (error) {
-        console.error("Gagal mendapatkan ID Admin dari endpoint khusus:", error);
-        return null;
-    }
-};
-
-
 const ChatBox: React.FC = () => {
-    const [messages, setMessages] = useState<UIMessage[]>([]); 
+    const [messages, setMessages] = useState<UIMessage[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [currentUser, setCurrentUser] = useState<UserData | null>(null); 
-    const [adminId, setAdminId] = useState<string | null>(null); 
+    const [currentUser, setCurrentUser] = useState<UserData | null>(null);
+    const [adminId, setAdminId] = useState<string | null>(null);
+    const [authError, setAuthError] = useState<string | null>(null);
+
     const chatEndRef = useRef<HTMLDivElement>(null);
+    const subscribedChannelsRef = useRef<Set<string>>(new Set());
 
-    const currentUserId = currentUser?.id; 
+    const currentUserId = currentUser?.id ?? null;
 
-    useEffect(() => {
-        chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [messages]);
-    
-    useEffect(() => {
-        const setupListener = (userId: string) => {
-            if (typeof window !== 'undefined' && window.Echo) {
-                console.log(`[ChatBox] Listening to channel: chat.${userId}`);
-                
-                listenToChannel(userId, (event: { message: MessageData }) => {
-                    const newMessage = formatMessageForUI(event.message, userId);
+    const scrollToBottom = useCallback(() => {
+        setTimeout(() => {
+            chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 0);
+    }, []);
 
-                    setMessages(prev => {
-                        const tempText = event.message.message; 
-                        return [
-                            ...prev.filter(msg => msg.text !== tempText || !msg.isTemp),
-                            newMessage
-                        ].sort((a, b) => a.id.localeCompare(b.id));
-                    });
-                });
-            }
-        };
+    useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
 
-        const loadData = async () => {
-            setIsLoading(true);
-            let user: UserData | null = null;
-            let targetAdminId: string | null = null;
-
-            try {
-                user = await fetchCurrentUserProfile();
-                setCurrentUser(user);
-            } catch (error) {
-                console.error("Gagal memuat profil user (Pastikan Anda Login):", error);
-                setIsLoading(false);
-                return;
-            }
-
-            targetAdminId = await fetchDynamicAdminId();
-            setAdminId(targetAdminId);
-            
-            if (!targetAdminId) {
-                console.error("Tidak dapat memulai chat karena ID Admin tidak ditemukan.");
-                setIsLoading(false);
-                return;
-            }
-
-            try {
-                const apiMessages = await fetchMessages(targetAdminId);
-                const uiMessages = apiMessages.map(msg => formatMessageForUI(msg, user!.id));
-                setMessages(uiMessages);
-            } catch (error) {
-                console.error("Gagal memuat riwayat pesan:", error);
-            } finally {
-                setIsLoading(false);
-            }
-
-            setupListener(user.id);
-        };
-        
-        loadData();
-        
-        return () => {
-            if (currentUser?.id && window.Echo) {
-                window.Echo.leave(`chat.${currentUser.id}`);
-            }
-        };
-    }, []); 
-
-
-    const handleSend = async () => {
-        if (input.trim() === '' || !currentUserId || !adminId) return; 
-
-        const textToSend = input.trim();
-        const tempId = `temp-${Date.now()}`; 
-
-        const tempMessage: UIMessage = {
-            id: tempId,
-            text: textToSend,
-            from: 'user',
-            isTemp: true
-        };
-        setMessages((prev) => [...prev, tempMessage]);
-        setInput('');
+    const safeSubscribe = (channelName: string, handler: (event: any) => void) => {
+        if (!window.Echo) return;
+        if (subscribedChannelsRef.current.has(channelName)) return;
 
         try {
-            await sendMessage(adminId, textToSend); 
-        } catch (error) {
-            console.error("Gagal mengirim pesan:", error);
-            setMessages(prev => prev.filter(msg => msg.id !== tempId));
+            window.Echo.private(channelName)
+                .listen('.MessageSent', handler)
+                .error(() => setAuthError(`Gagal otorisasi private channel (${channelName})`));
+
+            subscribedChannelsRef.current.add(channelName);
+        } catch {}
+    };
+
+    const safeUnsubscribe = (channelName: string) => {
+        if (!window.Echo) return;
+        try { window.Echo.leave(channelName); subscribedChannelsRef.current.delete(channelName); } catch {}
+    };
+
+    useEffect(() => {
+        if (!currentUserId || !adminId) return;
+
+        safeSubscribe(`chat.${currentUserId}`, (event: { message: MessageData }) => {
+            const uiMsg = formatMessageForUI(event.message, currentUserId);
+            setMessages(prev => prev.some(m => m.id === uiMsg.id) ? prev : [...prev, uiMsg]);
+        });
+
+        safeSubscribe(`chat.${adminId}`, (event: { message: MessageData }) => {
+            const msg = event.message;
+            if (msg.receiver_id === adminId && msg.sender_id !== adminId) {
+                const uiMsg = formatMessageForUI(msg, adminId);
+                setMessages(prev => prev.some(m => m.id === uiMsg.id) ? prev : [...prev, uiMsg]);
+            }
+        });
+
+        return () => {
+            safeUnsubscribe(`chat.${currentUserId}`);
+            safeUnsubscribe(`chat.${adminId}`);
+        };
+    }, [currentUserId, adminId]);
+
+    useEffect(() => {
+        let isMounted = true;
+        const loadData = async () => {
+            setIsLoading(true);
+            try {
+                const user = await fetchCurrentUserProfile();
+                setCurrentUser(user);
+                const admin = await fetchAdminUserForChat();
+                setAdminId(admin.id);
+
+                if (user && admin) {
+                    const msgs = await fetchMessages(admin);
+                    const uiMsgs = msgs.map(msg => formatMessageForUI(msg, user.id));
+                    setMessages(uiMsgs);
+                }
+            } finally { setIsLoading(false); }
+        };
+        loadData();
+        return () => { isMounted = false; };
+    }, []);
+
+    const handleSend = async () => {
+        if (!input.trim() || !currentUserId || !adminId) return;
+        const text = input.trim();
+        const tempId = `temp-${Date.now()}`;
+        const tempMsg: UIMessage = { id: tempId, text, from: 'user', isTemp: true };
+        setMessages(prev => [...prev, tempMsg]);
+        setInput(''); scrollToBottom();
+
+        try {
+            const sent = await sendMessage(adminId, text);
+            const uiMsg = formatMessageForUI(sent, currentUserId);
+            setMessages(prev => prev.some(m => m.id === uiMsg.id && !m.isTemp) ? prev.filter(m => m.id !== tempId) : prev.map(m => m.id === tempId ? uiMsg : m));
+        } catch {
+            setMessages(prev => prev.filter(m => m.id !== tempId));
         }
     };
-    
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') handleSend();
     };
 
-    if (isLoading) {
-        return <div className="text-center p-5">Memuat sesi chat dan mencari Admin...</div>;
-    }
-    
-    if (!currentUser) {
-        return <div className="text-center p-5 text-danger">Akses ditolak. Silakan login terlebih dahulu.</div>;
-    }
-    
-    if (!adminId) {
-        return <div className="text-center p-5 text-warning">Chat tidak tersedia. Admin support tidak ditemukan. (Pastikan Admin ada di database)</div>;
-    }
-
+    if (isLoading) return <div className="p-5 text-center">Memuat chat...</div>;
+    if (!currentUser) return <div className="p-5 text-danger">Silakan login</div>;
+    if (!adminId) return <div className="p-5 text-warning">Admin tidak ditemukan</div>;
 
     return (
         <div className="chat-box">
-            <div className="text-center text-muted small p-2 border-bottom">
-                Chatting dengan Admin ID: {adminId}
-            </div>
             <div className="chat-inner">
                 <div className="chat-messages">
-                    {messages.map((msg) => (
-                        <div
-                            key={msg.id}
-                            className={`message-row ${
-                                msg.from === 'user' ? 'from-user' : 'from-bot'
-                            }`}
-                        >
-                            <div className={`message-bubble ${msg.from} ${msg.isTemp ? 'opacity-50' : ''}`}>{msg.text}</div>
+                    {messages.slice().sort((a,b)=>a.id.localeCompare(b.id)).map(msg => (
+                        <div key={msg.id} className={`message-row ${msg.from === 'user' ? 'from-user' : 'from-bot'}`}>
+                            <div className={`message-bubble ${msg.from} ${msg.isTemp?'opacity-50':''}`}>{msg.text}</div>
                         </div>
                     ))}
                     <div ref={chatEndRef} />
                 </div>
-                    
                 <div className="chat-input">
-                    <input
-                        type="text"
-                        placeholder="Ketik pesan..."
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        disabled={!currentUserId || isLoading || !adminId} 
-                    />
-                    <button onClick={handleSend} disabled={!currentUserId || isLoading || !adminId}>
-                        <FaPaperPlane />
-                    </button>
+                    <input type="text" placeholder="Ketik pesan..." value={input} onChange={e=>setInput(e.target.value)} onKeyDown={handleKeyDown} />
+                    <button onClick={handleSend} disabled={!input.trim()}><FaPaperPlane /></button>
                 </div>
             </div>
         </div>

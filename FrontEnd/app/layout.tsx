@@ -5,6 +5,7 @@ import Navbar from "./components/navbar";
 import MobileNavbar from "./components/mobileNavbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { usePathname } from "next/navigation";
+import EchoProvider from "./providers/echoProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -35,8 +36,9 @@ export default function RootLayout({
             <MobileNavbar />
           </>
         )}
-
-        {children}
+        <EchoProvider>
+          {children}
+        </EchoProvider>
       </body>
     </html>
   );
