@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
 import { getBlogs } from '@/services/blogService';
+import SkeletonBlogCard from "./skeletons/SkeletonBlogCard";
 
 interface BlogItem {
   id: number;
@@ -54,10 +55,8 @@ const Blogs: React.FC = () => {
         <h2 className="home-blogs-title fw-bold mb-5">Blogs</h2>
 
         {loading && (
-          <div className="text-center my-5">
-            <Spinner animation="border" variant="dark" />
-            <p className="mt-2 text-muted">Loading blogs...</p>
-          </div>
+          <SkeletonBlogCard />
+
         )}
 
         {error && (

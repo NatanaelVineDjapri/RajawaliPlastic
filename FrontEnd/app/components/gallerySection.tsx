@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { Container, Row, Col, Spinner } from 'react-bootstrap';
 import { getGalleries } from '@/services/galleryService'; 
+import SkeletonGallery from './skeletons/SkeletonGallery';
 
 interface GalleryItem {
   id: string;
@@ -39,9 +40,7 @@ const GallerySection: React.FC = () => {
         </h2>
 
         {loading && (
-          <div className="text-center py-5">
-            <Spinner animation="border" role="status" />
-          </div>
+          <SkeletonGallery />
         )}
 
         {error && (
