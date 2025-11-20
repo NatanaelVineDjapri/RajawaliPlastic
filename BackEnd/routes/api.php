@@ -11,11 +11,13 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SliderController;
 use App\Http\Controllers\blogController;
 use App\Http\Controllers\PartnerController;
-
-Broadcast::routes(['prefix' => 'api/rs', 'middleware' => ['web', 'auth:sanctum']]);
+use Illuminate\Http\Request;
 
 Route::prefix('rs')->group(function () {
-    
+    Route::post('/broadcasting/auth', function (Request $request) {
+        return Broadcast::auth($request);
+    })->middleware('auth.api');
+
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/products', [ProductController::class, 'index']);
@@ -27,25 +29,15 @@ Route::prefix('rs')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::get('/admin-for-chat', [AuthController::class, 'getAdminUserForChat']);
 
-    
-
     // Route::middleware('auth.api')->group(function (): void {
         Route::put('/profile/update', [AuthController::class, 'updateProfile']);
         Route::post('/logout', [AuthController::class, 'logout']);
-    
-        // Rute Chat Dasar
         Route::get('/messages/{receiverId}', [MessageController::class, 'index']);
         Route::post('/messages', [MessageController::class, 'store']);
         Route::put('/messages/{id}/read', [MessageController::class, 'markAsRead']);
         Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
     
         Route::get('/conversations', [MessageController::class, 'getConversations']);
-
-    
-
-        Route::middleware('admin')->group(function () {
-            Route::get('/rs/users', [AuthController::class, 'getAllUsers']);
-        });
     
         // Route::middleware('role:admin')->group(function () {
             Route::post('/products', [ProductController::class, 'store']);
@@ -71,8 +63,8 @@ Route::prefix('rs')->group(function () {
             Route::put('/orders/{id}', [OrderController::class, 'update']);
             Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 
-            Route::delete('/users/{id}', [AuthController::class, 'deleteUser']);
             Route::get('/users', [AuthController::class, 'getAllUsers']);
+            Route::delete('/users/{id}', [AuthController::class, 'deleteUser']);
             
             Route::get('/sliders', [SliderController::class, 'index']);
             Route::post('/sliders', [SliderController::class, 'store']);

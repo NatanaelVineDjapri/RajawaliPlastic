@@ -64,6 +64,8 @@ class AuthController extends Controller
                 'message' => 'Email atau password salah!'
             ], 401);
         }
+        
+        auth()->login($user);
 
         $customWord = "RajawaliXUntar2025@9823";
         $randomPart = Str::random(60);

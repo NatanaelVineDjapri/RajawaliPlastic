@@ -78,7 +78,7 @@ class MessageController extends Controller
 
         $message->load(['sender', 'receiver']);
 
-        broadcast(new MessageSent($message));
+        broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
             'success' => true,
@@ -102,7 +102,7 @@ class MessageController extends Controller
 
         $conversations = $safeMessages
             ->groupBy(function(Message $message) {
-                $ids = [$message->sender_id, $message->receiver_id];
+                $ids = [(string) $message->sender_id, (string) $message->receiver_id];
                 sort($ids); 
                 return implode('_', $ids);
             })
