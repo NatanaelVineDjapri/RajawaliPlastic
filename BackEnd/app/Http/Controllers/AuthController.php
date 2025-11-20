@@ -169,4 +169,23 @@ class AuthController extends Controller
             'user' => $user
         ], 200);
     }
+
+    public function getAllUsers(Request $request)
+    {
+        $token = $request->cookie('authToken');
+        $admin = User::where('api_token', $token)->first();
+
+        if (!$admin || $admin->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized: Akses ditolak. Hanya admin.'], 403);
+        }
+
+        $users = User::all([
+            '_id', 'name', 'email', 'role', 'phone_number', 'address', 'image'
+        ]);
+
+        return response()->json([
+            'message' => 'Data user berhasil diambil.',
+            'users' => $users
+        ], 200);
+    }
 }

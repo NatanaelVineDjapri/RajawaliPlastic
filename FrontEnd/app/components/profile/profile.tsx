@@ -8,6 +8,7 @@ import withReactContent from "sweetalert2-react-content";
 import { getProfile, logout } from "@/services/authService";
 import { useRouter } from "next/navigation"; 
 import Link from "next/link"; 
+import ProfileSkeleton from "../skeletons/ProfileSkeleton";
 
 const MySwal = withReactContent(Swal);
 
@@ -51,9 +52,7 @@ const Profile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="d-flex justify-content-center align-items-center vh-100">
-        <p className="text-muted">Loading profile...</p>
-      </div>
+      <ProfileSkeleton/>
     );
   }
 
@@ -75,10 +74,10 @@ const Profile: React.FC = () => {
               style={{ width: 100, height: 100 }}
             >
               <Image
-                src="/images/pfp.jpg" // Path relatif ke folder public
+                src="/images/pfp.jpg" 
                 alt="Profile Picture"
-                fill // Menggunakan prop 'fill' untuk Next.js 13/14
-                style={{ objectFit: "cover" }} // Menggantikan objectFit="cover"
+                fill 
+                style={{ objectFit: "cover" }} 
               />
             </div>
           </div>

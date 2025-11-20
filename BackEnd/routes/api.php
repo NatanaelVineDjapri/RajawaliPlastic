@@ -59,7 +59,7 @@ Route::prefix('rs')->group(function () {
             Route::put('/orders/{id}', [OrderController::class, 'update']);
             Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
             
-            
+            Route::get('/users', [AuthController::class, 'getAllUsers']);
             Route::get('/sliders', [SliderController::class, 'index']);
             Route::post('/sliders', [SliderController::class, 'store']);
             Route::delete('/sliders/{id}', [SliderController::class, 'destroy']);
