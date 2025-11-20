@@ -42,40 +42,25 @@ const getPaymentStatusBadge = (status: StatusType) => {
   }
 };
 
-interface OrderRowProps {
-  order: Order;
-}
-
-const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
+const OrderRow: React.FC<{ order: Order }> = ({ order }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const formatPrice = (price: any) => {
-    if (price === null || price === undefined || price === "") return "Rp 0";
-    const parsed = Number(price);
-    if (isNaN(parsed)) return "Rp 0";
-
-    return new Intl.NumberFormat("id-ID", {
+  const formatPrice = (price: any) =>
+    new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
       minimumFractionDigits: 0,
-    }).format(parsed);
-  };
+    }).format(Number(price) || 0);
 
   return (
-    <div
-      className={`card mb-3 shadow-sm ${
-        isExpanded ? "bg-light border-primary" : "border-0"
-      }`}
-    >
+    <div className={`card mb-3 shadow-sm ${isExpanded ? "bg-light border-primary" : "border-0"}`}>
       <div className="card-body p-3">
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             <button
-              className={`btn btn-sm ${
-                isExpanded ? "btn-primary" : "btn-outline-primary"
-              } me-3 p-1`}
+              className={`btn btn-sm ${isExpanded ? "btn-primary" : "btn-outline-primary"} me-3 p-1`}
               onClick={() => setIsExpanded(!isExpanded)}
-              style={{ width: "30px", height: "30px", flexShrink: 0 }}
+              style={{ width: "30px", height: "30px" }}
             >
               <ChevronRight
                 size={18}
@@ -83,6 +68,7 @@ const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
                 style={{ transition: "transform 0.3s" }}
               />
             </button>
+
             <div>
               <h6 className="mb-0 fw-bold">Order #{order.order_no}</h6>
               <small className="text-muted">
@@ -94,17 +80,15 @@ const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
             </div>
           </div>
 
-          <div className="d-flex align-items-center text-end">
+          <div className="d-flex text-end">
             <div className="me-3 d-none d-sm-block">
               <small className="d-block text-muted">ID: {order.id}</small>
               <small className="d-block fw-bold text-primary">
                 Total: {formatPrice(order.total_price)}
               </small>
             </div>
-            <Link
-              href={`/dashboard/orders/edit/${order.id}`}
-              className="btn btn-outline-secondary"
-            >
+
+            <Link href={`/dashboard/orders/edit/${order.id}`} className="btn btn-outline-secondary">
               <Edit3 size={16} className="me-1" /> Edit
             </Link>
           </div>
@@ -115,27 +99,23 @@ const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
             <div className="row g-3">
               <div className="col-md-4">
                 <h6 className="fw-bold mb-2">Product Details</h6>
-                <p className="small text-muted mb-1">
-                  Address: {order.address || "N/A"}
-                </p>
-                <div className="small mb-0 p-2 border rounded bg-white">
-                  <ul className="list-unstyled mb-0">
-                    {order.products && order.products.length > 0 ? (
-                      order.products.map((product: Product, index: number) => (
-                        <li key={product.product_id || product.id || index}>
-                          {index + 1}. {product.name || "Unknown Product"} —{" "}
-                          {product.quantity || 1} pcs
-                        </li>
-                      ))
-                    ) : (
-                      <li>Unknown Product — 1 pcs</li>
-                    )}
-                  </ul>
-                </div>
+                <p className="small text-muted mb-1">Address: {order.address || "N/A"}</p>
+
+                <ul className="small mb-0 p-2 border rounded bg-white list-unstyled">
+                  {order.products?.length ? (
+                    order.products.map((p: Product, i: number) => (
+                      <li key={i}>
+                        {i + 1}. {p.name} — {p.quantity} pcs
+                      </li>
+                    ))
+                  ) : (
+                    <li>Unknown Product — 1 pcs</li>
+                  )}
+                </ul>
               </div>
 
               <div className="col-md-4">
-                <h6 className="fw-bold mb-2">Transaction Status</h6>
+                <h6 className="fw-bold mb-2">Payment Status</h6>
                 {getPaymentStatusBadge(order.status_payment)}
               </div>
 
@@ -154,70 +134,110 @@ const OrderRow: React.FC<OrderRowProps> = ({ order }) => {
 export default function OrderListPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const breadcrumbs = [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Order List" },
-  ];
-
-  async function fetchOrders() {
-    setIsLoading(true);
-    try {
-      const orderResult = await getOrders();
-
-      if (orderResult.data && Array.isArray(orderResult.data)) {
-        const transformedOrders = orderResult.data.map((order: Order) => {
-          const productsArray: Product[] =
-            Array.isArray(order.products) && order.products.length > 0
-              ? order.products.map((p: any) => ({
-                  product_id: p.product_id,
-                  id: p.product_id,
-                  name: p.product_name || p.name || "Unknown Product",
-                  quantity: p.quantity || 1,
-                }))
-              : [
-                  {
-                    product_id: order.id,
-                    id: order.id,
-                    name: "Unknown Product",
-                    quantity: 1,
-                  },
-                ];
-
-          return {
-            ...order,
-            products: productsArray,
-            total_price: Number(order.total_price) || 0,
-          };
-        });
-
-        setOrders(transformedOrders);
-      }
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
-      MySwal.fire("Error", "Failed to load page data.", "error");
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  const [sortType, setSortType] = useState<"none" | "payment" | "delivery">("none");
+  const [filterPayment, setFilterPayment] = useState("all");
+  const [filterDelivery, setFilterDelivery] = useState("all");
 
   useEffect(() => {
     fetchOrders();
   }, []);
 
+  async function fetchOrders() {
+    setIsLoading(true);
+    try {
+      const res = await getOrders();
+
+      if (res.data && Array.isArray(res.data)) {
+        const transformed = res.data.map((order: Order) => ({
+          ...order,
+          products:
+            order.products?.map((p: any) => ({
+              id: p.product_id,
+              name: p.product_name || p.name || "Unknown Product",
+              quantity: p.quantity || 1,
+            })) || [],
+          total_price: Number(order.total_price) || 0,
+        }));
+
+        setOrders(transformed);
+      }
+    } catch (err) {
+      MySwal.fire("Error", "Failed to load page data", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  let finalOrders = [...orders];
+
+  if (filterPayment !== "all") {
+    finalOrders = finalOrders.filter((o) => o.status_payment === filterPayment);
+  }
+
+  if (filterDelivery !== "all") {
+    finalOrders = finalOrders.filter((o) => o.status_delivery === filterDelivery);
+  }
+
+  if (filterPayment === "all" && filterDelivery === "all") {
+    if (sortType === "payment") {
+      finalOrders.sort((a, b) => (a.status_payment || "").localeCompare(b.status_payment || ""));
+    }
+    if (sortType === "delivery") {
+      finalOrders.sort((a, b) => (a.status_delivery || "").localeCompare(b.status_delivery || ""));
+    }
+  }
+
   return (
     <div className="w-100">
-      <PageHeader title="Order List" breadcrumbs={breadcrumbs} />
+      <PageHeader title="Order List" breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Order List" }]} />
+
+      <div className="d-flex gap-3 mb-4 justify-content-end">
+
+        <select
+          className="form-select w-auto"
+          value={sortType}
+          disabled={filterPayment !== "all" || filterDelivery !== "all"}
+          onChange={(e) => setSortType(e.target.value as any)}
+        >
+          <option value="none">Sort: Default</option>
+          <option value="payment">Sort by Payment</option>
+          <option value="delivery">Sort by Delivery</option>
+        </select>
+
+        <select
+          className="form-select w-auto"
+          value={filterPayment}
+          onChange={(e) => setFilterPayment(e.target.value)}
+        >
+          <option value="all">Payment: All</option>
+          <option value="paid">Paid</option>
+          <option value="pending">Pending</option>
+          <option value="failed">Failed</option>
+          <option value="unpaid">Unpaid</option>
+        </select>
+
+        <select
+          className="form-select w-auto"
+          value={filterDelivery}
+          onChange={(e) => setFilterDelivery(e.target.value)}
+        >
+          <option value="all">Delivery: All</option>
+          <option value="pending">Pending</option>
+          <option value="proses">Processing</option>
+          <option value="kirim">Shipped</option>
+          <option value="selesai">Completed</option>
+        </select>
+
+      </div>
 
       {isLoading ? (
         <OrderListSkeleton count={10} />
-
-      ) : orders.length === 0 ? (
+      ) : finalOrders.length === 0 ? (
         <div className="text-center p-5 bg-white rounded-3 shadow-sm">
-          <p className="text-muted mb-0">No orders found.</p>
+          <p className="text-muted mb-0">No matching orders found.</p>
         </div>
       ) : (
-        orders.map((order) => <OrderRow key={order.id} order={order} />)
+        finalOrders.map((order) => <OrderRow key={order.id} order={order} />)
       )}
     </div>
   );

@@ -1,3 +1,4 @@
+// const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
 const API_URL = 'http://localhost:8000/api/rs';
 
 const getHeaders = (): HeadersInit => ({
@@ -21,13 +22,14 @@ interface AuthResponse {
 }
 
 export const getCsrfCookie = async () => {
-    try {
-        await fetch('http://localhost:8000/sanctum/csrf-cookie', {
-            credentials: 'include',
-        });
-    } catch (error) {
-        console.error("Gagal mengambil CSRF cookie:", error);
-    }
+  try {
+   await fetch('https://rajawaliplastic.onrender.com/sanctum/csrf-cookie', {
+  credentials: 'include',
+});
+
+  } catch (error) {
+    console.error("Gagal mengambil CSRF cookie:", error);
+  }
 };
 
 export const login = async (credentials: any): Promise<AuthResponse> => {

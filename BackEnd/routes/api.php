@@ -9,7 +9,7 @@ use App\Http\Controllers\TestimonialController;
 use App\Http\Controllers\GalleryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SliderController;
-use App\Http\Controllers\blogController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\PartnerController;
 use Illuminate\Http\Request;
 
@@ -21,8 +21,8 @@ Route::prefix('rs')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
     Route::get('/products', [ProductController::class, 'index']);
-    Route::get('/testimonials', action: [TestimonialController::class, 'index']);
-    Route::get('/galleries', action: [GalleryController::class, 'index']);
+    Route::get('/testimonials', [TestimonialController::class, 'index']);
+    Route::get('/galleries', [GalleryController::class, 'index']);
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/blogs', [BlogController::class, 'index']);
     Route::get('/partners', [PartnerController::class, 'index']);
