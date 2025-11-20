@@ -37,7 +37,7 @@ const pageNavLinks = [
   { href: '/dashboard/testimony', label: 'Testimony', icon: MessageSquareText },
   { href: '/dashboard/partners', label: 'Partners', icon: Users },
   { href: '/dashboard/chat', label: 'Chat', icon: MessageCircle },
-  { href: '/dashboard/users', label: 'User & Role', icon: UserCog },
+  { href: '/dashboard/users', label: 'User Settings', icon: UserCog },
   { href: '/dashboard/blogs', label: 'Blogs', icon: FileText },
   { href: '/dashboard/gallery', label: 'Web gallery', icon: GalleryVertical },
   { href: '/dashboard/hero', label: 'Hero', icon: Layers },
@@ -79,6 +79,7 @@ export default function Sidenavbar() {
         });
 
         window.location.href = "/auth/login";
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         MySwal.fire({
           icon: "error",
@@ -96,6 +97,7 @@ export default function Sidenavbar() {
     const isSubPage = pathname.startsWith(href + '/');
 
     const isActive = isExactMatch || (!isDashboardRoot && isSubPage);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const linkClassName = `nav-link d-flex align-items-center gap-2 rounded-3 py-2 px-3 ${
       isActive ? 'active fw-semibold' : 'text-dark'
     }`;

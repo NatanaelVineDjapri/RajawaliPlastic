@@ -1,35 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { MessageSquare, UserX } from 'lucide-react';
-
-type UserData = { id: number; name: string; role: string; avatar: string; };
-
-const initialAdminList: UserData[] = [
-    { id: 1, name: 'Admin 001', role: 'Owner', avatar: '/images/avatarplaceholder.png' },
-    { id: 2, name: 'Admin 002', role: 'Admin', avatar: '/images/avatarplaceholder.png' },
-    { id: 3, name: 'Admin 003', role: 'Admin', avatar: '/images/avatarplaceholder.png' },
-];
-
-const initialUserList: UserData[] = [
-    { id: 101, name: 'User_001', role: 'User', avatar: '/images/avatarplaceholder.png' },
-    { id: 102, name: 'User_002', role: 'User', avatar: '/images/avatarplaceholder.png' },
-    { id: 103, name: 'User_003', role: 'User', avatar: '/images/avatarplaceholder.png' },
-];
+import Swal from 'sweetalert2'; 
+import { UserData, fetchAllUsers, deleteUser } from '@/services/UserService'; 
 
 const UserListItem = ({
     user,
-    isAdmin,
     onRemove,
 }: {
     user: UserData;
-    isAdmin: boolean;
-    onRemove?: (id: number) => void;
+    onRemove?: (id: string) => void; 
 }) => {
-    const router = useRouter();
     const baseBgColor = '#ffffff';
+    const avatarSrc = user.image || '/images/avatarplaceholder.png'; 
 
     return (
         <div
@@ -49,50 +33,90 @@ const UserListItem = ({
             }}
         >
             <Image
-                src={user.avatar}
+                src={avatarSrc}
                 alt={user.name}
                 width={40}
                 height={40}
                 className="rounded-circle object-fit-cover me-3 mb-2 mb-md-0"
             />
-            <span className={`fw-medium ${isAdmin ? 'text-dark' : 'text-primary'} mb-2 mb-md-0`}>
-                {user.name}
+            <span className={`fw-medium text-primary mb-2 mb-md-0`}>
+                {user.name} ({user.email})
             </span>
-            {!isAdmin && (
-                <div className="ms-md-auto d-flex gap-2 flex-wrap">
-                    <button
-                        className="btn btn-sm rounded-circle p-1"
-                        style={{ backgroundColor: '#e0e9ff', borderColor: '#d1e7ff', width: '32px', height: '32px' }}
-                        onClick={() => router.push(`chat`)}
-                    >
-                        <MessageSquare size={20} className="text-primary" />
-                    </button>
-                    <button
-                        className="btn btn-sm btn-danger px-3 py-1 fw-bold rounded-3"
-                        onClick={() => onRemove && onRemove(user.id)}
-                    >
-                        Ban
-                    </button>
-                    <button
-                        className="btn btn-sm rounded-circle p-1"
-                        style={{ backgroundColor: '#f8d7da', borderColor: '#f5c6cb', width: '32px', height: '32px' }}
-                        onClick={() => onRemove && onRemove(user.id)}
-                    >
-                        <UserX size={20} className="text-danger" />
-                    </button>
-                </div>
-            )}
+            <div className="ms-md-auto d-flex gap-2 flex-wrap">
+                <button
+                    className="btn btn-sm btn-danger px-3 py-1 fw-bold rounded-3"
+                    onClick={() => onRemove && onRemove(user.id)} 
+                >
+                    Delete User
+                </button>
+            </div>
         </div>
     );
 };
 
 export default function UserRolePage() {
-    const [adminList] = useState(initialAdminList);
-    const [userList, setUserList] = useState(initialUserList);
+    const [users, setUsers] = useState<UserData[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleRemoveUser = (id: number) => {
-        setUserList((prev) => prev.filter((user) => user.id !== id));
+    const loadUsers = async () => {
+        setLoading(true);
+        try {
+            const fetchedUsers = await fetchAllUsers();
+            setUsers(fetchedUsers); 
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Memuat Data',
+                text: `Error fetching user ${error instanceof Error ? error.message : 'Problem unknown'}`,
+            });
+        } finally {
+            setLoading(false);
+        }
     };
+
+    useEffect(() => {
+        loadUsers();
+    }, []);
+
+    const handleRemoveUser = async (id: string) => { 
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: `Deleting user id : ${id}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'No'
+        });
+
+        if (!result.isConfirmed) {
+            return;
+        }
+
+        try {
+            await deleteUser(id); 
+            
+            setUsers((prev) => prev.filter((user) => user.id !== id));
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'User deleted Successfully!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Failed to Delete',
+                text: `Failed to delete : ${error instanceof Error ? error.message : 'Problem Unknown'}`,
+            });
+        }
+    };
+
+    const customerList = users.filter(user => user.role === 'customer');
 
     const backgroundStyle = {
         backgroundColor: '#C0FBFF',
@@ -107,30 +131,33 @@ export default function UserRolePage() {
         backgroundRepeat: 'no-repeat',
     };
 
-    return (
-        <div className="w-100 position-relative p-3 p-md-4" style={backgroundStyle}>
-            <h1 className="fs-3 fw-bold text-dark mb-4">User & Role</h1>
-
-            <div className="bg-white rounded-3 shadow p-3 p-md-4 mb-5">
-                <h2 className="fs-5 fw-semibold text-dark mb-3">Admin List</h2>
-                <div className="d-flex flex-column flex-md-row flex-wrap gap-2">
-                    {adminList.map((admin) => (
-                        <div key={admin.id} className="flex-fill">
-                            <UserListItem user={admin} isAdmin={true} />
-                        </div>
-                    ))}
+    if (loading) {
+        return (
+            <div className="w-100 position-relative d-flex justify-content-center align-items-center" style={{ ...backgroundStyle, minHeight: '100vh' }}>
+                <div 
+                    className="p-5 text-center rounded-3 shadow-lg"
+                    style={{ backgroundColor: 'white' }}
+                >
+                    <h1 className="fs-3 fw-bold text-dark">Loading Customer Data...</h1>
                 </div>
             </div>
+        );
+    }
 
+    return (
+        <div className="w-100 position-relative p-3 p-md-4" style={backgroundStyle}>
+            <h1 className="fs-3 fw-bold text-dark mb-4">User Settings</h1>
+            
             <div className="bg-white rounded-3 shadow p-3 p-md-4">
-                <h2 className="fs-5 fw-semibold text-dark mb-3">User Settings</h2>
+                <h2 className="fs-5 fw-semibold text-dark mb-3">Customer List</h2>
                 <div className="d-flex flex-column flex-md-row flex-wrap gap-2">
-                    {userList.map((user) => (
+                    {customerList.map((user) => (
                         <div key={user.id} className="flex-fill">
-                            <UserListItem user={user} isAdmin={false} onRemove={handleRemoveUser} />
+                            <UserListItem user={user} onRemove={handleRemoveUser} />
                         </div>
                     ))}
                 </div>
+                {customerList.length === 0 && <p className="text-muted text-center mt-3">No customer found</p>}
             </div>
         </div>
     );

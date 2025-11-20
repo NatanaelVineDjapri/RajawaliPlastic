@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cookie;
 
 class AuthController extends Controller
-{
+{   
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -64,6 +64,8 @@ class AuthController extends Controller
                 'message' => 'Email atau password salah!'
             ], 401);
         }
+        
+        auth()->login($user);
 
         $customWord = "RajawaliXUntar2025@9823";
         $randomPart = Str::random(60);
