@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import React, { useEffect, useCallback } from "react";
 import {
   fetchConversations,
@@ -17,6 +17,7 @@ export interface ChatContact {
   lastMessageTime: string;
   unreadCount: number;
   profileImage: string;
+  adminReplied?: boolean; // true kalau admin sudah bales
 }
 
 interface ChatContactListProps {
@@ -27,7 +28,6 @@ interface ChatContactListProps {
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   ADMIN_ID: string;
-  ADMIN_USERNAME: string;
   isMobile: boolean;
   setShowChatWindow: React.Dispatch<React.SetStateAction<boolean>>;
 }
@@ -51,6 +51,7 @@ const mapConversationToContact = (
     lastMessageTime: conv.created_at,
     unreadCount: isUnreadForAdmin ? 1 : 0,
     profileImage: customer.image || "",
+    adminReplied: conv.sender_id === currentAdminId, // true kalau admin yg terakhir bales
   };
 };
 
@@ -80,17 +81,22 @@ const ChatContactList: React.FC<ChatContactListProps> = ({
               lastMessageText: curr.lastMessageText,
               lastMessageTime: curr.lastMessageTime,
               unreadCount: acc[existing].unreadCount + curr.unreadCount,
+              adminReplied: curr.adminReplied,
             };
           } else {
             acc.push(curr);
           }
           return acc;
         }, [])
-        .sort(
-          (a, b) =>
+        .sort((a, b) => {
+          // unread di atas dulu
+          if (a.unreadCount > 0 && b.unreadCount === 0) return -1;
+          if (a.unreadCount === 0 && b.unreadCount > 0) return 1;
+          return (
             new Date(b.lastMessageTime).getTime() -
             new Date(a.lastMessageTime).getTime()
-        );
+          );
+        });
 
       setContacts(newContacts);
 
@@ -134,6 +140,7 @@ const ChatContactList: React.FC<ChatContactListProps> = ({
                     ? prevContacts[existingContactIndex].unreadCount + 1
                     : 1,
                 profileImage: sender.image || "",
+                adminReplied: false, // karena customer terakhir bales
               };
 
               let updatedContacts;
@@ -162,7 +169,11 @@ const ChatContactList: React.FC<ChatContactListProps> = ({
   const handleContactClick = (userId: string) => {
     setActiveUserId(userId);
     setContacts((prev) =>
-      prev.map((c) => (c.userId === userId ? { ...c, unreadCount: 0 } : c))
+      prev.map((c) =>
+        c.userId === userId
+          ? { ...c, unreadCount: 0, adminReplied: true } // admin mulai bales
+          : c
+      )
     );
     if (isMobile) setShowChatWindow(true);
   };
@@ -183,17 +194,7 @@ const ChatContactList: React.FC<ChatContactListProps> = ({
       );
     }
 
-    // Sort dulu: unread di atas, lalu berdasarkan lastMessageTime terbaru
-    const sortedContacts = [...contacts].sort((a, b) => {
-      if (a.unreadCount > 0 && b.unreadCount === 0) return -1;
-      if (a.unreadCount === 0 && b.unreadCount > 0) return 1;
-      return (
-        new Date(b.lastMessageTime).getTime() -
-        new Date(a.lastMessageTime).getTime()
-      );
-    });
-
-    return sortedContacts.map((contact) => (
+    return contacts.map((contact) => (
       <ContactItem
         key={contact.userId}
         username={contact.name}
@@ -204,6 +205,7 @@ const ChatContactList: React.FC<ChatContactListProps> = ({
         hasUnread={contact.unreadCount > 0}
         onClick={() => handleContactClick(contact.userId)}
         avatarUrl={contact.profileImage}
+        notReplied={!contact.adminReplied && contact.unreadCount > 0} // dot hijau kalau admin blm bales
       />
     ));
   };

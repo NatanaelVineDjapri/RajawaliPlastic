@@ -187,4 +187,21 @@ class AuthController extends Controller
             'users' => $users
         ], 200);
     }
+
+     public function getAdminUserForChat(Request $request)
+    {
+        $admin = User::where('role', 'admin')
+                     ->first([
+                         '_id', 'name', 'email', 'role'
+                     ]);
+        
+        if (!$admin) {
+             return response()->json(['message' => 'Admin support tidak ditemukan.'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Admin support berhasil ditemukan.',
+            'admin' => $admin
+        ], 200);
+    }
 }
