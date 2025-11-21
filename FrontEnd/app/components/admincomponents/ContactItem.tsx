@@ -4,6 +4,7 @@ import { Dot } from "lucide-react";
 interface ContactItemProps {
     username: string;
     lastMessage: string;
+    lastMessageTime?: string;
     isOnline: boolean;
     isSelected: boolean;
     hasUnread: boolean;
@@ -14,6 +15,7 @@ interface ContactItemProps {
 export default function ContactItem({
     username,
     lastMessage,
+    lastMessageTime,
     isOnline,
     isSelected,
     hasUnread,
@@ -51,13 +53,21 @@ export default function ContactItem({
 
             <div className="d-flex flex-column flex-grow-1 text-container">
                 <span className="fw-semibold text-dark username-text">{username}</span>
-                <span
-                    className={`small text-muted text-truncate ${
-                        hasUnread ? "fw-bold text-dark" : ""
-                    }`}
-                >
-                    {lastMessage}
-                </span>
+                <div className="d-flex justify-content-between align-items-center">
+                    <span
+                        className={`small text-muted text-truncate ${
+                            hasUnread ? "fw-bold text-dark" : ""
+                        }`}
+                        style={{ maxWidth: '70%' }}
+                    >
+                        {lastMessage}
+                    </span>
+                    {lastMessageTime && (
+                        <span className="small text-muted ms-2" style={{ fontSize: '0.7rem' }}>
+                            {new Date(lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                    )}
+                </div>
             </div>
 
             {hasUnread && (

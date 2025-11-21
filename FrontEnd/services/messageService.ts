@@ -11,6 +11,7 @@
     };
 
     const API_BASE_URL = 'http://localhost:8000/api/rs'; 
+// const API_BASE_URL = 'https://rajawaliplastic.onrender.com/api/rs';
 
     export type MessageData = {
         _id: string; 

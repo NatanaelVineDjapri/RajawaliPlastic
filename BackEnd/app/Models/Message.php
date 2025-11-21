@@ -20,21 +20,31 @@ class Message extends Model
         'is_read'
     ];
 
-    public function setMessageAttribute($value){
+    public function setMessageAttribute($value)
+    {
         $this->attributes['message'] = Crypt::encryptString($value);
     }
 
-    public function getMessageAttribute($value){
-        return Crypt::decryptString($value);
+    public function getMessageAttribute($value)
+    {
+        try {
+            return Crypt::decryptString($value);
+        } catch (\Exception $e) {
+            return $value; // fallback: tampilkan teks asli kalau gagal decrypt
+        }
     }
 
-    public function sender(){
-        return $this->belongsTo(User::class,'sender_id');
+
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'sender_id', '_id');
     }
 
-    public function receiver(){
-        return $this->belongsTo(User::class,'receiver_id');
+    public function receiver()
+    {
+        return $this->belongsTo(User::class, 'receiver_id', '_id');
     }
+
 
 
 }

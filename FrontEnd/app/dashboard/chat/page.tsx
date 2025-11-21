@@ -45,7 +45,7 @@ export default function ChatPage() {
 
     if (isDataLoading) {
         return (
-            <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
+            <div className="d-flex justify-content-center align-items-center vh-100">
                 Memverifikasi akses Admin...
             </div>
         );
@@ -53,7 +53,7 @@ export default function ChatPage() {
 
     if (!currentAdmin) {
         return (
-            <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh", color: "red" }}>
+            <div className="d-flex justify-content-center align-items-center vh-100 text-danger">
                 Akses ditolak. Anda harus login sebagai Admin.
             </div>
         );
@@ -63,73 +63,43 @@ export default function ChatPage() {
     const verifiedAdminUsername = currentAdmin.name;
 
     return (
-        <div
-            className="d-flex justify-content-center align-items-start w-100"
-            style={{ height: "100vh", overflow: "hidden", background: "#ffffff4b" }}
-        >
-            <style jsx global>{`
-                html, body {
-                    height: 100%;
-                    margin: 0;
-                    padding: 0;
-                    overflow: hidden !important;
-                    background: #ffffff !important;
-                    @keyframes spin {
-                        to { transform: rotate(360deg); }
-                    }
-                    .spin {
-                        animation: spin 1s linear infinite;
-                    }
-                }
-                .notif-purple { width: 8px; height: 8px; background-color: #a855f7; border-radius: 50%; position: absolute; right: 8px; top: 8px; }
-                .chat-bubble { max-width: 70%; }
-                .sender-bubble { margin-left: auto; }
-            `}</style>
+        <div className="container-fluid p-3" style={{ height: "100vh", backgroundColor: "#f5f6fa" }}>
+            <div className="row h-100 shadow rounded overflow-hidden bg-white">
+                {/* Contacts List */}
+                <div
+                    className={`col-12 col-lg-3 border-end p-0 d-flex flex-column
+                        ${isMobile ? (showChatWindow ? 'd-none' : 'd-flex') : 'd-flex'}
+                    `}
+                    style={{ maxHeight: "100%", overflowY: "auto" }}
+                >
+                    <ChatContactList
+                        contacts={contacts}
+                        setContacts={setContacts}
+                        activeUserId={activeUserId}
+                        setActiveUserId={setActiveUserId}
+                        isLoading={isLoading}
+                        setIsLoading={setIsLoading}
+                        ADMIN_ID={verifiedAdminId}
+                        ADMIN_USERNAME={verifiedAdminUsername}
+                        isMobile={isMobile}
+                        setShowChatWindow={setShowChatWindow}
+                    />
+                </div>
 
-            <div
-                className="border rounded-4 shadow-lg d-flex flex-column"
-                style={{
-                    width: "80%",
-                    maxWidth: "900px",
-                    height: "75vh",
-                    marginTop: "20px",
-                    overflow: "hidden",
-                    backgroundColor: "#ffffff",
-                    borderColor: "#dfe6eb"
-                }}
-            >
-                <div className="d-flex flex-grow-1">
-                    <div
-                        className={`border-end bg-white d-flex flex-column flex-shrink-0 
-                        ${isMobile ? (showChatWindow ? 'd-none' : 'w-100') : ''}`}
-                        style={{ width: isMobile ? "100%" : "260px", minWidth: "240px" }}
-                    >
-                        <ChatContactList
-                            contacts={contacts}
-                            setContacts={setContacts}
-                            activeUserId={activeUserId}
-                            setActiveUserId={setActiveUserId}
-                            isLoading={isLoading}
-                            setIsLoading={setIsLoading}
-                            ADMIN_ID={verifiedAdminId}
-                            ADMIN_USERNAME={verifiedAdminUsername}
-                            isMobile={isMobile}
-                            setShowChatWindow={setShowChatWindow}
-                        />
-                    </div>
-
-                    <div
-                        className={`d-flex flex-column flex-grow-1 position-relative
-                        ${isMobile ? (showChatWindow ? 'w-100' : 'd-none') : ''}`}
-                    >
-                        <ChatWindow
-                            activeContact={activeContact}
-                            ADMIN_ID={verifiedAdminId}
-                            isMobile={isMobile}
-                            handleBackToContacts={handleBackToContacts}
-                            setContacts={setContacts}
-                        />
-                    </div>
+                {/* Chat Window */}
+                <div
+                    className={`col-12 col-lg-9 p-0 position-relative
+                        ${isMobile ? (showChatWindow ? 'd-flex flex-column' : 'd-none') : 'd-flex flex-column'}
+                    `}
+                    style={{ maxHeight: "100%" }}
+                >
+                    <ChatWindow
+                        activeContact={activeContact}
+                        ADMIN_ID={verifiedAdminId}
+                        isMobile={isMobile}
+                        handleBackToContacts={handleBackToContacts}
+                        setContacts={setContacts}
+                    />
                 </div>
             </div>
         </div>
