@@ -94,7 +94,7 @@ class AuthController extends Controller
             false,
             'None'           // sameSite
         );
-        
+
         return response()->json([
             'message' => 'Login Berhasil!',
             'user' => [
@@ -216,4 +216,33 @@ class AuthController extends Controller
             'admin' => $admin
         ], 200);
     }
+
+    public function deleteUser(string $id, Request $request)
+    {
+        $token = $request->cookie('authToken');
+        $admin = User::where('api_token', $token)->first();
+
+        if (!$admin || $admin->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized: Akses ditolak. Hanya admin.'], 403);
+        }
+        
+        if (empty($id) || !is_string($id) || strlen($id) < 24) { 
+             return response()->json(['message' => 'ID user tidak valid atau kosong.'], 400);
+        }
+
+        $userToDelete = User::find($id);
+
+        if (!$userToDelete) {
+            return response()->json(['message' => 'User tidak ditemukan.'], 404);
+        }
+        
+        if ((string)$userToDelete->_id === (string)$admin->_id || $userToDelete->role === 'admin') {
+             return response()->json(['message' => 'Tidak dapat menghapus admin atau diri sendiri.'], 403);
+        }
+
+        $userToDelete->delete();
+
+        return response()->json(['message' => "User {$userToDelete->name} berhasil dihapus."], 200);
+    }
+
 }
