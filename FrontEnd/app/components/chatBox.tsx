@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback, } from "react";
 import { FaPaperPlane, FaPaperclip } from "react-icons/fa";
 import {
   fetchMessages,
@@ -14,6 +14,8 @@ import {
 } from "@/services/UserService";
 import "@/utils/echo";
 import Echo from "laravel-echo";
+import { useRouter } from "next/navigation"
+import ChatUserSkeleton from "./skeletons/ChatUserSkeleton";
 
 declare global {
   interface Window {
@@ -42,6 +44,7 @@ const formatMessageForUI = (
 });
 
 const ChatBox: React.FC = () => {
+  const router = useRouter();
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -65,6 +68,16 @@ const ChatBox: React.FC = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (!isLoading && !currentUser) {
+      const timer = setTimeout(() => {
+        router.push("/auth/login"); 
+      }, 3000); 
+
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, currentUser, router]);
 
   const safeSubscribe = (
     channelName: string,
@@ -243,11 +256,42 @@ const ChatBox: React.FC = () => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") handleSend();
   };
+  const centerContainerClass = "d-flex flex-column align-items-center justify-content-center p-5";
+  const cardStyle = { 
+    backgroundColor: "white", 
+    padding: "70px 70px", 
+    borderRadius: "12px", 
+    boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+    maxWidth: "500px",
+    width: "90%",
+    textAlign: "center" as const
+  };
 
-  if (isLoading) return <div className="p-5 text-center">Memuat chat...</div>;
-  if (!currentUser) return <div className="p-5 text-danger">Silakan login</div>;
-  if (!adminId)
-    return <div className="p-5 text-warning">Admin tidak ditemukan</div>;
+  if (isLoading) {
+   return <ChatUserSkeleton />;
+  }
+
+  if (!currentUser) {
+    return (
+      <div className={centerContainerClass} style={{ height: "100%" }}>
+        <div style={cardStyle}>
+          <h5 className="text-danger mb-2">Akses Ditolak</h5>
+          <p className="text-muted mb-0">Silakan login terlebih dahulu untuk mengakses fitur chat.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!adminId) {
+    return (
+      <div className={centerContainerClass} style={{ height: "100%" }}>
+        <div style={cardStyle}>
+          <h5 className="text-warning mb-2">Admin Offline</h5>
+          <p className="text-muted mb-0">Maaf, admin tidak ditemukan saat ini. Coba lagi nanti.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="chat-box">
