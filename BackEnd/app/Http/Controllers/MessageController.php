@@ -184,4 +184,21 @@ class MessageController extends Controller
             'message' => 'Pesan berhasil dihapus',
         ], 200);
     }
+
+    public function getImageData($messageId, Request $request)
+    {
+    if (!$this->getAuthenticatedUser($request)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+    $message = Message::find($messageId);
+
+    if (!$message) {
+        return response()->json(['error' => 'Message not found'], 404);
+    }
+    return response()->json([
+        'success' => true,
+        'image_base64' => $message->image_base64,
+        'message_id' => (string) $message->id
+    ]);
+}
 }
