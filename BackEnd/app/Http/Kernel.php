@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'auth.api' => \App\Http\Middleware\AuthApi::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
-        'broadcast.authToken' => \App\Http\Middleware\BroadcastAuthToken::class,
+        // 'broadcast.authToken' => \App\Http\Middleware\BroadcastAuthToken::class,
+        'broadcast.auth.token' => \App\Http\Middleware\BroadcastAuthToken::class,
     ];
 }

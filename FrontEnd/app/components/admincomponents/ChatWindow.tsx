@@ -10,11 +10,6 @@ import {
 import "@/utils/echo";
 import { ChatContact } from "./ChatContactList";
 
-declare global {
-  interface Window {
-    Echo: any;
-  }
-}
 
 interface ChatWindowProps {
   activeContact: ChatContact | undefined;

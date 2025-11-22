@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Events\MessageSent;
+use MongoDB\BSON\Binary;
 
 class MessageController extends Controller
 {
@@ -52,7 +53,7 @@ class MessageController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
 
         $validator = Validator::make($request->all(), [
-            'receiver_id' => 'required|exists:users,id',
+            'receiver_id' => 'required|string', // cukup string, nanti cek di DB manual
             'message' => 'nullable|string|max:5000',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
@@ -62,20 +63,19 @@ class MessageController extends Controller
         }
 
         $data = $validator->validated();
-        $senderId = $user->id;
+        $senderId = $user->_id;
 
-        $imageUrl = null;
+        $binary = null;
         if ($request->hasFile('image')) {
-            $userFolder = 'messages/' . $senderId;
-            $path = $request->file('image')->store($userFolder, 'public');
-            $imageUrl = asset('storage/' . $path);
+            $binary = new Binary(file_get_contents($request->file('image')->getRealPath()));
+
         }
 
         $message = Message::create([
             'sender_id' => $senderId,
             'receiver_id' => $data['receiver_id'],
             'message' => $data['message'] ?? '',
-            'image_url' => $imageUrl,
+            'image' => $binary,
             'is_read' => false,
         ]);
 
