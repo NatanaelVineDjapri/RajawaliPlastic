@@ -71,18 +71,30 @@ class AuthController extends Controller
 
         $user->update(['api_token' => $token]);
 
-        $cookie = cookie(
+        // $cookie = cookie(
+        //     'authToken',
+        //     $token,
+        //     60 * 24 * 7,   // 7 hari
+        //     '/',
+        //     null,
+        //     false,          // secure=false supaya bisa di localhost
+        //     true,           // httpOnly
+        //     false,
+        //     'Lax'           // sameSite
+        // );
+
+         $cookie = cookie(
             'authToken',
             $token,
             60 * 24 * 7,   // 7 hari
             '/',
             null,
-            false,          // secure=false supaya bisa di localhost
+            true ,          
             true,           // httpOnly
             false,
-            'Lax'           // sameSite
+            'None'           // sameSite
         );
-
+        
         return response()->json([
             'message' => 'Login Berhasil!',
             'user' => [
