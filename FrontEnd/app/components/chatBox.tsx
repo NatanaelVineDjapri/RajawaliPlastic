@@ -203,7 +203,7 @@ const ChatBox: React.FC = () => {
         formData.append("receiver_id", adminId);
         formData.append("message", text);
 
-        const res = await fetch("http://localhost:8000/api/rs/messages", {
+        const res = await fetch("https://rajawaliplastic.onrender.com/api/rs/messages", {
           method: "POST",
           body: formData,
           credentials: "include",
