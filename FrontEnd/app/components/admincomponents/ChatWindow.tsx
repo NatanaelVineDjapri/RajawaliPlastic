@@ -216,7 +216,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         formData.append("receiver_id", receiverId);
         formData.append("message", text);
 
-        const res = await fetch("https://rajawaliplastic.onrender.com/api/rs", {
+        const res = await fetch("https://rajawaliplastic.onrender.com/api/rs/messages", {
           method: "POST",
           body: formData,
           credentials: "include",
