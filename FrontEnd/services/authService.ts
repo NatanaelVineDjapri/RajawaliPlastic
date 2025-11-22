@@ -1,112 +1,107 @@
-// const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
-const API_URL = 'http://localhost:8000/api/rs';
+// const API_URL = 'http://localhost:8000/api/rs';
+const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
 
 const getHeaders = (): HeadersInit => ({
-    Accept: "application/json",
-    'X-Requested-With': 'XMLHttpRequest', 
+  Accept: "application/json",
 });
 
 interface User {
-    id: string;
-    name: string;
-    email: string;
-    address: string;
-    phone_number: string;
-    role: string;
+  id: string;
+  name: string;
+  email: string;
+  address: string;
+  phone_number: string;
+  role: string;
 }
 
 interface AuthResponse {
-    message?: string;
-    user?: User;
-    token?: string; 
+  message?: string;
+  user?: User;
+  token?: string; 
 }
 
 export const getCsrfCookie = async () => {
   try {
-   await fetch('https://rajawaliplastic.onrender.com/sanctum/csrf-cookie', {
-  credentials: 'include',
-});
-
+    await fetch('http://localhost:8000/sanctum/csrf-cookie', {
+      credentials: 'include',
+    });
   } catch (error) {
     console.error("Gagal mengambil CSRF cookie:", error);
   }
 };
 
 export const login = async (credentials: any): Promise<AuthResponse> => {
-    await getCsrfCookie(); 
+  await getCsrfCookie(); 
 
-    const response = await fetch(`${API_URL}/login`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-            "Content-Type": "application/json", 
-            Accept: "application/json",
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: JSON.stringify(credentials),
-    });
+  const response = await fetch(`${API_URL}/login`, {
+    method: 'POST',
+    credentials: 'include', 
+    headers: {
+      "Content-Type": "application/json", 
+      Accept: "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-        const errorMessage =
-            typeof data.message === 'object'
-            ? Object.values(data.message).flat().join(', ')
-            : data.message || 'Login gagal.';
-        throw new Error(errorMessage);
-    }
+  if (!response.ok) {
+    const errorMessage =
+      typeof data.message === 'object'
+        ? Object.values(data.message).flat().join(', ')
+        : data.message || 'Login gagal.';
+    throw new Error(errorMessage);
+  }
 
-    if (typeof window !== 'undefined' && data.user) {
-        localStorage.setItem('user', JSON.stringify(data.user));
-    }
+  if (typeof window !== 'undefined' && data.user) {
+    localStorage.setItem('user', JSON.stringify(data.user));
+  }
 
-    return data;
+  return data;
 };
 
 
 export const register = async (userData: any): Promise<AuthResponse> => {
-    await getCsrfCookie(); 
+  await getCsrfCookie(); 
 
-    const response = await fetch(`${API_URL}/register`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 
-            "Content-Type": "application/json", 
-            "Accept": "application/json",
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-        body: JSON.stringify(userData),
-    });
+  const response = await fetch(`${API_URL}/register`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 
+      "Content-Type": "application/json", 
+      "Accept": "application/json",
+    },
+    body: JSON.stringify(userData),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-        const errorMessage =
-            typeof data.message === 'object'
-            ? Object.values(data.message).flat().join(', ')
-            : data.message || 'Registrasi gagal.';
-        throw new Error(errorMessage);
-    }
+  if (!response.ok) {
+    const errorMessage =
+      typeof data.message === 'object'
+        ? Object.values(data.message).flat().join(', ')
+        : data.message || 'Registrasi gagal.';
+    throw new Error(errorMessage);
+  }
 
-    return data; 
+  return data; 
 };
 
 export const logout = async (): Promise<void> => {
-    await getCsrfCookie(); 
-    
-    try {
-        await fetch(`${API_URL}/logout`, {
-            method: 'POST',
-            credentials: 'include', 
-            headers: getHeaders(), 
-        });
-    } catch (err) {
-        console.error('Logout error:', err);
-    }
+  try {
+    await fetch(`${API_URL}/logout`, {
+      method: 'POST',
+      credentials: 'include', 
+      headers: getHeaders(), 
+    });
+  } catch (err) {
+    console.error('Logout error:', err);
+  }
 
-    if (typeof window !== 'undefined') {
-        localStorage.removeItem('user');
-    }
+  // Hanya perlu hapus data 'user'
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('user');
+  }
 };
 
   export const getProfile = async (): Promise<User> => {
@@ -123,12 +118,12 @@ export const logout = async (): Promise<void> => {
 
     const data = await response.json();
     return data.user;
-};
+  };
 
 export const updateProfile = async (formData: FormData): Promise<User> => {
     formData.append('_method', 'PUT');
     await getCsrfCookie();
-    
+
     const response = await fetch(`${API_URL}/profile/update`, {
         method: 'POST', 
         credentials: 'include',

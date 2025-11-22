@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000','https://rajawali-plastic.vercel.app'],
+    'allowed_origins' => [
+        'http://localhost:3000',
+        'https://rajawali-plastic.vercel.app', 
+        'https://rajawaliplastic.onrender.com',
+    ],
 
     'allowed_origins_patterns' => [],
 

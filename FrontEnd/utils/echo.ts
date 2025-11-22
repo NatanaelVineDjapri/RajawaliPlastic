@@ -19,7 +19,9 @@ const getCsrfToken = (): string | null => {
     if (xsrf) {
         try {
             return decodeURIComponent(xsrf.split('=')[1]);
-        } catch { return null; }
+        } catch {
+            return null;
+        }
     }
     return null;
 };
@@ -46,21 +48,24 @@ if (typeof window !== 'undefined') {
                         };
                         if (csrfToken) headers['X-XSRF-TOKEN'] = csrfToken;
 
-                        fetch(options.authEndpoint, {
-                            method: 'POST',
-                            headers,
-                            body: JSON.stringify({ socket_id: socketId, channel_name: channel.name }),
-                            credentials: 'include',
-                        })
-                        .then(async res => {
-                            if (res.status === 401 || res.status === 403 || res.status === 419) {
-                                callback(true, new Error(`Authorization failed with status ${res.status}`));
+                        try {
+                            const res = await fetch(options.authEndpoint, {
+                                method: 'POST',
+                                headers,
+                                body: JSON.stringify({ socket_id: socketId, channel_name: channel.name }),
+                                credentials: 'include',
+                            });
+
+                            if ([401, 403, 419].includes(res.status)) {
+                                callback(new Error(`Authorization failed with status ${res.status}`), null);
                                 return;
                             }
-                            return res.json();
-                        })
-                        .then(data => { if (data) callback(false, data); })
-                        .catch(err => callback(true, err));
+
+                            const data = await res.json();
+                            callback(null, data);
+                        } catch (err) {
+                            callback(err as Error, null);
+                        }
                     },
                 };
             },

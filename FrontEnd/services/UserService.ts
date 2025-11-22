@@ -10,8 +10,8 @@ export type UserData = {
     image?: string; 
 };
 
-const API_BASE_URL = 'http://localhost:8000/api/rs';
-// const API_BASE_URL = 'https://rajawaliplastic.onrender.com/api/rs';
+// const API_BASE_URL = 'http://localhost:8000/api/rs';
+const API_BASE_URL = 'https://rajawaliplastic.onrender.com/api/rs';
 // const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
 
 function getSessionHeaders(includeContentTypeJson = false): HeadersInit {

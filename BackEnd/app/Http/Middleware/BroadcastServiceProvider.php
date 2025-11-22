@@ -9,8 +9,9 @@ class BroadcastServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Broadcast::routes(['middleware' => ['web', 'cors']]);
+        // Pakai middleware custom
+        Broadcast::routes(['middleware' => ['web', 'cors', 'broadcast.auth.token']]);
 
         require base_path('routes/channels.php');
     }
-}   
+}

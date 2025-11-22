@@ -1,6 +1,5 @@
-"use client";
-import echo from '@/utils/echo';
+import React from 'react'; 
 
-export default function EchoProvider({ children }) {
+export default function EchoProvider({ children }: { children: React.ReactNode }) {
     return children;
 }

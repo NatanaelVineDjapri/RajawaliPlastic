@@ -26,7 +26,7 @@ Route::prefix('rs')->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/blogs', [BlogController::class, 'index']);
     Route::get('/partners', [PartnerController::class, 'index']);
-    Route::get('/profile', [AuthController::class, 'profile']);
+    Route::get('/profile', action: [AuthController::class, 'profile']);
     Route::get('/admin-for-chat', [AuthController::class, 'getAdminUserForChat']);
 
     // Route::middleware('auth.api')->group(function (): void {
