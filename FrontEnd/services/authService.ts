@@ -22,7 +22,8 @@ interface AuthResponse {
 
 export const getCsrfCookie = async () => {
   try {
-    await fetch('http://localhost:8000/sanctum/csrf-cookie', {
+    await fetch('https://rajawaliplastic.onrender.com/api/rs'
+, {
       credentials: 'include',
     });
   } catch (error) {
