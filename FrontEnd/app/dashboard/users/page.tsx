@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Swal from 'sweetalert2'; 
 import { UserData, fetchAllUsers, deleteUser } from '@/services/UserService'; 
+import UserListItemSkeleton from '@/app/components/admincomponents/skeletons/UserListItemSkeleton';
 
 const UserListItem = ({
     user,
@@ -131,18 +132,28 @@ export default function UserRolePage() {
         backgroundRepeat: 'no-repeat',
     };
 
-    if (loading) {
-        return (
-            <div className="w-100 position-relative d-flex justify-content-center align-items-center" style={{ ...backgroundStyle, minHeight: '100vh' }}>
-                <div 
-                    className="p-5 text-center rounded-3 shadow-lg"
-                    style={{ backgroundColor: 'white' }}
-                >
-                    <h1 className="fs-3 fw-bold text-dark">Loading Customer Data...</h1>
-                </div>
-            </div>
-        );
-    }
+   if (loading) {
+  return (
+    <div
+      className="w-100 position-relative p-3 p-md-4"
+      style={backgroundStyle}
+    >
+      <h1 className="fs-3 fw-bold text-dark mb-4">User Settings</h1>
+
+      <div className="bg-white rounded-3 shadow p-3 p-md-4">
+        <h2 className="fs-5 fw-semibold text-dark mb-3">Customer List</h2>
+        <div className="d-flex flex-column flex-md-row flex-wrap gap-2">
+          {Array(4)
+            .fill(0)
+            .map((_, i) => (
+              <UserListItemSkeleton key={i} />
+            ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
     return (
         <div className="w-100 position-relative p-3 p-md-4" style={backgroundStyle}>

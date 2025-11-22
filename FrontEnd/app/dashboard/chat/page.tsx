@@ -98,7 +98,7 @@ export default function ChatPage() {
             isLoading={isLoading}
             setIsLoading={setIsLoading}
             ADMIN_ID={verifiedAdminId}
-            ADMIN_USERNAME={verifiedAdminUsername}
+            // ADMIN_USERNAME={verifiedAdminUsername}
             isMobile={isMobile}
             setShowChatWindow={setShowChatWindow}
           />
