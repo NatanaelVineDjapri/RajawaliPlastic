@@ -49,7 +49,7 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required|string|min:6|max:12',
-            // 'remember' => 'nullable|boolean'
+            'remember' => 'nullable|boolean'
         ]);
 
         if ($validator->fails()) {
@@ -71,7 +71,10 @@ class AuthController extends Controller
         $token = hash('sha256', $customWord . '_' . $randomPart);
 
         $user->update(['api_token' => $token]);
-
+        $isRemember = $request->boolean('remember');
+        // Jika Remember: 30 Hari (60 menit * 24 jam * 30 hari)
+        // Jika Tidak: 1 Hari (60 menit * 24 jam) atau sesuaikan kebutuhan
+        $cookieDuration = $isRemember ? (60 * 24 * 30) : (60 * 24);
         // $cookie = cookie(
         //     'authToken',
         //     $token,
@@ -87,7 +90,7 @@ class AuthController extends Controller
          $cookie = cookie(
             'authToken',
             $token,
-            60 * 24 * 7,   // 7 hari
+            $cookieDuration,   
             '/',
             null,
             true ,          

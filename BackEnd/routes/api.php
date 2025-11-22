@@ -32,11 +32,11 @@ Route::prefix('rs')->group(function () {
     // Route::middleware('auth.api')->group(function (): void {
         Route::put('/profile/update', [AuthController::class, 'updateProfile']);
         Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/messages/{messageId}/image', [MessageController::class, 'getImageData']);
         Route::get('/messages/{receiverId}', [MessageController::class, 'index']);
         Route::post('/messages', [MessageController::class, 'store']);
         Route::put('/messages/{id}/read', [MessageController::class, 'markAsRead']);
         Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
-        Route::get('/messages/{messageId}/image', [MessageController::class, 'getImageData']);
         Route::get('/conversations', [MessageController::class, 'getConversations']);
     
         // Route::middleware('role:admin')->group(function () {
