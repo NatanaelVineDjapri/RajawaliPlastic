@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Events\MessageSent;
 use MongoDB\BSON\Binary;
+use Illuminate\Support\Facades\Log;
 
 class MessageController extends Controller
 {
@@ -25,8 +26,8 @@ class MessageController extends Controller
         $user = $this->getAuthenticatedUser($request);
         if (!$user)
             return response()->json(['error' => 'Unauthorized'], 401);
-
-        $userId = $user->id;
+        $userId = (string) $user->id; 
+        $receiverId = (string) $receiverId;
 
         $messages = Message::where(function ($query) use ($userId, $receiverId) {
             $query->where('sender_id', $userId)
@@ -38,6 +39,7 @@ class MessageController extends Controller
             })
             ->with(['sender', 'receiver'])
             ->orderBy('created_at', 'asc')
+            ->limit(200) // Ambil maksimal 200 pesan
             ->get();
 
         return response()->json([
@@ -53,28 +55,35 @@ class MessageController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
 
         $validator = Validator::make($request->all(), [
-            'receiver_id' => 'required|string', // cukup string, nanti cek di DB manual
+            'receiver_id' => 'required|string',
             'message' => 'nullable|string|max:5000',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
         ]);
-
+        
         if ($validator->fails()) {
+            Log::error('Validation Failed on Message Store', ['errors' => $validator->errors(), 'input' => $request->all()]);
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $data = $validator->validated();
-        $senderId = $user->_id;
+        $senderId = (string) $user->id; 
+        $receiverId = (string) $data['receiver_id'];
+        $messageText = $data['message'] ?? '';
 
         $binary = null;
         if ($request->hasFile('image')) {
-            $binary = new Binary(file_get_contents($request->file('image')->getRealPath()));
-
+            try {
+                $binary = new Binary(file_get_contents($request->file('image')->getRealPath()));
+            } catch (\Exception $e) {
+                Log::error('Failed to read image file contents: ' . $e->getMessage());
+                return response()->json(['error' => 'Gagal membaca file gambar.'], 500);
+            }
         }
 
         $message = Message::create([
             'sender_id' => $senderId,
-            'receiver_id' => $data['receiver_id'],
-            'message' => $data['message'] ?? '',
+            'receiver_id' => $receiverId,
+            'message' => $messageText,
             'image' => $binary,
             'is_read' => false,
         ]);
@@ -86,7 +95,7 @@ class MessageController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Pesan berhasil dikirim',
-            'data' => $message,
+            'data' => $message, 
         ], 201);
     }
 
@@ -98,6 +107,7 @@ class MessageController extends Controller
 
         $latestMessages = Message::with(['sender', 'receiver'])
             ->orderBy('created_at', 'desc')
+            ->limit(500) // Ambil 500 pesan terbaru untuk diolah
             ->get();
 
         $safeMessages = $latestMessages->filter(function ($message) {
@@ -106,15 +116,14 @@ class MessageController extends Controller
 
         $conversations = $safeMessages
             ->map(function ($message) use ($user) {
-                // cek message bisa diakses
                 try {
-                    $text = $message->message; // otomatis pakai accessor getMessageAttribute
+                    $text = $message->message;
                 } catch (\Exception $e) {
                     $text = '[Pesan terenkripsi tidak bisa dibaca]';
                 }
 
                 $unreadCount = 0;
-                if ($message->receiver_id === $user->id) {
+                if ((string) $message->receiver_id === (string) $user->id) {
                     $unreadCount = $message->is_read ? 0 : 1;
                 }
 
@@ -132,13 +141,12 @@ class MessageController extends Controller
             ->sortByDesc('created_at')
             ->values();
 
-
         return response()->json([
             'success' => true,
             'data' => $conversations,
         ], 200);
     }
-
+    
     public function markAsRead($id, Request $request)
     {
         $user = $this->getAuthenticatedUser($request);
@@ -146,7 +154,7 @@ class MessageController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
 
         $message = Message::findOrFail($id);
-        if ($message->receiver_id !== $user->id) {
+        if ((string) $message->receiver_id !== (string) $user->id) {
             return response()->json(['error' => 'Tidak punya akses untuk mengubah status pesan ini'], 403);
         }
 
@@ -166,7 +174,7 @@ class MessageController extends Controller
 
         $message = Message::findOrFail($id);
 
-        if ($message->sender_id !== $user->id) {
+        if ((string) $message->sender_id !== (string) $user->id) {
             return response()->json(['error' => 'Tidak punya izin untuk menghapus pesan ini'], 403);
         }
 
@@ -186,7 +194,7 @@ class MessageController extends Controller
     }
 
     public function getImageData($messageId, Request $request)
-    {
+{
     if (!$this->getAuthenticatedUser($request)) {
         return response()->json(['error' => 'Unauthorized'], 401);
     }
