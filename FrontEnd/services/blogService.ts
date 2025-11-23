@@ -13,7 +13,7 @@ interface ApiErrorResponse {
 }
 
 const getHeaders = (): HeadersInit => ({
-  Accept: "application/json",
+  Accept: "application/json", 
 });
 
 export const addBlog = async (
