@@ -74,7 +74,9 @@ class AuthController extends Controller
         $isRemember = $request->boolean('remember');
         // Jika Remember: 30 Hari (60 menit * 24 jam * 30 hari)
         // Jika Tidak: 1 Hari (60 menit * 24 jam) atau sesuaikan kebutuhan
-        $cookieDuration = $isRemember ? (60 * 24 * 30) : (60 * 24);
+        $isRemember = filter_var($request->remember, FILTER_VALIDATE_BOOLEAN);
+        $cookieDuration = $isRemember ? 60*24*30 : 60*24;
+
         // $cookie = cookie(
         //     'authToken',
         //     $token,
