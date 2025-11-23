@@ -45,10 +45,11 @@ const LoginPage: React.FC = () => {
 
       await MySwal.fire({
         icon: "success",
-        title: "Berhasil masuk 🎉",
+        title: "Berhasil masuk",
         text: `Selamat datang kembali, ${res.user?.name || "User"}!`,
         showConfirmButton: false,
-        timer: 2000,
+        timer: 5000,
+        timerProgressBar: true, 
         background: "#fff",
       });
 
@@ -60,7 +61,7 @@ const LoginPage: React.FC = () => {
     } catch (error: any) {
       await MySwal.fire({
         icon: "error",
-        title: "Login gagal ❌",
+        title: "Login gagal",
         text: error.message || "Terjadi kesalahan, silakan coba lagi.",
         confirmButtonColor: "#d33",
         confirmButtonText: "OK",

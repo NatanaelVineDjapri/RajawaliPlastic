@@ -67,10 +67,10 @@ const RegisterPage: React.FC = () => {
 
       MySwal.fire({
         icon: "success",
-        title: "Registrasi Berhasil 🎉",
+        title: "Registrasi Berhasil ",
         text: "Akun dibuat. Mengalihkan ke halaman login...", // Teks diubah
         
-        timer: 2000, 
+        timer: 5000, 
         timerProgressBar: true, 
         showConfirmButton: false, 
         
