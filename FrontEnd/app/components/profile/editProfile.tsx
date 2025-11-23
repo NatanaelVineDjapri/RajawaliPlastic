@@ -32,7 +32,7 @@ const EditProfile: React.FC = () => {
         setAddress(user.address || "");
         setPhone(user.phone_number || "");
       } catch (err: any) {
-        MySwal.fire("Error", err.message || "Failed fetching profile", "error");
+        MySwal.fire("Error", "GAGAL MELAKUKAN UPDATE PROFILE, TOLONG ISI FORM DENGAN BENAR!");
       } finally {
         setLoading(false);
       }

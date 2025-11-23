@@ -1,7 +1,7 @@
 import React from "react";
 
 const ChatUserSkeleton: React.FC = () => {
-  const dummyChats = [1, 2, 3, 4, 5,6,7,8,];
+  const dummyChats = [1, 2, 3, 4, 5,6,7,];
 
   const shimmerStyle: React.CSSProperties = {
     background: "#f6f7f8",

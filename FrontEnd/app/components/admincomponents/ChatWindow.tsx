@@ -5,12 +5,10 @@ import {
   FaPaperPlane,
   FaArrowLeft,
   FaUserCircle,
-  FaPaperclip,
 } from "react-icons/fa";
 import {
   fetchMessages,
   sendMessage,
-  fetchMessageImage,
   MessageData,
 } from "@/services/messageService";
 import "@/utils/echo";
@@ -30,7 +28,6 @@ interface UIMessage {
   from: "admin" | "customer";
   timestamp?: number;
   isTemp?: boolean;
-  imageUrl?: string;
 }
 
 const formatMessageForUI = (msg: MessageData, adminId: string): UIMessage => ({
@@ -38,9 +35,6 @@ const formatMessageForUI = (msg: MessageData, adminId: string): UIMessage => ({
   text: msg.message,
   from: msg.sender_id === adminId ? "admin" : "customer",
   timestamp: msg.created_at ? new Date(msg.created_at).getTime() : Date.now(),
-  imageUrl: (msg as any).image_base64
-    ? `data:image/jpeg;base64,${(msg as any).image_base64}`
-    : undefined,
 });
 
 const ChatWindow: React.FC<ChatWindowProps> = ({
@@ -53,7 +47,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [messages, setMessages] = useState<UIMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoadingMessages, setIsLoadingMessages] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const receiverId = activeContact?.userId;
   const [fetchError, setFetchError] = useState<string | null>(null);
@@ -81,7 +74,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         );
         setMessages(formatted);
         scrollToBottom();
-      } catch (error) {
+      } catch {
         setFetchError("Gagal memuat histori chat. Cek koneksi API.");
       } finally {
         setIsLoadingMessages(false);
@@ -95,12 +88,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   }, [receiverId, loadMessages]);
 
   useEffect(() => {
-    if (
-      !receiverId ||
-      !ADMIN_ID ||
-      typeof window === "undefined" ||
-      !window.Echo
-    )
+    if (!receiverId || !ADMIN_ID || typeof window === "undefined" || !window.Echo)
       return;
 
     const channel = `chat.${ADMIN_ID}`;
@@ -110,56 +98,16 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       ".MessageSent",
       (event: { message: MessageData }) => {
         const newMsg = event.message;
-        const messageId = (newMsg as any).id || newMsg._id;
 
         if (
           newMsg.sender_id === receiverId &&
           newMsg.receiver_id === ADMIN_ID
         ) {
-          const isImageMessage =
-            (!newMsg.message || newMsg.message.trim() === "") && messageId;
-
-          const placeholderMsg: UIMessage = {
-            id: messageId,
-            text: isImageMessage ? "[Menerima gambar...]" : newMsg.message,
-            from: "customer",
-            timestamp: Date.now(),
-            isTemp: isImageMessage,
-          };
+          const uiMsg = formatMessageForUI(newMsg, ADMIN_ID);
 
           setMessages((prev) =>
-            prev.some((m) => m.id === messageId)
-              ? prev
-              : [...prev, placeholderMsg]
+            prev.some((m) => m.id === uiMsg.id) ? prev : [...prev, uiMsg]
           );
-
-          if (isImageMessage) {
-            fetchMessageImage(messageId)
-              .then((base64Image) => {
-                const imageUrl = `data:image/jpeg;base64,${base64Image}`;
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === messageId
-                      ? {
-                          ...m,
-                          imageUrl,
-                          isTemp: false,
-                          text: newMsg.message || "",
-                        }
-                      : m
-                  )
-                );
-              })
-              .catch(() => {
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === messageId
-                      ? { ...m, text: "[Gagal memuat gambar]", isTemp: false }
-                      : m
-                  )
-                );
-              });
-          }
 
           setContacts((prev) =>
             prev.map((c) =>
@@ -175,29 +123,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     return () => window.Echo?.leave(channel);
   }, [receiverId, ADMIN_ID, setContacts]);
 
-  const handleImageClick = () => {
-    if (!receiverId) return;
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleSend(file);
-    e.target.value = "";
-  };
-
-  const handleSend = async (fileToSend: File | null = null) => {
-    const isSendingImage = !!fileToSend;
+  const handleSend = async () => {
     const text = input.trim();
-
-    if ((!text && !isSendingImage) || !receiverId) return;
+    if (!text || !receiverId) return;
 
     const tempId = `temp-${Date.now()}`;
     const tempMsg: UIMessage = {
       id: tempId,
-      text:
-        text ||
-        (isSendingImage ? `[Mengirim gambar: ${fileToSend?.name}]` : ""),
+      text,
       from: "admin",
       isTemp: true,
       timestamp: Date.now(),
@@ -208,29 +141,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     scrollToBottom();
 
     try {
-      let sent: MessageData;
-
-      if (isSendingImage) {
-        const formData = new FormData();
-        formData.append("image", fileToSend!);
-        formData.append("receiver_id", receiverId);
-        formData.append("message", text);
-
-        const res = await fetch("https://rajawaliplastic.onrender.com/api/rs/messages", {
-          method: "POST",
-          body: formData,
-          credentials: "include",
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Upload failed");
-        sent = data.data;
-        if (text) setInput("");
-      } else {
-        sent = await sendMessage(receiverId, text);
-      }
-
+      const sent = await sendMessage(receiverId, text);
       const uiMsg = formatMessageForUI(sent, ADMIN_ID);
+
       setMessages((prev) => prev.map((m) => (m.id === tempId ? uiMsg : m)));
 
       setContacts((prev) =>
@@ -257,14 +170,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <div className="d-flex flex-column h-100">
-      <input
-        type="file"
-        ref={fileInputRef}
-        accept="image/*"
-        onChange={handleFileChange}
-        style={{ display: "none" }}
-      />
-
       <div className="bg-light p-3 border-bottom d-flex align-items-center flex-shrink-0">
         {isMobile && (
           <FaArrowLeft
@@ -320,27 +225,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
                         opacity: msg.isTemp ? 0.6 : 1,
                       }}
                     >
-                      {msg.imageUrl && (
-                        <img
-                          src={msg.imageUrl}
-                          alt="Media"
-                          style={{
-                            maxWidth: "100%",
-                            maxHeight: "250px",
-                            width: "auto",
-                            height: "auto",
-                            objectFit: "contain",
-                            borderRadius: "8px",
-                            marginBottom: msg.text.trim() ? "8px" : "0",
-                          }}
-                        />
-                      )}
-
-                      {msg.text && msg.text.trim() !== "" && (
-                        <div className={msg.imageUrl ? "mt-1" : ""}>
-                          {msg.text}
-                        </div>
-                      )}
+                      <div>{msg.text}</div>
 
                       <div
                         className="text-end mt-1"
@@ -361,15 +246,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
       </div>
 
       <div className="p-3 border-top d-flex flex-shrink-0 bg-white">
-        <button
-          className="btn btn-secondary me-2"
-          onClick={handleImageClick}
-          title="Upload Gambar"
-          disabled={isLoadingMessages || !activeContact}
-        >
-          <FaPaperclip />
-        </button>
-
         <input
           type="text"
           className="form-control me-2"
@@ -382,7 +258,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
         <button
           className="btn btn-primary"
-          onClick={() => handleSend()}
+          onClick={handleSend}
           disabled={!input.trim() || isLoadingMessages || !activeContact}
         >
           <FaPaperPlane />
