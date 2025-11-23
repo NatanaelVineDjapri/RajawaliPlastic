@@ -108,82 +108,72 @@ const Profile: React.FC = () => {
     );
   }
 
-  return (
-    <div style={backgroundStyle} className="d-flex justify-content-center align-items-center">
-      
+   return (
+    <div className="profile-page d-flex justify-content-center align-items-center vh-100">
       <div
-        className="profile-container d-flex justify-content-center align-items-center rounded-4 shadow-lg bg-white bg-opacity-90"
-        style={{ 
-          marginTop: "80px", 
-          padding: "40px",
-          maxWidth: "600px",
-          width: "90%"
-        }}
+        className="profile-container d-flex justify-content-center align-items-center"
+        style={{ marginTop: "100px" }}
       >
-        <div className="profile-inner text-center w-100">
-          {/* Avatar Section */}
-          <div className="mb-4">
+        {" "}
+        <div className="profile-inner text-center">
+          <div className="mb-3">
             <div
-              className="profile-avatar rounded-circle mx-auto overflow-hidden position-relative border border-4 border-light shadow-sm"
-              style={{ width: 120, height: 120 }}
+              className="profile-avatar rounded-circle mx-auto overflow-hidden position-relative"
+              style={{ width: 100, height: 100 }}
             >
               <Image
-                src="/images/pfp.jpg"
+                src="/images/pfp.jpg" 
                 alt="Profile Picture"
-                fill
-                style={{ objectFit: "cover" }}
+                fill 
+                style={{ objectFit: "cover" }} 
               />
             </div>
           </div>
 
           <div className="text-start mb-4">
-            <div className="mb-3">
-              <label className="form-label fw-bold text-secondary small">NAMA LENGKAP</label>
-              <input
-                type="text"
-                className="form-control form-control-lg bg-light"
-                value={user.name}
-                readOnly
-              />
-            </div>
+            <label className="form-label fw-semibold text-muted">
+              Nama Lengkap
+            </label>
+            <input
+              type="text"
+              className="form-control mb-3"
+              value={user.name}
+              readOnly
+            />
 
-            <div className="mb-3">
-              <label className="form-label fw-bold text-secondary small">EMAIL</label>
-              <input
-                type="email"
-                className="form-control form-control-lg bg-light"
-                value={user.email}
-                readOnly
-              />
-            </div>
+            <label className="form-label fw-semibold text-muted">Email</label>
+            <input
+              type="email"
+              className="form-control mb-3"
+              value={user.email}
+              readOnly
+            />
 
-            <div className="mb-3">
-              <label className="form-label fw-bold text-secondary small">ALAMAT</label>
-              <input
-                type="text"
-                className="form-control form-control-lg bg-light"
-                value={user.address || "-"}
-                readOnly
-              />
-            </div>
+            <label className="form-label fw-semibold text-muted">Alamat</label>
+            <input
+              type="text"
+              className="form-control mb-3"
+              value={user.address || "-"}
+              readOnly
+            />
 
-            <div className="mb-3">
-              <label className="form-label fw-bold text-secondary small">NO. TELP</label>
-              <input
-                type="text"
-                className="form-control form-control-lg bg-light"
-                value={user.phone_number || "-"}
-                readOnly
-              />
-            </div>
+            <label className="form-label fw-semibold text-muted">
+              No. Telp
+            </label>
+            <input
+              type="text"
+              className="form-control"
+              value={user.phone_number || "-"}
+              readOnly
+            />
           </div>
 
           <div className="d-flex justify-content-center gap-3">
-            <Link href="/edit-profile" className="btn btn-primary px-4 py-2 fw-semibold">
+            <Link href="/edit-profile" className="btn profile-btn">
               Ubah Informasi
             </Link>
 
-            <button onClick={handleLogout} className="btn btn-outline-danger px-4 py-2 fw-semibold">
+            <button onClick={handleLogout} className="btn profile-btn">
               Log Out
             </button>
           </div>
