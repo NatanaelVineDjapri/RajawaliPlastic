@@ -15,11 +15,15 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'broadcasting/auth'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000'],
+    'allowed_origins' => [
+        'http://localhost:3000',
+        'https://rajawali-plastic.vercel.app', 
+        'https://rajawaliplastic.onrender.com',
+    ],
 
     'allowed_origins_patterns' => [],
 

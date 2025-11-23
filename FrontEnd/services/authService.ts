@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:8000/api/rs';
+// const API_URL = 'http://localhost:8000/api/rs';
+const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
 
 const getHeaders = (): HeadersInit => ({
   Accept: "application/json",
@@ -21,7 +22,8 @@ interface AuthResponse {
 
 export const getCsrfCookie = async () => {
   try {
-    await fetch('http://localhost:8000/sanctum/csrf-cookie', {
+    await fetch('https://rajawaliplastic.onrender.com/sanctum/csrf-cookie'
+, {
       credentials: 'include',
     });
   } catch (error) {
@@ -103,21 +105,21 @@ export const logout = async (): Promise<void> => {
   }
 };
 
-export const getProfile = async (): Promise<User> => {
-  const response = await fetch(`${API_URL}/profile`, {
-    method: 'GET',
-    credentials: 'include', 
-    headers: getHeaders(),
-  });
+  export const getProfile = async (): Promise<User> => {
+    const response = await fetch(`${API_URL}/profile`, {
+      method: 'GET',
+      credentials: 'include', 
+      headers: getHeaders(),
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Gagal ambil profile');
-  }
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Gagal ambil profile');
+    }
 
-  const data = await response.json();
-  return data.user;
-};
+    const data = await response.json();
+    return data.user;
+  };
 
 export const updateProfile = async (formData: FormData): Promise<User> => {
     formData.append('_method', 'PUT');

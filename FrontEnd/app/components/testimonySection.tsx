@@ -3,6 +3,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { Carousel } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+import TestimonySkeleton from "@/app/components/skeletons/SkeletonTestimony";
 
 import { getTestimonials } from "@/services/testimonialService";
 import { getPartners } from "@/services/partnerService";
@@ -31,11 +32,7 @@ export default function TestimonySection() {
   }, []);
 
   if (loading) {
-    return (
-      <section id="testimony" className="text-center py-5">
-        <p>Memuat testimoni...</p>
-      </section>
-    );
+      return <TestimonySkeleton />;
   }
 
   return (

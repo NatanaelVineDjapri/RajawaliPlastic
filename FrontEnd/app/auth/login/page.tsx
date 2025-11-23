@@ -17,14 +17,18 @@ const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    remember: false,
   });
 
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value, type, checked } = e.target;
+
     setFormData({
       ...formData,
       [e.target.id]: e.target.value,
+      [id]: type === "checkbox" ? checked : value,
     });
   };
 
@@ -36,6 +40,7 @@ const LoginPage: React.FC = () => {
       const res = await login({
         email: formData.email,
         password: formData.password,
+         remember: formData.remember,
       });
 
       await MySwal.fire({
@@ -135,10 +140,12 @@ const LoginPage: React.FC = () => {
 
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <div className="form-check">
-                    <input
+                      <input
                       className="form-check-input"
                       type="checkbox"
-                      id="rememberMe"
+                      id="remember" // ID harus sama dengan key di state ('remember')
+                      checked={formData.remember} // Gunakan checked untuk boolean
+                      onChange={handleChange}
                     />
                     <label
                       className="form-check-label small text-muted"

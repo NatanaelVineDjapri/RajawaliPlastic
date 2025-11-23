@@ -1,5 +1,5 @@
-// const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
-const API_URL = 'http://localhost:8000/api/rs';
+const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
+// const API_URL = 'http://localhost:8000/api/rs';
 
 interface ApiSuccessResponse {
   message: string;
@@ -43,7 +43,6 @@ export const addGallery = async (formData: FormData): Promise<ApiSuccessResponse
 export const getGalleries = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/galleries`, {
     method: 'GET',
-     credentials: 'include',
     headers: getHeaders(),
   });
 

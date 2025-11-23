@@ -1,122 +1,92 @@
-import Image from "next/image";
-import { Dot } from "lucide-react";
+"use client";
+import React from "react";
 
 interface ContactItemProps {
   username: string;
   lastMessage: string;
+  lastMessageTime?: string; // timestamp string
   isOnline: boolean;
   isSelected: boolean;
-  hasUnread: boolean;
+  hasUnread: boolean; // unread dari customer
+  avatarUrl: string;
   onClick: () => void;
+  notReplied?: boolean; // kalau admin blm bales
 }
 
-const AVATAR_SRC = "/images/avatarplaceholder.png";
-
-export default function ContactItem({
+const ContactItem: React.FC<ContactItemProps> = ({
   username,
   lastMessage,
+  lastMessageTime,
   isOnline,
   isSelected,
   hasUnread,
+  avatarUrl,
   onClick,
-}: ContactItemProps) {
-  const selectedClass = isSelected
-    ? "bg-info-subtle border-start border-3 border-info"
-    : "bg-white";
+  notReplied,
+}) => {
+  const dateObj = lastMessageTime ? new Date(lastMessageTime) : null;
+  const formattedDate = dateObj?.toLocaleDateString();
+  const formattedTime = dateObj?.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  const displayUsername = username.length > 10 ? username.slice(0, 10) + "..." : username;
 
   return (
     <div
-      className={`d-flex align-items-center gap-3 p-3 rounded-0 ${selectedClass}`}
-      style={{ cursor: "pointer", transition: "background-color 0.2s" }}
       onClick={onClick}
+      className={`d-flex align-items-center p-3 border-bottom hover-shadow cursor-pointer ${
+        isSelected ? "bg-light" : ""
+      }`}
     >
-      <div className="position-relative avatar-container">
-        <Image
-          src={AVATAR_SRC}
-          alt={`${username} Avatar`}
+      <div className="position-relative">
+        <img
+          src={avatarUrl || "/images/pfp.jpg"}
+          alt={username || "User Avatar"}
           width={40}
           height={40}
           className="rounded-circle object-fit-cover"
         />
+
         {isOnline && (
-          <Dot
-            size={20}
-            className="position-absolute bottom-0 end-0 bg-white rounded-circle p-0"
-            style={{ color: "#9c27b0" }}
-          />
+          <span
+            className="position-absolute bottom-0 end-0 rounded-circle border border-white"
+            style={{ width: 10, height: 10, backgroundColor: "green" }}
+          ></span>
         )}
       </div>
 
-      <div className="d-flex flex-column flex-grow-1 text-container">
-        <span className="fw-semibold text-dark username-text">{username}</span>
-        <span
-          className={`small text-muted text-truncate ${
-            hasUnread ? "fw-bold text-dark" : ""
-          }`}
-        >
-          {lastMessage}
-        </span>
-      </div>
-
-      {hasUnread && (
-        <div className="ms-auto">
-          <div
-            className="rounded-circle"
-            style={{
-              width: "8px",
-              height: "8px",
-              backgroundColor: "#9c27b0",
-            }}
-          ></div>
+      <div className="flex-grow-1 ms-2">
+        <div className="d-flex justify-content-between align-items-center">
+          <span className="fw-bold">{displayUsername}</span>
+          {lastMessageTime && (
+            <small className="text-muted ms-2" style={{ fontSize: "0.7rem" }}>
+              {formattedDate} {formattedTime}
+            </small>
+          )}
         </div>
-      )}
-
-      <style jsx>{`
-        .avatar-container {
-          flex-shrink: 0;
-        }
-
-        .text-container {
-          min-width: 0;
-        }
-
-        .username-text {
-          font-size: 0.95rem;
-        }
-
-        @media (max-width: 576px) {
-          .avatar-container :global(img) {
-            width: 32px !important;
-            height: 32px !important;
-          }
-          .text-container span {
-            font-size: 0.8rem !important;
-          }
-          .username-text {
-            font-size: 0.85rem !important;
-          }
-        }
-
-        @media (min-width: 577px) and (max-width: 991px) {
-          .avatar-container :global(img) {
-            width: 36px !important;
-            height: 36px !important;
-          }
-          .username-text {
-            font-size: 0.9rem !important;
-          }
-          .text-container span {
-            font-size: 0.85rem !important;
-          }
-        }
-
-        @media (min-width: 992px) {
-          .avatar-container :global(img) {
-            width: 40px !important;
-            height: 40px !important;
-          }
-        }
-      `}</style>
+        <div className="d-flex align-items-center">
+          <span
+            className="text-truncate me-2"
+            style={{ maxWidth: "150px", fontSize: "0.85rem" }}
+          >
+            {lastMessage}
+          </span>
+          {notReplied && (
+            <span
+              className="ms-auto"
+              style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                backgroundColor: "green",
+              }}
+            ></span>
+          )}
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default ContactItem;

@@ -1,6 +1,6 @@
-// const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
+const API_URL = 'https://rajawaliplastic.onrender.com/api/rs';
 
-const API_URL = "http://localhost:8000/api/rs";
+// const API_URL = "http://localhost:8000/api/rs";
 
 interface ApiSuccessResponse {
   message: string;
@@ -44,7 +44,6 @@ export const addBlog = async (
 export const getBlogs = async (): Promise<ApiSuccessResponse> => {
   const response = await fetch(`${API_URL}/blogs`, {
     method: "GET",
-    credentials: "include",
     headers: getHeaders(),
   });
 

@@ -14,7 +14,7 @@ const About: React.FC = () => {
         <div className="about-glass-card">
           <div className="about-image-wrapper">
             <Image
-              src="/images/About_Image.jpg"
+              src="/images/about_image.jpg"
               alt="Rajawali Plastik"
               width={600}
               height={400}

@@ -1,9 +1,10 @@
-'use client';
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { useParams } from 'next/navigation';
-import { Spinner, Alert } from 'react-bootstrap';
-import { getBlogsById } from '@/services/blogService';
+"use client";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import { Spinner, Alert } from "react-bootstrap";
+import { getBlogsById } from "@/services/blogService";
+import SkeletonBlogContent from "../skeletons/SkeletonBlogItem";
 
 interface BlogDetail {
   id: number;
@@ -15,14 +16,14 @@ interface BlogDetail {
 }
 
 const BlogContentText: React.FC = () => {
-  const { id } = useParams<{ id: string }>(); // ✅ ini aja ubahannya bro
+  const { id } = useParams<{ id: string }>(); 
   const [blog, setBlog] = useState<BlogDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) {
-      setError('Invalid blog ID.');
+      setError("Invalid blog ID.");
       setLoading(false);
       return;
     }
@@ -30,14 +31,14 @@ const BlogContentText: React.FC = () => {
     const fetchBlog = async () => {
       try {
         setLoading(true);
-        const res = await getBlogsById(id); // ✅ udah aman, gak merah lagi
+        const res = await getBlogsById(id); 
         const data = res?.data?.data ?? res?.data ?? res;
 
-        if (!data) throw new Error('Data blog tidak ditemukan.');
+        if (!data) throw new Error("Data blog tidak ditemukan.");
         setBlog(data);
       } catch (err: any) {
-        console.error('Fetch blog error:', err);
-        setError(err?.message || 'Gagal mengambil data blog.');
+        console.error("Fetch blog error:", err);
+        setError(err?.message || "Gagal mengambil data blog.");
       } finally {
         setLoading(false);
       }
@@ -47,15 +48,9 @@ const BlogContentText: React.FC = () => {
   }, [id]);
 
   if (loading) {
-    return (
-      <div className="text-center my-5">
-        <Spinner animation="border" variant="light" />
-        <p className="mt-2 text-light opacity-75">Loading blog...</p>
-      </div>
-    );
+    return <SkeletonBlogContent />;
   }
 
-  // ⚠️ error
   if (error) {
     return (
       <Alert variant="danger" className="text-center my-5">
@@ -64,24 +59,22 @@ const BlogContentText: React.FC = () => {
     );
   }
 
-  // 🚫 jika data kosong
   if (!blog) {
     return <p className="text-center text-white mt-5">Blog tidak ditemukan.</p>;
   }
 
-  // ✅ tampilkan konten
   return (
     <section className="content-blog-section py-5">
-      <div className="container text-white" style={{ maxWidth: '720px' }}>
+      <div className="container text-white" style={{ maxWidth: "720px" }}>
         <h1 className="text-center fw-bold mb-1">{blog.title}</h1>
 
         {blog.created_at && (
           <p className="text-center text-light opacity-75 mb-4">
-            {new Date(blog.created_at).toLocaleDateString('id-ID', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+            {new Date(blog.created_at).toLocaleDateString("id-ID", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
         )}
@@ -94,7 +87,7 @@ const BlogContentText: React.FC = () => {
               width={800}
               height={450}
               className="rounded"
-              style={{ objectFit: 'cover' }}
+              style={{ objectFit: "cover" }}
               priority
             />
           </div>
@@ -107,7 +100,7 @@ const BlogContentText: React.FC = () => {
           />
         ) : (
           <p className="text-justify">
-            {blog.description || 'Tidak ada konten yang tersedia.'}
+            {blog.description || "Tidak ada konten yang tersedia."}
           </p>
         )}
       </div>
