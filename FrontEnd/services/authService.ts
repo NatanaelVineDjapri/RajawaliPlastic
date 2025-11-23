@@ -22,7 +22,7 @@ interface AuthResponse {
 
 export const getCsrfCookie = async () => {
   try {
-    await fetch('https://rajawaliplastic.onrender.com/api/rs'
+    await fetch('https://rajawaliplastic.onrender.com/sanctum/csrf-cookie'
 , {
       credentials: 'include',
     });

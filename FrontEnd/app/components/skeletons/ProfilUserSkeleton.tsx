@@ -1,6 +1,6 @@
 import React from "react";
 
-const ChatUserSkeleton: React.FC = () => {
+const ProfileUserSkeleton: React.FC = () => {
   const dummyChats = [1, 2, 3, 4, 5,6,7,8,];
 
   const shimmerStyle: React.CSSProperties = {
@@ -27,35 +27,6 @@ const ChatUserSkeleton: React.FC = () => {
 
       <div className="chat-box" style={{ height: "100%", pointerEvents: "none" }}>
         <div className="chat-inner">
-            
-          <div className="chat-messages" style={{ overflow: "hidden" }}>
-            {dummyChats.map((i) => {
-              const isUser = i % 2 === 0; 
-              return (
-                <div
-                  key={i}
-                  className={`message-row ${isUser ? "from-user" : "from-bot"}`}
-                >
-                  <div
-                    className={`message-bubble ${isUser ? "from-user" : "from-bot"}`}
-                    style={{
-                      width: isUser ? "120px" : "180px",
-                      height: "45px",
-                      padding: 0, 
-                      overflow: "hidden",
-                      opacity: 0.8,
-                      border: "none",
-                      boxShadow: "none",
-                      backgroundColor: "transparent", 
-                    }}
-                  >
-                    <div style={{ ...shimmerStyle, borderRadius: "12px" }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
           <div className="chat-input" style={{ opacity: 0.6, paddingTop:"20px"}}>
             <div style={{ width: "24px", height: "24px", margin: "0 10px" }}>
               <div style={{ ...shimmerStyle, borderRadius: "50%" }} />
@@ -73,7 +44,6 @@ const ChatUserSkeleton: React.FC = () => {
               <div style={{ ...shimmerStyle }} />
             </div>
 
-            {/* Tombol Send */}
             <div style={{ width: "30px", height: "30px", marginLeft: "10px" }}>
               <div style={{ ...shimmerStyle, borderRadius: "50%" }} />
             </div>
@@ -84,4 +54,4 @@ const ChatUserSkeleton: React.FC = () => {
   );
 };
 
-export default ChatUserSkeleton;
+export default ProfileUserSkeleton;

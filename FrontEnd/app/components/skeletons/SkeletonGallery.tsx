@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React from "react";
 import { Row, Col, Placeholder } from "react-bootstrap";
 
@@ -23,17 +23,16 @@ const SkeletonGallery: React.FC = () => {
               overflow: "hidden",
             }}
           >
-           <Placeholder
-  as="div"
-  animation="wave"
-  className="placeholder bg-secondary"
-  style={{
-    width: "100%",
-    height: "100%",
-    borderRadius: "8px",
-  }}
-/>
-
+            <Placeholder
+              as="div"
+              animation="wave"
+              className="placeholder bg-secondary"
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "8px",
+              }}
+            />
           </div>
         </Col>
       ))}
