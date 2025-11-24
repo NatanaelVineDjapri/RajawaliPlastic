@@ -53,12 +53,18 @@ const OrderRow: React.FC<{ order: Order }> = ({ order }) => {
     }).format(Number(price) || 0);
 
   return (
-    <div className={`card mb-3 shadow-sm ${isExpanded ? "bg-light border-primary" : "border-0"}`}>
+    <div
+      className={`card mb-3 shadow-sm ${
+        isExpanded ? "bg-light border-primary" : "border-0"
+      }`}
+    >
       <div className="card-body p-3">
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             <button
-              className={`btn btn-sm ${isExpanded ? "btn-primary" : "btn-outline-primary"} me-3 p-1`}
+              className={`btn btn-sm ${
+                isExpanded ? "btn-primary" : "btn-outline-primary"
+              } me-3 p-1`}
               onClick={() => setIsExpanded(!isExpanded)}
               style={{ width: "30px", height: "30px" }}
             >
@@ -88,7 +94,10 @@ const OrderRow: React.FC<{ order: Order }> = ({ order }) => {
               </small>
             </div>
 
-            <Link href={`/dashboard/orders/edit/${order.id}`} className="btn btn-outline-secondary">
+            <Link
+              href={`/dashboard/orders/edit/${order.id}`}
+              className="btn btn-outline-secondary"
+            >
               <Edit3 size={16} className="me-1" /> Edit
             </Link>
           </div>
@@ -99,7 +108,9 @@ const OrderRow: React.FC<{ order: Order }> = ({ order }) => {
             <div className="row g-3">
               <div className="col-md-4">
                 <h6 className="fw-bold mb-2">Product Details</h6>
-                <p className="small text-muted mb-1">Address: {order.address || "N/A"}</p>
+                <p className="small text-muted mb-1">
+                  Address: {order.address || "N/A"}
+                </p>
 
                 <ul className="small mb-0 p-2 border rounded bg-white list-unstyled">
                   {order.products?.length ? (
@@ -134,7 +145,9 @@ const OrderRow: React.FC<{ order: Order }> = ({ order }) => {
 export default function OrderListPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [sortType, setSortType] = useState<"none" | "payment" | "delivery">("none");
+  const [sortType, setSortType] = useState<"none" | "payment" | "delivery">(
+    "none"
+  );
   const [filterPayment, setFilterPayment] = useState("all");
   const [filterDelivery, setFilterDelivery] = useState("all");
 
@@ -175,59 +188,75 @@ export default function OrderListPage() {
   }
 
   if (filterDelivery !== "all") {
-    finalOrders = finalOrders.filter((o) => o.status_delivery === filterDelivery);
+    finalOrders = finalOrders.filter(
+      (o) => o.status_delivery === filterDelivery
+    );
   }
 
   if (filterPayment === "all" && filterDelivery === "all") {
     if (sortType === "payment") {
-      finalOrders.sort((a, b) => (a.status_payment || "").localeCompare(b.status_payment || ""));
+      finalOrders.sort((a, b) =>
+        (a.status_payment || "").localeCompare(b.status_payment || "")
+      );
     }
     if (sortType === "delivery") {
-      finalOrders.sort((a, b) => (a.status_delivery || "").localeCompare(b.status_delivery || ""));
+      finalOrders.sort((a, b) =>
+        (a.status_delivery || "").localeCompare(b.status_delivery || "")
+      );
     }
   }
 
   return (
     <div className="w-100">
-      <PageHeader title="Order List" breadcrumbs={[{ label: "Dashboard", href: "/dashboard" }, { label: "Order List" }]} />
+      <PageHeader
+        title="Order List"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Order List" },
+        ]}
+      />
 
-      <div className="d-flex gap-3 mb-4 justify-content-end">
+      <div className="row g-2 mb-4">
+        <div className="col-12 col-sm-4 col-md-3">
+          <select
+            className="form-select"
+            value={sortType}
+            disabled={filterPayment !== "all" || filterDelivery !== "all"}
+            onChange={(e) => setSortType(e.target.value as any)}
+          >
+            <option value="none">Sort: Default</option>
+            <option value="payment">Sort by Payment</option>
+            <option value="delivery">Sort by Delivery</option>
+          </select>
+        </div>
 
-        <select
-          className="form-select w-auto"
-          value={sortType}
-          disabled={filterPayment !== "all" || filterDelivery !== "all"}
-          onChange={(e) => setSortType(e.target.value as any)}
-        >
-          <option value="none">Sort: Default</option>
-          <option value="payment">Sort by Payment</option>
-          <option value="delivery">Sort by Delivery</option>
-        </select>
+        <div className="col-12 col-sm-4 col-md-3">
+          <select
+            className="form-select"
+            value={filterPayment}
+            onChange={(e) => setFilterPayment(e.target.value)}
+          >
+            <option value="all">Payment: All</option>
+            <option value="paid">Paid</option>
+            <option value="pending">Pending</option>
+            <option value="failed">Failed</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+        </div>
 
-        <select
-          className="form-select w-auto"
-          value={filterPayment}
-          onChange={(e) => setFilterPayment(e.target.value)}
-        >
-          <option value="all">Payment: All</option>
-          <option value="paid">Paid</option>
-          <option value="pending">Pending</option>
-          <option value="failed">Failed</option>
-          <option value="unpaid">Unpaid</option>
-        </select>
-
-        <select
-          className="form-select w-auto"
-          value={filterDelivery}
-          onChange={(e) => setFilterDelivery(e.target.value)}
-        >
-          <option value="all">Delivery: All</option>
-          <option value="pending">Pending</option>
-          <option value="proses">Processing</option>
-          <option value="kirim">Shipped</option>
-          <option value="selesai">Completed</option>
-        </select>
-
+        <div className="col-12 col-sm-4 col-md-3">
+          <select
+            className="form-select"
+            value={filterDelivery}
+            onChange={(e) => setFilterDelivery(e.target.value)}
+          >
+            <option value="all">Delivery: All</option>
+            <option value="pending">Pending</option>
+            <option value="proses">Processing</option>
+            <option value="kirim">Shipped</option>
+            <option value="selesai">Completed</option>
+          </select>
+        </div>
       </div>
 
       {isLoading ? (
