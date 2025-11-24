@@ -68,7 +68,7 @@ export default function CreateGalleryPage() {
         URL.revokeObjectURL(previewImage);
         setPreviewImage(null);
       }
-      // router.push("/dashboard/gallery");
+      router.push("/dashboard/gallery");
     } catch (error) {
       let msg = "An unknown error occurred.";
       if (error instanceof Error) msg = error.message;

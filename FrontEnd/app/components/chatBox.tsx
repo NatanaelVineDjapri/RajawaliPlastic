@@ -129,9 +129,6 @@ const ChatBox: React.FC = () => {
     }
   }, [isLoading, currentUser, router]);
 
-  /* ============================================================
-      REALTIME LISTENER
-      ============================================================ */
 
   useEffect(() => {
     if (!currentUserId) return;
@@ -153,10 +150,6 @@ const ChatBox: React.FC = () => {
     };
   }, [currentUserId]);
 
-  /* ============================================================
-      LOAD DATA
-      ============================================================ */
-
   useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
@@ -177,10 +170,6 @@ const ChatBox: React.FC = () => {
     };
     loadData();
   }, []);
-
-  /* ============================================================
-      SEND MESSAGE
-      ============================================================ */
 
   const handleSend = async () => {
     const text = input.trim();
@@ -219,10 +208,6 @@ const ChatBox: React.FC = () => {
 
   const grouped = groupMessagesByDate(messages);
 
-  /* ============================================================
-      RENDER
-      ============================================================ */
-
   return (
     <div className="chat-box">
       {authError && (
@@ -232,13 +217,11 @@ const ChatBox: React.FC = () => {
       <div className="chat-inner">
         <div className="chat-messages">
           {Object.entries(grouped)
-            // sort date ascending
             .sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
             .map(([key, msgs]) => (
               <div key={key}>
-                {/* DATE HEADER */}
                 <div className="d-flex justify-content-center my-2">
-                  <span className="badge bg-white text-dark px-3 py-2">
+                  <span className="badge bg-white text-dark px-3 py-2 m-3">
                     {formatDateHeader(msgs[0].createdAtRaw)}
                   </span>
                 </div>
@@ -251,7 +234,7 @@ const ChatBox: React.FC = () => {
                   )
                   .map((msg) => (
                     <div
-                      key={`${msg.id}-${msg.createdAtRaw}`} // ← FIX
+                      key={`${msg.id}-${msg.createdAtRaw}`}
                       className={`message-row ${
                         msg.from === "user" ? "from-user" : "from-bot"
                       }`}
