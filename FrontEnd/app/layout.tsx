@@ -26,11 +26,11 @@ export default function RootLayout({
   const pathname = usePathname();
   const isAuthPage = pathname.startsWith("/auth");
   const isAdminPage = pathname.startsWith("/dashboard");
-
+  const isSystemPage = pathname === "/404" || pathname === "/not-found" ||pathname === "/500" || pathname === "/error";
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        {!isAuthPage && !isAdminPage && (
+        {!isAuthPage && !isAdminPage &&  !isSystemPage &&(
           <>
             <Navbar />
             <MobileNavbar />
