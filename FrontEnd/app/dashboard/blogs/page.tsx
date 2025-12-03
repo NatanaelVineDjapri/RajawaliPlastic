@@ -88,8 +88,9 @@ export default function BlogsPage() {
     <div className="w-100 position-relative">
       <PageHeader title={pageTitle} breadcrumbs={breadcrumbs} />
 
-      {isLoading && <UniversalCardSkeleton count={6} imageHeight="200px" actions={3}/>}
-      
+      {isLoading && (
+        <UniversalCardSkeleton count={6} imageHeight="200px" actions={3} />
+      )}
 
       {!isLoading && blogs.length === 0 && (
         <div className="text-center p-5 bg-white rounded-3 shadow-sm">
@@ -151,7 +152,7 @@ export default function BlogsPage() {
                     </button>
 
                     <Link
-                      href={`/blog/${b.slug}`}
+                      href={`https://rajawali-plastic.vercel.app/blogcontent/${b.id}`}
                       className="btn btn-sm btn-outline-secondary flex-fill rounded-3 d-flex align-items-center justify-content-center gap-1"
                       target="_blank"
                     >
