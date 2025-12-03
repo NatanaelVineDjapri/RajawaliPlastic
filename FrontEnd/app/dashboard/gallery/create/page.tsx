@@ -57,7 +57,7 @@ export default function CreateGalleryPage() {
       const result = await addGallery(formData);
       MySwal.fire({
         title: "Success!",
-        text: result.message,
+        text: "Blog post added successfully!",
         icon: "success",
         confirmButtonColor: "#0d6efd",
       });

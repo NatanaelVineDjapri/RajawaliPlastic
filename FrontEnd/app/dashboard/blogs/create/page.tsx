@@ -56,7 +56,7 @@ export default function CreateBlogPage() {
       const result = await addBlog(formData);
       MySwal.fire({
         title: "Success!",
-        text: result.message || "Blog post added successfully!",
+        text: "Blog post added successfully!",
         icon: "success",
         confirmButtonColor: "#0d6efd",
       });

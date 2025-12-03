@@ -100,7 +100,7 @@ export default function EditBlogPage() {
       const res = await updateBlog(blog.id!, formData);
       MySwal.fire({
         title: "Success!",
-        text: res.message || "Blog updated successfully!",
+        text: "Blog updated successfully!",
         icon: "success",
         confirmButtonColor: "#0d6efd",
       });

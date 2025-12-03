@@ -71,7 +71,7 @@ export default function SliderManagementPage() {
 
     try {
       const result = await addSlider(formData);
-      MySwal.fire({ title: "Success!", text: result.message, icon: "success", confirmButtonColor: "#0d6efd" });
+      MySwal.fire({ title: "Success!", text: "Hero post added successfully", icon: "success", confirmButtonColor: "#0d6efd" });
       setSliderImage(null);
       if (previewImage) { URL.revokeObjectURL(previewImage); setPreviewImage(null); }
       fetchSliders();
