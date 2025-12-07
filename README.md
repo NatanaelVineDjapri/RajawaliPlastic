@@ -18,6 +18,7 @@
 | 4  | Devin Giovano            | 535240057 | 
 | 5  | Edbert Halim             | 535240059 | 
 
+## ⚙️ Installation & Setup Guide
 ### 🔧 Step 1 — Clone the Repository
 ```bash
 # Clone the full project (Frontend + Backend)
@@ -70,4 +71,5 @@ npm run dev
 
 # After successfully running, open the application in the browser
 http://localhost:3000
+
 
