@@ -57,3 +57,16 @@ php artisan migrate --seed
 php artisan serve
 
 ```
+ ### 📱 Step 3 — Setup Frontend (Flutter)
+```bash
+# Navigate to the frontend folder
+cd FrontEnd
+
+# Install Next.js dependencies
+npm install
+
+# Run Development Server
+npm run dev
+
+# After successfully running, open the application in the browser
+http://localhost:3000
