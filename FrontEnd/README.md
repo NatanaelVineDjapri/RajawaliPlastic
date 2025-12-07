@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🦅 Rajawali Plastic
 
-## Getting Started
+**RajawaliPlastic** is a growing SME focused on distributing high-quality plastic products across various industries. To modernize operations and improve efficiency, the company has adopted a digital platform called DigiHubt, which streamlines inventory management, sales tracking, and overall distribution processes.
+> 🧩 Designed to be scalable, modular, and easily extendable for future development.
 
-First, run the development server:
+---
+![Laravel](https://img.shields.io/badge/laravel-E34F26?style=for-the-badge&logo=laravel&logoColor=white)
+![Next.js](https://img.shields.io/badge/nextjs-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![MongoDB](https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 
+## 👨‍💻 Team Members
+
+| No | Name                     | NIM       |
+|----|--------------------------|-----------|
+| 1  | Claudio Taffarel Santoso | 535240035 | 
+| 2  | Natanael Vine Djapri | 535240042 | 
+| 3  | Ryan Prasetya Arjuna A.  | 535240043 | 
+| 4  | Devin Giovano            | 535240057 | 
+| 5  | Edbert Halim             | 535240059 | 
+
+## ⚙️ Installation & Setup Guide
+### 🔧 Step 1 — Clone the Repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the full project (Frontend + Backend)
+git clone https://github.com/NatanaelVineDjapri/RajawaliPlastic.git
+
+# Enter the main project directory
+cd RajawaliPlastic
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 🧱 Step 2 — Setup Backend (Laravel)
+```bash
+# Navigate to the backend folder
+cd BackEnd
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# Install Laravel dependencies
+composer install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Copy the environment file
+cp .env.example .env
 
-## Learn More
+# Generate the application key
+php artisan key:generate
 
-To learn more about Next.js, take a look at the following resources:
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 🛠️ Edit file .env
+```bash
+DB_DATABASE=Rajawali_Plastic
+DB_USERNAME=root
+DB_PASSWORD=
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Run database migrations and seeders
+php artisan migrate --seed
 
-## Deploy on Vercel
+# Start the Laravel development server
+php artisan serve
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+ ### 📱 Step 3 — Setup Frontend (Next.js)
+```bash
+# Navigate to the frontend folder
+cd FrontEnd
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Install Next.js dependencies
+npm install
+
+# Run Development Server
+npm run dev
+
+# After successfully running, open the application in the browser
+http://localhost:3000
+
