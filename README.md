@@ -17,3 +17,43 @@
 | 3  | Ryan Prasetya Arjuna A.  | 535240043 | 
 | 4  | Devin Giovano            | 535240057 | 
 | 5  | Edbert Halim             | 535240059 | 
+
+### 🔧 Step 1 — Clone the Repository
+```bash
+# Clone the full project (Frontend + Backend)
+git clone https://github.com/NatanaelVineDjapri/RajawaliPlastic.git
+
+# Enter the main project directory
+cd RajawaliPlastic
+
+```
+
+### 🧱 Step 2 — Setup Backend (Laravel)
+```bash
+# Navigate to the backend folder
+cd BackEnd
+
+# Install Laravel dependencies
+composer install
+
+# Copy the environment file
+cp .env.example .env
+
+# Generate the application key
+php artisan key:generate
+
+```
+
+### 🛠️ Edit file .env
+```bash
+DB_DATABASE=Rajawali_Plastic
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Run database migrations and seeders
+php artisan migrate --seed
+
+# Start the Laravel development server
+php artisan serve
+
+```
